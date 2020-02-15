@@ -45,11 +45,18 @@ extern struct profile{
 
     vector<string> files;
 
+    string modengineConfig;
+
+    string profileFolder;
+
 };
 
 extern vector<profile> profiles;
 
 extern vector<mod> mods;
+
+
+extern short isProfileDone;
 
 
 extern string trueModPath;
@@ -108,6 +115,10 @@ private slots:
     void on_changeSekDir_clicked();
 
     void on_addProfile_clicked();
+
+    void on_installProfile_clicked();
+
+    void on_uninstallProfile_clicked();
 
 private:
 

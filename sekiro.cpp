@@ -35,6 +35,7 @@ vector<mod> mods;
 
 string trueModPath;
 
+short isProfileDone = 0;
 
 Sekiro::Sekiro(QWidget *parent)
     : QMainWindow(parent)
@@ -667,5 +668,41 @@ void Sekiro::on_addProfile_clicked()
     profileWindow.exec();
 
     profileWindow.setAttribute(Qt::WA_DeleteOnClose);
+
+
+    while(isProfileDone == 0){
+
+        qDebug() << "jfeowi";
+
+    }
+
+    ui->profilesInstalled->addItem(QString::fromStdString(profiles[ui->profilesInstalled->count()].name));
+
+
+}
+
+
+
+
+
+
+void Sekiro::on_installProfile_clicked()
+{
+
+
+
+
+}
+
+
+
+
+
+
+void Sekiro::on_uninstallProfile_clicked()
+{
+
+
+
 
 }
