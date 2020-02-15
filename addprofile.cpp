@@ -47,11 +47,13 @@ for(int i = 0; i < Profile.modNum; i++){
     //Allows user to choose sekiro directory
     QString modNAME = QFileDialog::getOpenFileName(this, "Open Mod","C://",filter);
 
+    if(!modNAME.isEmpty()&& !modNAME.isNull()){
+
     QFileInfo ext = modNAME;
     QString modExt = ext.suffix();
 
 
-qDebug() << Profile.modNum;
+    qDebug() << Profile.modNum;
 
 
     //restructures mod
@@ -72,7 +74,7 @@ qDebug() << Profile.modNum;
 
     if(modExt == "7z" || modExt == "zip"){
 
-        unpackRepackProfiles("cd %cd%   &   7za e -spf -y -o%cd%\\tmp \"%cd%\\profiles\\"  + to_string(i) + "." + modExt.toLocal8Bit().constData() + "\" & PAUSE");
+        unpackRepackProfiles("cd %cd%   &   7za e -spf -y -o%cd%\\tmp \"%cd%\\profiles\\"  + to_string(i) + "." + modExt.toLocal8Bit().constData() + "\"");
 
 
     }
@@ -92,15 +94,84 @@ qDebug() << Profile.modNum;
 
     unpackRepackProfiles("cd %cd%   &   7za a -y \".\\tmp\\"  + to_string(i) + ".zip\" \"" + modProfilePath + "/*\"");
 
+    file.remove();
 
+
+    string modFinalTemp = ".\\tmp\\" + to_string(i) + ".zip";
+
+    QFile modFinal(modFinalTemp.c_str());
+
+    string modDirTemp = ".\\profiles\\" + to_string(i) + ".zip";
+
+    modFinal.rename(modDirTemp.c_str());
+
+
+    QDir dir(".\\tmp\\");
+    dir.removeRecursively();
+
+    QDir().mkdir(".\\tmp\\");
+
+    }
 
 }
 
+
+
 //dump mod files in tmp
+
+for(int i = 0; i < Profile.modNum; i++){
+
+    unpackRepackProfiles("cd %cd%   &   7za e -spf -y -o%cd%\\tmp \"%cd%\\profiles\\"  + to_string(i) + ".zip""\"");
+
+}
+
+
+
+
+
 
 //get all files in tmp and put them in Profiles.files
 
 
+traverseProfiles("*.*", ".\\tmp\\", 1);
+
+
+unpackRepackProfiles("cd %cd%   &   7za a -y \".\\tmp\\"  + Profile.name + ".zip\" .\\tmp\\*");
+
+
+
+//deletes profile mods in profiles folder
+
+for(int i = 0; i < Profile.modNum; i++){
+
+QFile file(QString::fromStdString(".\\profiles\\" + to_string(i) + ".zip"));
+
+
+file.remove();
+
+}
+
+
+
+//moves profile archive to profiles folder
+
+
+string modFinalTemp = ".\\tmp\\" + Profile.name + ".zip";
+
+QFile modFinal(modFinalTemp.c_str());
+
+string modDirTemp = ".\\profiles\\" + Profile.name + ".zip";
+
+modFinal.rename(modDirTemp.c_str());
+
+
+//deletes tmp folder
+
+
+QDir dir(".\\tmp\\");
+dir.removeRecursively();
+
+close();
 
 }
 
@@ -168,12 +239,13 @@ int i = 0;
 
         QString file = fileInfo.filePath().remove(0, 5);
 
-        //qDebug() << file;
 
 
         if(fileInfo.isFile()){
 
         Profile.files.push_back(file.toLocal8Bit().constData());
+
+        qDebug() << file;
 
         i++;
 

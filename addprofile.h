@@ -7,6 +7,8 @@
 
 using namespace std;
 
+extern string modProfilePath;
+
 namespace Ui {
 class addProfile;
 }
