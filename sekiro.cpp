@@ -1,6 +1,7 @@
 #include "sekiro.h"
 #include "ui_sekiro.h"
 #include <iostream>
+#include <addprofile.h>
 #include <string>
 #include <QDebug>
 #include <QFileDialog>
@@ -25,6 +26,11 @@ string modName;
 
 struct mod Mod;
 
+
+struct profile Profile;
+
+vector<profile> profiles;
+
 vector<mod> mods;
 
 string trueModPath;
@@ -36,7 +42,7 @@ Sekiro::Sekiro(QWidget *parent)
 {
     ui->setupUi(this);
 
-    setFixedSize(423, 165);
+    setFixedSize(423, 300);
 
 
 
@@ -255,6 +261,13 @@ void Sekiro::checkDir(){
 
     //makes folder "configs" in root program root directory
     QDir().mkdir("configs");
+
+
+    //makes folder "profiles" in root program root directory
+    QDir().mkdir("configsP");
+
+    //makes folder "profiles" in root program root directory
+    QDir().mkdir("profiles");
 
 
 
@@ -638,5 +651,21 @@ void Sekiro::on_changeSekDir_clicked()
     }
 
 
+
+}
+
+
+
+
+
+void Sekiro::on_addProfile_clicked()
+{
+
+
+    addProfile profileWindow;
+    profileWindow.setModal(true);
+    profileWindow.exec();
+
+    profileWindow.setAttribute(Qt::WA_DeleteOnClose);
 
 }

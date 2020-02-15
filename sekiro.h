@@ -30,6 +30,25 @@ extern struct mod{
 
 };
 
+
+
+extern struct profile{
+
+
+    string name;
+
+    string path;
+
+    string profileConfigPath;
+
+    short modNum;
+
+    vector<string> files;
+
+};
+
+extern vector<profile> profiles;
+
 extern vector<mod> mods;
 
 
@@ -71,8 +90,6 @@ private slots:
 
 
 
-    void unpackRepack(string line);
-
 
 
     void debugFileList();
@@ -82,11 +99,15 @@ private slots:
     void on_Uninstall_clicked();
 
 
+    void unpackRepack(string line);
+
     void getSettings();
 
     void on_removeMod_clicked();
 
     void on_changeSekDir_clicked();
+
+    void on_addProfile_clicked();
 
 private:
 

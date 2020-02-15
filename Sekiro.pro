@@ -18,15 +18,19 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    addprofile.cpp \
     main.cpp \
     modname.cpp \
     sekiro.cpp \
 
-HEADERS += \    
+HEADERS += \     \
+    addprofile.h \
     modname.h \
-    sekiro.h \
+    sekiro.h
+
 
 FORMS += \
+    addprofile.ui \
     modname.ui \
     sekiro.ui \
 
