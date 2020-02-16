@@ -96,10 +96,13 @@ private slots:
     void traverse(const QString &pattern, const QString &dirname, int mode);
 
 
+    void traverseProfiles2(const QString &pattern, const QString &dirname, int mode);
 
 
 
-    void debugFileList();
+
+
+    void debugFileList(int mode);
 
     void on_Install_clicked();
 
@@ -118,7 +121,12 @@ private slots:
 
     void on_installProfile_clicked();
 
+
+    void getSettingsProfile();
+
     void on_uninstallProfile_clicked();
+
+    void on_removeProfile_clicked();
 
 private:
 

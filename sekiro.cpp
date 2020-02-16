@@ -51,6 +51,7 @@ Sekiro::Sekiro(QWidget *parent)
 
     getSettings();
 
+    getSettingsProfile();
 
 
 
@@ -435,14 +436,33 @@ void Sekiro::unpackRepack(string line){
 }
 
 
-void Sekiro::debugFileList(){
+void Sekiro::debugFileList(int mode){
 
+
+    if(mode == 1){
 
     for(int i = 0; i < Mod.files.size(); i++){
 
 
         cout << Mod.files[i] << endl;
 
+
+
+    }
+
+
+    }
+
+    else if(mode == 2){
+
+        for(int i = 0; i < Profile.files.size(); i++){
+
+
+            cout << Profile.files[i] << endl;
+
+
+
+        }
 
 
     }
@@ -556,7 +576,7 @@ void Sekiro::getSettings(){
 
         traverse("*.*", ".\\tmp\\", 1);
 
-        debugFileList();
+        debugFileList(1);
 
 
 
@@ -690,6 +710,49 @@ void Sekiro::on_installProfile_clicked()
 {
 
 
+    if(ui->profilesInstalled->count() <= 0){
+
+        QMessageBox err;
+
+
+       err.critical(this, "Error", "No Profile Selected");
+    }
+
+
+    else{
+
+
+    string profileInstallFolder = sekDir + "";
+
+    QDir().mkdir(QString::fromStdString(profiles[ui->profilesInstalled->currentIndex()].profileFolder));
+
+    unpackRepack("cd %cd%   &   7za e -spf -y -o\"" + sekDir + "\\"+profiles[ui->profilesInstalled->currentIndex()].name +"\\\" \"%cd%\\profiles\\"+ profiles[ui->profilesInstalled->currentIndex()].name + ".zip\" ");
+
+
+
+
+    //removes modengine ini
+
+    string modengineRemove = sekDir + ".\\modengine.ini";
+
+    QFile file(QString::fromStdString(modengineRemove));
+
+    file.remove();
+
+
+
+    //moves profiles ini to sekiro directory
+
+
+
+
+    string profileModengine  = ".\\profiles\\" + profiles[ui->profilesInstalled->currentIndex()].name + ".ini";
+
+    string finalProfileModengine = sekDir + "\\modengine.ini";
+
+    QFile::copy(QString::fromStdString(profileModengine), QString::fromStdString(finalProfileModengine));
+
+}
 
 
 }
@@ -701,6 +764,221 @@ void Sekiro::on_installProfile_clicked()
 
 void Sekiro::on_uninstallProfile_clicked()
 {
+
+
+
+
+}
+
+
+
+
+
+void Sekiro::getSettingsProfile(){
+
+
+
+
+
+    QDir directory(".\\configsP\\");
+    QStringList configs = directory.entryList(QStringList() << "*.ini" ,QDir::Files);
+
+    int i = 0;
+
+    foreach(QString filename, configs) {
+
+
+
+
+
+
+        ifstream config(".\\configsP\\" + filename.toStdString());
+
+        getline(config, Profile.name);
+        getline(config, Profile.path);
+        getline(config, Profile.profileConfigPath);
+        getline(config, Profile.profileFolder);
+
+        string tmp;
+
+        getline(config, tmp);
+
+
+        Profile.modNum = stoi(tmp);
+
+        qDebug() << QString::fromStdString(Profile.name);
+        qDebug() << QString::fromStdString(Profile.path);
+        qDebug() << QString::fromStdString(Profile.profileConfigPath);
+        qDebug() << QString::fromStdString(Profile.profileFolder);
+        qDebug() << Profile.modNum;
+
+
+
+
+
+        Profile.modengineConfig = "; Mod Engine configuration file\n"
+                "; Mod Engine (C) 2019 Katalash. All Rights Reserved.\n"
+                "; Mod Engine is a configurable injection DLL used to modify some aspects of the"
+                "; game to make it more friendly for modding. See the following properties that can\n"
+                "; be configured. \n"
+
+                "[misc]\n"
+                "; Skips displaying the logos on boot\n"
+                "skipLogos=1\n"
+                "; Chain loads another dll that hooks dinput8.dll\n"
+                "; For example, if you have another dll mod that\'s named dinput8.dll, you can rename it to\n"
+                "; othermod.dll or something, place it in the Sekiro directory, and set this path to\n"
+                "; chainDInput8DLLPath=\"\\othermod.dll\" or whatever you named the dll\n"
+                "chainDInput8DLLPath=\"\"\n"
+
+                "[files]\n"
+                "; Loads extracted files from UXM instead of data from the archives. Requires a complete UXM extraction\n"
+                "; and should generally only be used by mod creators.\n"
+                "loadUXMFiles=0\n"
+                "; If enabled, a mod will be loaded from a specified override directory.\n"
+                "useModOverrideDirectory=1\n"
+                "; The directory from which to load a mod.\n"
+                "modOverrideDirectory=\"\\"+ Profile.name +"\"\n"
+                "; Caches results of looking up override files. Can speed up loading and reduce hitching, but may require game\n"
+                "; restart when a file is added or removed from a mod. Mod developers probably want this disabled, while mod\n"
+                "; users (and released mods) should have this enabled.\n"
+                "cacheFilePaths=1\n"
+
+                "[debug]\n"
+                "; Shows the debug console when running the game. Can be useful for modders to troubleshoot\n"
+                "showDebugLog=0\n";
+
+
+
+        ofstream modengoneconfig(".\\profiles\\"+ Profile.name + ".ini");
+
+        modengoneconfig << Profile.modengineConfig;
+
+        modengoneconfig.close();
+
+
+
+
+
+
+
+
+        QDir().mkdir(".\\tmp");
+
+        unpackRepack("cd %cd%   &   7za e -spf -y -o%cd%\\tmp \"%cd%\\profiles\\"+ Profile.name + ".zip\"");
+
+        traverseProfiles2("*.*", ".\\tmp\\", 1);
+
+        debugFileList(2);
+
+
+
+
+
+        profiles.push_back(Profile);
+
+
+
+
+
+        //deletes tmp folder
+
+
+        QDir dir(".\\tmp\\");
+        dir.removeRecursively();
+
+
+
+
+
+
+        //creates new mod entry in combo box
+
+        ui->profilesInstalled->addItem(QString::fromStdString(profiles[i].name));
+
+        i++;
+
+
+
+    }
+
+
+
+
+}
+
+
+
+
+void Sekiro::traverseProfiles2(const QString &pattern, const QString &dirname, int mode){
+    QDir dir(dirname);
+    dir.setFilter(QDir::Dirs | QDir::Files | QDir::NoSymLinks | QDir::NoDot | QDir::NoDotDot);
+
+int i = 0;
+
+
+    foreach (QFileInfo fileInfo, dir.entryInfoList()) {
+
+
+
+        if (fileInfo.isDir() && fileInfo.isReadable()){
+
+
+            if((fileInfo.baseName() == "parts" || fileInfo.baseName() == "event" ||fileInfo.baseName() == "map" || fileInfo.baseName() == "msg" ||
+                    fileInfo.baseName() == "param" || fileInfo.baseName() == "script" || fileInfo.baseName() == "chr"  || fileInfo.baseName() == "cutscene"
+                || fileInfo.baseName() == "event" || fileInfo.baseName() == "facegen" || fileInfo.baseName() == "font" || fileInfo.baseName() == "action"
+                    || fileInfo.baseName() == "menu" || fileInfo.baseName() == "mtd" || fileInfo.baseName() == "obj" || fileInfo.baseName() == "other"
+                    || fileInfo.baseName() == "sfx" || fileInfo.baseName() == "shader" ) && mode == 0){
+
+
+                modProfilePath = fileInfo.path().toLocal8Bit().constData();
+                qDebug() << modProfilePath.c_str();
+
+
+            }
+
+            traverseProfiles2(pattern, fileInfo.filePath(), mode);
+
+
+
+        }
+
+        if(mode == 1){
+
+
+
+
+        QString file = fileInfo.filePath().remove(0, 5);
+
+
+
+        if(fileInfo.isFile()){
+
+        Profile.files.push_back(file.toLocal8Bit().constData());
+
+        //qDebug() << file;
+
+        i++;
+
+        }
+
+      }
+
+
+
+    }
+}
+
+
+
+
+
+
+
+
+void Sekiro::on_removeProfile_clicked()
+{
+
 
 
 
