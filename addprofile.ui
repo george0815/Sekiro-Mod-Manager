@@ -31,7 +31,7 @@
     <rect>
      <x>10</x>
      <y>30</y>
-     <width>113</width>
+     <width>201</width>
      <height>20</height>
     </rect>
    </property>
@@ -51,12 +51,12 @@
     <rect>
      <x>10</x>
      <y>90</y>
-     <width>191</width>
+     <width>211</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
-    <string>Please amount of mods in the profile</string>
+    <string>Please enter amount of mods in the profile</string>
    </property>
   </widget>
   <widget class="QPushButton" name="profileConfirm">

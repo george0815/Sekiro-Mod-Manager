@@ -54,6 +54,47 @@ Sekiro::Sekiro(QWidget *parent)
     getSettingsProfile();
 
 
+    string modengineConfig = "; Mod Engine configuration file\n"
+            "; Mod Engine (C) 2019 Katalash. All Rights Reserved.\n"
+            "; Mod Engine is a configurable injection DLL used to modify some aspects of the"
+            "; game to make it more friendly for modding. See the following properties that can\n"
+            "; be configured. \n"
+
+            "[misc]\n"
+            "; Skips displaying the logos on boot\n"
+            "skipLogos=1\n"
+            "; Chain loads another dll that hooks dinput8.dll\n"
+            "; For example, if you have another dll mod that\'s named dinput8.dll, you can rename it to\n"
+            "; othermod.dll or something, place it in the Sekiro directory, and set this path to\n"
+            "; chainDInput8DLLPath=\"\\othermod.dll\" or whatever you named the dll\n"
+            "chainDInput8DLLPath=\"\"\n"
+
+            "[files]\n"
+            "; Loads extracted files from UXM instead of data from the archives. Requires a complete UXM extraction\n"
+            "; and should generally only be used by mod creators.\n"
+            "loadUXMFiles=0\n"
+            "; If enabled, a mod will be loaded from a specified override directory.\n"
+            "useModOverrideDirectory=1\n"
+            "; The directory from which to load a mod.\n"
+            "modOverrideDirectory=\"\\mods\"\n"
+            "; Caches results of looking up override files. Can speed up loading and reduce hitching, but may require game\n"
+            "; restart when a file is added or removed from a mod. Mod developers probably want this disabled, while mod\n"
+            "; users (and released mods) should have this enabled.\n"
+            "cacheFilePaths=1\n"
+
+            "[debug]\n"
+            "; Shows the debug console when running the game. Can be useful for modders to troubleshoot\n"
+            "showDebugLog=0\n";
+
+
+
+    ofstream modengoneconfig(".\\modengine.ini");
+
+    modengoneconfig << modengineConfig;
+
+    modengoneconfig.close();
+
+
 
 
 
@@ -766,6 +807,60 @@ void Sekiro::on_uninstallProfile_clicked()
 {
 
 
+    if(ui->profilesInstalled->count() <= 0){
+
+        QMessageBox err;
+
+
+       err.critical(this, "Error", "No Profile Selected");
+    }
+
+    else{
+
+    for(int i = 0; i < profiles[ui->profilesInstalled->currentIndex()].files.size(); i++){
+
+
+        string del = sekDir + "/" + profiles[ui->profilesInstalled->currentIndex()].name + "/" + profiles[ui->profilesInstalled->currentIndex()].files[i];
+
+
+        qDebug() << QString::fromStdString(del);
+
+        QFile toBeDeleted(QString::fromStdString(del));
+
+
+
+            toBeDeleted.remove();
+
+
+
+            QDir dir(QString::fromStdString(sekDir + "/" + profiles[ui->profilesInstalled->currentIndex()].name));
+            dir.removeRecursively();
+
+
+
+
+            //removes modengine ini
+
+            string modengineRemove = sekDir + ".\\modengine.ini";
+
+            QFile file(QString::fromStdString(modengineRemove));
+
+            file.remove();
+
+
+
+            string finalProfileModengine = sekDir + "\\modengine.ini";
+
+            QFile::copy(".\\modengine.ini", QString::fromStdString(finalProfileModengine));
+
+
+
+    }
+
+
+
+}
+
 
 
 }
@@ -981,6 +1076,98 @@ void Sekiro::on_removeProfile_clicked()
 
 
 
+    if(ui->profilesInstalled->count() <= 0){
+
+        QMessageBox err;
+
+
+       err.critical(this, "Error", "No Mod Selected");
+    }
+
+    else{
+
+    QFile configDel(QString::fromStdString(profiles[ui->profilesInstalled->currentIndex()].profileConfigPath));
+
+    configDel.remove();
+
+
+
+    QFile modDel(QString::fromStdString(profiles[ui->profilesInstalled->currentIndex()].path + ".zip"));
+
+    modDel.remove();
+
+
+
+    QFile modEngineDel(QString::fromStdString(profiles[ui->profilesInstalled->currentIndex()].path + ".ini"));
+
+    modEngineDel.remove();
+
+
+    profiles.erase(profiles.begin() + ui->profilesInstalled->currentIndex());
+
+
+
+
+    ui->profilesInstalled->removeItem(ui->profilesInstalled->currentIndex());
+
+    }
+
+
+
+
+}
+
+
+
+
+
+void Sekiro::on_setActiveProfile_clicked()
+{
+
+
+
+    //removes modengine ini
+
+    string modengineRemove = sekDir + ".\\modengine.ini";
+
+    QFile file(QString::fromStdString(modengineRemove));
+
+    file.remove();
+
+
+
+    string profileModengine  = ".\\profiles\\" + profiles[ui->profilesInstalled->currentIndex()].name + ".ini";
+
+    string finalProfileModengine = sekDir + "\\modengine.ini";
+
+    QFile::copy(QString::fromStdString(profileModengine), QString::fromStdString(finalProfileModengine));
+
+
+
+
+}
+
+
+
+
+void Sekiro::on_defaultProfile_clicked()
+{
+
+
+
+    //removes modengine ini
+
+    string modengineRemove = sekDir + ".\\modengine.ini";
+
+    QFile file(QString::fromStdString(modengineRemove));
+
+    file.remove();
+
+
+
+    string finalProfileModengine = sekDir + "\\modengine.ini";
+
+    QFile::copy(".\\modengine.ini", QString::fromStdString(finalProfileModengine));
 
 
 }

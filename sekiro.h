@@ -128,6 +128,10 @@ private slots:
 
     void on_removeProfile_clicked();
 
+    void on_setActiveProfile_clicked();
+
+    void on_defaultProfile_clicked();
+
 private:
 
     Ui::Sekiro *ui;
