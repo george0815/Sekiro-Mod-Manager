@@ -62,7 +62,7 @@
   <widget class="QPushButton" name="profileConfirm">
    <property name="geometry">
     <rect>
-     <x>190</x>
+     <x>130</x>
      <y>140</y>
      <width>31</width>
      <height>23</height>
@@ -70,6 +70,19 @@
    </property>
    <property name="text">
     <string>OK</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="cancel">
+   <property name="geometry">
+    <rect>
+     <x>170</x>
+     <y>140</y>
+     <width>51</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Cancel</string>
    </property>
   </widget>
  </widget>

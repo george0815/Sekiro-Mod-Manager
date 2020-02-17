@@ -9,6 +9,7 @@ modname::modname(QWidget *parent) :
 {
     ui->setupUi(this);
 
+//makes window frameless
 setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
 
 
@@ -22,10 +23,14 @@ modname::~modname()
 
 
 
+
+//asks the user for the name of the mod and puts it into modName
 void modname::on_modNameConfirm_clicked()
 {
 
 
+
+    //asks the user for the name of the mod and puts it into modName
     modName = ui->modNameLineEdit->text().toLocal8Bit().constData();
 
     close();

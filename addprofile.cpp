@@ -11,13 +11,16 @@ extern struct profile Profile;
 
 string modProfilePath;
 
-extern short isProfileDone;
+extern bool isProfileDone;
 
 addProfile::addProfile(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::addProfile)
 {
     ui->setupUi(this);
+
+    //makes window frameless
+    setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
 }
 
 addProfile::~addProfile()
@@ -26,12 +29,12 @@ addProfile::~addProfile()
 }
 
 
-
+//adds profile to manager
 
 void addProfile::on_profileConfirm_clicked()
 {
 
-
+//adds the data for the profile being added to the profile struct
 
 Profile.name = ui->profileNameLineEdit->text().toLocal8Bit().constData();
 
@@ -41,11 +44,17 @@ Profile.profileConfigPath = ".\\configsP\\" + Profile.name + ".ini";
 
 Profile.path = ".\\profiles\\" + Profile.name;
 
-
 Profile.profileFolder = sekDir + "/" + Profile.name;
 
 qDebug() << QString::fromStdString(Profile.profileFolder);
 
+
+
+
+
+
+
+//creates modengine.ini for profile
 
 Profile.modengineConfig = "; Mod Engine configuration file\n"
         "; Mod Engine (C) 2019 Katalash. All Rights Reserved.\n"
@@ -90,7 +99,7 @@ modengoneconfig.close();
 
 
 
-
+//restructures mod archives
 
 for(int i = 0; i < Profile.modNum; i++){
 
@@ -102,28 +111,29 @@ for(int i = 0; i < Profile.modNum; i++){
     //Allows user to choose sekiro directory
     QString modNAME = QFileDialog::getOpenFileName(this, "Open Mod","C://",filter);
 
+
+
+
+
+    //if modname is legit, then adds mod to profile
     if(!modNAME.isEmpty()&& !modNAME.isNull()){
 
     QFileInfo ext = modNAME;
     QString modExt = ext.suffix();
 
 
-    qDebug() << Profile.modNum;
 
 
-    //restructures mod
-
+   //restructures archive, the reason for doing this is while almost every mod uses the unpacked sekiro folders like "parts" "chr" etc
+   //some mod compressed archives might have their files in an extra folder, like one mod archive might have a directory like bossrushV.012/bossrush/mod folders
+   //and another might have sekiro/mod folder so by restructuring, it makes sure that the mod folders ("parts" "chr" "mtd" etc) are in the root folder of the mod archive
+   //for later exxtracting
 
    QFile file(modNAME);
-
 
    string modDir = ".\\profiles\\" + to_string(i) + "." + modExt.toLocal8Bit().constData();
 
    file.rename(modDir.c_str());
-
-
-
-
 
     QDir().mkdir(".\\tmp");
 
@@ -139,18 +149,15 @@ for(int i = 0; i < Profile.modNum; i++){
 
     }
 
-
-
-
-
     traverseProfiles("*.*", ".\\tmp\\", 0);
-
-
 
     unpackRepackProfiles("cd %cd%   &   7za a -y \".\\tmp\\"  + to_string(i) + ".zip\" \"" + modProfilePath + "/*\"");
 
     file.remove();
 
+
+
+    //moves restructured mod files to profiles folder
 
     string modFinalTemp = ".\\tmp\\" + to_string(i) + ".zip";
 
@@ -160,6 +167,10 @@ for(int i = 0; i < Profile.modNum; i++){
 
     modFinal.rename(modDirTemp.c_str());
 
+
+
+
+    //deletes tmp
 
     QDir dir(".\\tmp\\");
     dir.removeRecursively();
@@ -187,11 +198,18 @@ for(int i = 0; i < Profile.modNum; i++){
 
 //get all files in tmp and put them in Profiles.files
 
-
 traverseProfiles("*.*", ".\\tmp\\", 1);
 
 
+
+
+//creates profile archive
+
 unpackRepackProfiles("cd %cd%   &   7za a -y \".\\tmp\\"  + Profile.name + ".zip\" .\\tmp\\*");
+
+
+
+
 
 
 
@@ -208,8 +226,9 @@ file.remove();
 
 
 
-//moves profile archive to profiles folder
 
+
+//moves profile archive to profiles folder
 
 string modFinalTemp = ".\\tmp\\" + Profile.name + ".zip";
 
@@ -220,8 +239,10 @@ string modDirTemp = ".\\profiles\\" + Profile.name + ".zip";
 modFinal.rename(modDirTemp.c_str());
 
 
-//deletes tmp folder
 
+
+
+//deletes tmp folder
 
 QDir dir(".\\tmp\\");
 dir.removeRecursively();
@@ -229,6 +250,9 @@ dir.removeRecursively();
 close();
 
 
+
+
+//creates config for profile and adds profile to profiles vector
 
 Profile.profileConfigPath = ".\\configsP\\" + Profile.name + ".ini";
 ofstream profileConfig(Profile.profileConfigPath);
@@ -239,13 +263,22 @@ profileConfig.close();
 
 profiles.push_back(Profile);
 
-isProfileDone = 1;
+isProfileDone = true;
 
 }
 
 
 
+
+
+
+//unpacks and repacks compressed archives
+
 void addProfile::unpackRepackProfiles(string line){
+
+
+    //creates batch file, then puts string line into batch file, then launches it  using system, even though it
+    //is called unpackRepack, it can be used whenever you need to execute a command prompt command
 
     ofstream unpack;
     unpack.open( "commands.cmd", ios::trunc );
@@ -266,20 +299,27 @@ void addProfile::unpackRepackProfiles(string line){
 
 
 
+//looks in directory for profile files
+
 void addProfile::traverseProfiles(const QString &pattern, const QString &dirname, int mode)
 {
     QDir dir(dirname);
     dir.setFilter(QDir::Dirs | QDir::Files | QDir::NoSymLinks | QDir::NoDot | QDir::NoDotDot);
 
-int i = 0;
+    int i = 0;
 
-
+    //recursivly looks in the directory that was given
     foreach (QFileInfo fileInfo, dir.entryInfoList()) {
 
 
 
+        //if the fileinfo is a readable directory then it looks for a folder that matches the folders used by sekiro with modengine
+
         if (fileInfo.isDir() && fileInfo.isReadable()){
 
+
+            //if it finds a folder used by sekiro with modengine then it puts it into the string trueModPath, which holds the
+            //folder in the mod archive that has the folders used by mod enigne
 
             if((fileInfo.baseName() == "parts" || fileInfo.baseName() == "event" ||fileInfo.baseName() == "map" || fileInfo.baseName() == "msg" ||
                     fileInfo.baseName() == "param" || fileInfo.baseName() == "script" || fileInfo.baseName() == "chr"  || fileInfo.baseName() == "cutscene"
@@ -294,11 +334,18 @@ int i = 0;
 
             }
 
+
+            //calls function so it searches all the sub directories
             traverseProfiles(pattern, fileInfo.filePath(), mode);
 
 
 
         }
+
+
+
+        //if mode = 1 and the fileinfo is a file then puts all of the files in the profiles.files vector, so that when the user wants to uninstall the mod, the program has all of
+        //the names of the files to delete
 
         if(mode == 1){
 
@@ -329,3 +376,12 @@ int i = 0;
 
 
 
+//cancels adding a profile
+
+void addProfile::on_cancel_clicked()
+{
+
+    isProfileDone = false;
+    close();
+
+}

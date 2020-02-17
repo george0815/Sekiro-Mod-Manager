@@ -155,7 +155,7 @@
     <property name="geometry">
      <rect>
       <x>360</x>
-      <y>210</y>
+      <y>212</y>
       <width>23</width>
       <height>20</height>
      </rect>
@@ -168,7 +168,7 @@
     <property name="geometry">
      <rect>
       <x>330</x>
-      <y>210</y>
+      <y>212</y>
       <width>23</width>
       <height>20</height>
      </rect>
@@ -240,6 +240,19 @@
     </property>
     <property name="text">
      <string>Launch Sekiro</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="warnings">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>330</y>
+      <width>70</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Warnings</string>
     </property>
    </widget>
   </widget>

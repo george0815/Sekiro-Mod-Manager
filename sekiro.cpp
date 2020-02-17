@@ -21,6 +21,9 @@
 
 using namespace std;
 
+
+bool  warning = false;
+
 string sekDir;
 
 string modName;
@@ -36,7 +39,9 @@ vector<mod> mods;
 
 string trueModPath;
 
-short isProfileDone = 0;
+bool isProfileDone = false;
+
+
 
 Sekiro::Sekiro(QWidget *parent)
     : QMainWindow(parent)
@@ -44,16 +49,32 @@ Sekiro::Sekiro(QWidget *parent)
 {
     ui->setupUi(this);
 
+
+
+
+    //sets the size
+
     setFixedSize(423, 401);
 
 
 
+
+    //see function definition
     checkDir();
 
+
+
+    //see function definition
     getSettings();
 
+
+    //see function definition
     getSettingsProfile();
 
+
+
+
+    //creates a default modengine.ini, this is used for when the user clicks "default" and wants to set the folder modengine uses to "\mods"
 
     string modengineConfig = "; Mod Engine configuration file\n"
             "; Mod Engine (C) 2019 Katalash. All Rights Reserved.\n"
@@ -97,7 +118,7 @@ Sekiro::Sekiro(QWidget *parent)
 
 
 
-
+    //see function definition
     modEngineCheck();
 
 
@@ -118,7 +139,7 @@ Sekiro::~Sekiro()
 
 
 
-
+//adds mod to the mod manager
 
 void Sekiro::on_addMod_clicked()
 {
@@ -132,10 +153,15 @@ void Sekiro::on_addMod_clicked()
     QString modNAME = QFileDialog::getOpenFileName(this, "Open Mod","C://",filter);
 
 
+
+
+    //if mod name is legit, then goes through the process to add a mod
     if(!modNAME.isEmpty()&& !modNAME.isNull()){
 
 
 
+
+    //gets mod filename extension, this is used when deciding whether to use unrar or 7zip extra
     QFileInfo ext = modNAME;
     QString modExt = ext.suffix();
 
@@ -159,7 +185,7 @@ void Sekiro::on_addMod_clicked()
 
 
 
-     //moves mod file to mods folder in program directory
+    //moves mod file to mods folder in program directory
 
     QFile file(modNAME);
 
@@ -187,6 +213,7 @@ void Sekiro::on_addMod_clicked()
 
     QDir().mkdir(".\\tmp");
 
+    //if mod is contained in a zip file
     if(modExt == "7z" || modExt == "zip"){
 
 
@@ -194,6 +221,9 @@ void Sekiro::on_addMod_clicked()
 
 
     }
+
+
+    //if mod is contained in a rar file
     else if(modExt == "rar"){
 
 
@@ -210,7 +240,10 @@ void Sekiro::on_addMod_clicked()
 
 
 
-    //restructures archive
+    //restructures archive, the reason for doing this is while almost every mod uses the unpacked sekiro folders like "parts" "chr" etc
+    //some mod compressed archives might have their files in an extra folder, like one mod archive might have a directory like bossrushV.012/bossrush/mod folders
+    //and another might have sekiro/mod folder so by restructuring, it makes sure that the mod folders ("parts" "chr" "mtd" etc) are in the root folder of the mod archive
+    //for later exxtracting
 
 
     traverse("*.*", ".\\tmp\\", 0);
@@ -248,18 +281,16 @@ void Sekiro::on_addMod_clicked()
 
     traverse("*.*", ".\\tmp\\", 1);
 
-    //debugFileList();
+
+
+    //see function definition
+    debugFileList(1);
 
 
 
 
 
     //saves mod entry to file
-
-
-
-
-
 
     QDir toCount(".\\configs\\");
 
@@ -275,6 +306,10 @@ void Sekiro::on_addMod_clicked()
     modConfig << Mod.name + "\n" + Mod.path + "\n" + Mod.modConfigPath;
 
 
+
+
+
+    //psuhes mod to vector of mods
 
     mods.push_back(Mod);
 
@@ -299,6 +334,14 @@ void Sekiro::on_addMod_clicked()
 
 }
 
+
+
+
+
+
+
+//on program startup, checks the dir.ini file for the sekiro directory, if there isnt an entry, then its prompts the user for it
+
 void Sekiro::checkDir(){
 
 
@@ -317,7 +360,11 @@ void Sekiro::checkDir(){
 
 
 
+
+    //creates fileinfo for dir.ini, the file that stores the sekiro directory, this is used to check if dir.ini exists
     QFileInfo sekDirIni(".\\dir.ini");
+
+
 
     //checks if ".\dir.ini" exists, if it doesnt, then makes dir.ini
     if(!(sekDirIni.exists())){
@@ -330,6 +377,9 @@ void Sekiro::checkDir(){
 
         QString path = dialog.getExistingDirectory(this, "Open Sekiro Folder");
 
+
+
+        //checks if directory is legit, if it is then sets it equal to sekDir, then makes dir.ini
         if(!path.isEmpty()&& !path.isNull()){
 
         sekDir = path.toLocal8Bit().constData();
@@ -348,11 +398,6 @@ void Sekiro::checkDir(){
 
 
 
-
-
-
-
-
     else{
 
         ifstream in(".\\dir.ini");
@@ -364,7 +409,7 @@ void Sekiro::checkDir(){
 
         ui->currentSekDir->setText(QString::fromStdString(sekDir));
 
-
+        //if directory is empty, then prompts the user again for sekiro directory
         if(sekDir == ""){
 
             QFileDialog dialog;
@@ -399,20 +444,34 @@ void Sekiro::checkDir(){
 
 
 
+
+
+
+//looks in directory for mod files
+
 void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
 {
+
+
+
     QDir dir(dirname);
     dir.setFilter(QDir::Dirs | QDir::Files | QDir::NoSymLinks | QDir::NoDot | QDir::NoDotDot);
 
-int i = 0;
+    int i = 0;
 
 
+
+    //recursivly looks in the directory that was given
     foreach (QFileInfo fileInfo, dir.entryInfoList()) {
 
 
-
+        //if the fileinfo is a readable directory then it looks for a folder that matches the folders used by sekiro with modengine
         if (fileInfo.isDir() && fileInfo.isReadable()){
 
+
+
+            //if it finds a folder used by sekiro with modengine then it puts it into the string trueModPath, which holds the
+            //folder in the mod archive that has the folders used by mod enigne
 
             if((fileInfo.baseName() == "parts" || fileInfo.baseName() == "event" ||fileInfo.baseName() == "map" || fileInfo.baseName() == "msg" ||
                     fileInfo.baseName() == "param" || fileInfo.baseName() == "script" || fileInfo.baseName() == "chr"  || fileInfo.baseName() == "cutscene"
@@ -427,15 +486,18 @@ int i = 0;
 
             }
 
+
+            //calls function so it searches all the sub directories
             traverse(pattern, fileInfo.filePath(), mode);
 
 
 
         }
 
+
+        //if mode = 1 and the fileinfo is a file then puts all of the files in the mods.files vector, so that when the user wants to uninstall the mod, the program has all of
+        //the names of the files to delete
         if(mode == 1){
-
-
 
 
         QString file = fileInfo.filePath().remove(0, 5);
@@ -460,7 +522,17 @@ int i = 0;
 
 
 
+
+
+//unpacks and repacks compressed archives
+
 void Sekiro::unpackRepack(string line){
+
+
+
+
+    //creates batch file, then puts string line into batch file, then launches it  using system, even though it
+    //is called unpackRepack, it can be used whenever you need to execute a command prompt command
 
     ofstream unpack;
     unpack.open( "commands.cmd", ios::trunc );
@@ -480,7 +552,17 @@ void Sekiro::unpackRepack(string line){
 }
 
 
+
+
+
+
+
+//prints files in files vector for profiles and mods
+
 void Sekiro::debugFileList(int mode){
+
+    //if mode = 1, then it prints out the files for the mod currently being installed
+    //if mode = 2, then it prints out the files for the profile currently being installed
 
 
     if(mode == 1){
@@ -516,10 +598,23 @@ void Sekiro::debugFileList(int mode){
 }
 
 
+
+
+
+
+
+
+
+
+
+//installs mod to sekiro directory
+
 void Sekiro::on_Install_clicked()
 {
 
 
+
+    //checks if there are no mods installed, if there isnt, then throws an error
     if(ui->modsInstalled->count() <= 0){
 
         QMessageBox err;
@@ -531,17 +626,52 @@ void Sekiro::on_Install_clicked()
 
     else{
 
-    unpackRepack("cd %cd%   &   7za e -spf -y -o\"" + sekDir + "\\mods\\\" \"%cd%\\mods\\"+ mods[ui->modsInstalled->currentIndex()].name + ".zip\" ");
+
+
+
+        if(warning == true){
+
+            unpackRepack("cd %cd%   &   7za e -spf -y -o\"" + sekDir + "\\mods\\\" \"%cd%\\mods\\"+ mods[ui->modsInstalled->currentIndex()].name + ".zip\" ");
+
+
+        }
+        else if (warning == false){
+
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "Warning", "Installing a mod might overwrite a previously installed mod  \nDo you still want to install this mod?", QMessageBox::Yes|QMessageBox::No);
+
+
+
+        //if the user clicks yes then installs mod and if there is a mod at the current index, then unpacks the mod files into the sekiro directory
+        if (reply == QMessageBox::Yes) {
+
+            unpackRepack("cd %cd%   &   7za e -spf -y -o\"" + sekDir + "\\mods\\\" \"%cd%\\mods\\"+ mods[ui->modsInstalled->currentIndex()].name + ".zip\" ");
+
+
+        }
+
+
+        }
+
+   }
+
 
 }
 
-}
 
 
+
+
+
+
+
+
+
+//uninstalls mod from sekiro directory
 
 void Sekiro::on_Uninstall_clicked()
 {
-
+    //checks if there are no mods installed, if there isnt, then throws an error
     if(ui->modsInstalled->count() <= 0){
 
         QMessageBox err;
@@ -555,16 +685,15 @@ void Sekiro::on_Uninstall_clicked()
     for(int i = 0; i < mods[ui->modsInstalled->currentIndex()].files.size(); i++){
 
 
-        string del = sekDir + "/mods" + mods[ui->modsInstalled->currentIndex()].files[i];
+        //goes thorugh the files vector and gets the name for the file to be deleted, then deletes it
 
+        string del = sekDir + "/mods" + mods[ui->modsInstalled->currentIndex()].files[i];
 
         qDebug() << QString::fromStdString(del);
 
         QFile toBeDeleted(QString::fromStdString(del));
 
-
-
-            toBeDeleted.remove();
+        toBeDeleted.remove();
 
 
 
@@ -582,22 +711,37 @@ void Sekiro::on_Uninstall_clicked()
 
 
 
+
+
+
+
+
+
+
+
+//loads the installed mods
+
 void Sekiro::getSettings(){
 
 
 
+    //gets all of the ini files for mods
 
     QDir directory(".\\configs\\");
     QStringList configs = directory.entryList(QStringList() << "*.ini" ,QDir::Files);
 
     int i = 0;
 
+
+
+    //for each ini files, installs the mod for that ini file
+
     foreach(QString filename, configs) {
 
 
 
 
-
+        //gets mod name, path, and the path for the config
 
         ifstream config(".\\configs\\" + filename.toStdString());
 
@@ -605,14 +749,15 @@ void Sekiro::getSettings(){
         getline(config, Mod.path);
         getline(config, Mod.modConfigPath);
 
-
-
         qDebug() << QString::fromStdString(Mod.name);
         qDebug() << QString::fromStdString(Mod.path);
         qDebug() << QString::fromStdString(Mod.modConfigPath);
 
 
 
+
+
+        //gets files for mod
 
         QDir().mkdir(".\\tmp");
 
@@ -625,6 +770,7 @@ void Sekiro::getSettings(){
 
 
 
+        //creates mod entry in vector of mods
 
         mods.push_back(Mod);
 
@@ -633,7 +779,6 @@ void Sekiro::getSettings(){
 
 
         //deletes tmp folder
-
 
         QDir dir(".\\tmp\\");
         dir.removeRecursively();
@@ -656,9 +801,18 @@ void Sekiro::getSettings(){
 
 
 
+
+
+
+
+
+//removes mod from manager
+
 void Sekiro::on_removeMod_clicked()
 {
 
+
+    //checks if no mods are installed, if there are no mods installed, then it throws an error
     if(ui->modsInstalled->count() <= 0){
 
         QMessageBox err;
@@ -667,7 +821,14 @@ void Sekiro::on_removeMod_clicked()
        err.critical(this, "Error", "No Mod Selected");
     }
 
+
+    //if there is a mod at the current index then it uninstalls it
     else{
+
+
+
+
+    //uninstalls mod config file
 
     QFile configDel(QString::fromStdString(mods[ui->modsInstalled->currentIndex()].modConfigPath));
 
@@ -675,16 +836,23 @@ void Sekiro::on_removeMod_clicked()
 
 
 
+
+    //uninstalls mod archive
+
     QFile modDel(QString::fromStdString(mods[ui->modsInstalled->currentIndex()].path + ".zip"));
 
     modDel.remove();
 
 
 
+
+    //deletes mod entry in vector
+
     mods.erase(mods.begin() + ui->modsInstalled->currentIndex());
 
 
 
+    //deletes mod entry in combp box
 
     ui->modsInstalled->removeItem(ui->modsInstalled->currentIndex());
 
@@ -695,10 +863,37 @@ void Sekiro::on_removeMod_clicked()
 
 
 
+
+
+
+
+
+//changes sekiro directory
+
 void Sekiro::on_changeSekDir_clicked()
 {
 
 
+
+    //askes the user if they want to install mod
+    QMessageBox::StandardButton reply;
+
+    if(warning == false){
+
+    reply = QMessageBox::question(this, "Warning", "Changing the Sekiro directory will require you to reinstall your mods  \nDo you still want to change directory?", QMessageBox::Yes|QMessageBox::No);
+
+
+
+    //if the user clicks yes then downloads and installs modengine
+    if (reply == QMessageBox::Yes) {
+
+
+
+
+
+
+
+    //prompts the user for sekiro directory
 
     QFileDialog dialog;
 
@@ -707,6 +902,9 @@ void Sekiro::on_changeSekDir_clicked()
 
     QString path = dialog.getExistingDirectory(this, "Open Sekiro Folder");
 
+
+
+    //checks if the directory is legit, if it is then puts it into sekDir
     if(!path.isEmpty()&& !path.isNull()){
 
     sekDir = path.toLocal8Bit().constData();
@@ -716,16 +914,52 @@ void Sekiro::on_changeSekDir_clicked()
     }
 
 
+}
+    }
 
+
+    else if(warning == true){
+
+        //prompts the user for sekiro directory
+
+        QFileDialog dialog;
+
+        dialog.setFileMode(QFileDialog::Directory);
+        dialog.setOption(QFileDialog::ShowDirsOnly);
+
+        QString path = dialog.getExistingDirectory(this, "Open Sekiro Folder");
+
+
+
+        //checks if the directory is legit, if it is then puts it into sekDir
+        if(!path.isEmpty()&& !path.isNull()){
+
+        sekDir = path.toLocal8Bit().constData();
+
+        ui->currentSekDir->setText(path);
+
+        }
+
+    }
 }
 
 
 
 
 
+
+
+
+
+
+//adds profile(basically a merged mod that you can enable/disable without completely uninstalling)
+
 void Sekiro::on_addProfile_clicked()
 {
 
+
+
+    //launches the add profile prompt
 
     addProfile profileWindow;
     profileWindow.setModal(true);
@@ -734,14 +968,12 @@ void Sekiro::on_addProfile_clicked()
     profileWindow.setAttribute(Qt::WA_DeleteOnClose);
 
 
-    while(isProfileDone == 0){
+    //when the profile is added, it then updates the combo box
 
-        qDebug() << "jfeowi";
 
-    }
-
-    ui->profilesInstalled->addItem(QString::fromStdString(profiles[ui->profilesInstalled->count()].name));
-
+    if(isProfileDone == true){
+   ui->profilesInstalled->addItem(QString::fromStdString(profiles[ui->profilesInstalled->count()].name));
+}
 
 }
 
@@ -750,9 +982,15 @@ void Sekiro::on_addProfile_clicked()
 
 
 
+
+
+
+//installs profile to the sekiro directory
+
 void Sekiro::on_installProfile_clicked()
 {
 
+    //checks if no profiles are installed, if there are no profiles installed, then it throws an error
 
     if(ui->profilesInstalled->count() <= 0){
 
@@ -762,9 +1000,15 @@ void Sekiro::on_installProfile_clicked()
        err.critical(this, "Error", "No Profile Selected");
     }
 
-
+    //if there is a profile installed at the current index then unpacks the profile files into the sekiro directory
     else{
 
+
+
+
+
+
+    //unpacks the profile files into the sekiro directory
 
     string profileInstallFolder = sekDir + "";
 
@@ -785,10 +1029,7 @@ void Sekiro::on_installProfile_clicked()
 
 
 
-    //moves profiles ini to sekiro directory
-
-
-
+    //moves profiles modengine.ini to sekiro directory
 
     string profileModengine  = ".\\profiles\\" + profiles[ui->profilesInstalled->currentIndex()].name + ".ini";
 
@@ -806,10 +1047,15 @@ void Sekiro::on_installProfile_clicked()
 
 
 
+
+
+
+//uninstalls profile from the sekiro directory
+
 void Sekiro::on_uninstallProfile_clicked()
 {
 
-
+    //checks if no profiles are installed, if there are no profiles installed, then it throws an error
     if(ui->profilesInstalled->count() <= 0){
 
         QMessageBox err;
@@ -818,43 +1064,52 @@ void Sekiro::on_uninstallProfile_clicked()
        err.critical(this, "Error", "No Profile Selected");
     }
 
+
+    //if there is a profile at the current index, then uninstalls it
     else{
+
+
 
     for(int i = 0; i < profiles[ui->profilesInstalled->currentIndex()].files.size(); i++){
 
 
-        string del = sekDir + "/" + profiles[ui->profilesInstalled->currentIndex()].name + "/" + profiles[ui->profilesInstalled->currentIndex()].files[i];
+        //goes through the files vector and gets the name for the file to be deleted, then deletes it
 
+        string del = sekDir + "/" + profiles[ui->profilesInstalled->currentIndex()].name + "/" + profiles[ui->profilesInstalled->currentIndex()].files[i];
 
         qDebug() << QString::fromStdString(del);
 
         QFile toBeDeleted(QString::fromStdString(del));
 
-
-
-            toBeDeleted.remove();
-
-
-
-            QDir dir(QString::fromStdString(sekDir + "/" + profiles[ui->profilesInstalled->currentIndex()].name));
-            dir.removeRecursively();
+        toBeDeleted.remove();
 
 
 
 
-            //removes modengine ini
 
-            string modengineRemove = sekDir + ".\\modengine.ini";
+        //deletes the profile folder in the sekiro directory
 
-            QFile file(QString::fromStdString(modengineRemove));
-
-            file.remove();
+        QDir dir(QString::fromStdString(sekDir + "/" + profiles[ui->profilesInstalled->currentIndex()].name));
+        dir.removeRecursively();
 
 
 
-            string finalProfileModengine = sekDir + "\\modengine.ini";
 
-            QFile::copy(".\\modengine.ini", QString::fromStdString(finalProfileModengine));
+        //removes modengine ini
+
+        string modengineRemove = sekDir + ".\\modengine.ini";
+
+        QFile file(QString::fromStdString(modengineRemove));
+
+        file.remove();
+
+
+
+        //copys the default modengine.ini to the sekiro directory
+
+        string finalProfileModengine = sekDir + "\\modengine.ini";
+
+        QFile::copy(".\\modengine.ini", QString::fromStdString(finalProfileModengine));
 
 
 
@@ -872,23 +1127,34 @@ void Sekiro::on_uninstallProfile_clicked()
 
 
 
+
+
+
+//loads the installed profiles
+
 void Sekiro::getSettingsProfile(){
 
 
 
-
+    //gets all the ini files for profiles
 
     QDir directory(".\\configsP\\");
     QStringList configs = directory.entryList(QStringList() << "*.ini" ,QDir::Files);
 
     int i = 0;
 
+
+
+
+
+    //for each ini files, installs the profile for that ini file
+
     foreach(QString filename, configs) {
 
 
 
 
-
+        //gets profile name, path, and the path for the config
 
         ifstream config(".\\configsP\\" + filename.toStdString());
 
@@ -913,6 +1179,9 @@ void Sekiro::getSettingsProfile(){
 
 
 
+
+
+        //creates modengine.ini for profile
 
         Profile.modengineConfig = "; Mod Engine configuration file\n"
                 "; Mod Engine (C) 2019 Katalash. All Rights Reserved.\n"
@@ -960,6 +1229,7 @@ void Sekiro::getSettingsProfile(){
 
 
 
+        //gets files for profiles
 
         QDir().mkdir(".\\tmp");
 
@@ -973,6 +1243,8 @@ void Sekiro::getSettingsProfile(){
 
 
 
+        //creates profile entry in vector of profiles
+
         profiles.push_back(Profile);
 
 
@@ -980,7 +1252,6 @@ void Sekiro::getSettingsProfile(){
 
 
         //deletes tmp folder
-
 
         QDir dir(".\\tmp\\");
         dir.removeRecursively();
@@ -1008,19 +1279,37 @@ void Sekiro::getSettingsProfile(){
 
 
 
+
+
+
+
+
+
+
+
+//looks in directory for profile files
+
 void Sekiro::traverseProfiles2(const QString &pattern, const QString &dirname, int mode){
+
+
+
     QDir dir(dirname);
     dir.setFilter(QDir::Dirs | QDir::Files | QDir::NoSymLinks | QDir::NoDot | QDir::NoDotDot);
 
-int i = 0;
+    int i = 0;
 
-
+    //recursivly looks in the directory that was given
     foreach (QFileInfo fileInfo, dir.entryInfoList()) {
 
 
 
+        //if the fileinfo is a readable directory then it looks for a folder that matches the folders used by sekiro with modengine
+
         if (fileInfo.isDir() && fileInfo.isReadable()){
 
+
+            //if it finds a folder used by sekiro with modengine then it puts it into the string trueModPath, which holds the
+            //folder in the mod archive that has the folders used by mod enigne
 
             if((fileInfo.baseName() == "parts" || fileInfo.baseName() == "event" ||fileInfo.baseName() == "map" || fileInfo.baseName() == "msg" ||
                     fileInfo.baseName() == "param" || fileInfo.baseName() == "script" || fileInfo.baseName() == "chr"  || fileInfo.baseName() == "cutscene"
@@ -1035,11 +1324,19 @@ int i = 0;
 
             }
 
+
+
+            //calls function so it searches all the sub directories
             traverseProfiles2(pattern, fileInfo.filePath(), mode);
 
 
 
         }
+
+
+
+        //if mode = 1 and the fileinfo is a file then puts all of the files in the profiles.files vector, so that when the user wants to uninstall the mod, the program has all of
+        //the names of the files to delete
 
         if(mode == 1){
 
@@ -1074,11 +1371,15 @@ int i = 0;
 
 
 
+
+
+//removes profile from the mod manager
+
 void Sekiro::on_removeProfile_clicked()
 {
 
 
-
+    //checks if no profiles are installed, if there are no profiles installed, then it throws an error
     if(ui->profilesInstalled->count() <= 0){
 
         QMessageBox err;
@@ -1087,7 +1388,14 @@ void Sekiro::on_removeProfile_clicked()
        err.critical(this, "Error", "No Mod Selected");
     }
 
+
+
+    //if there is a profile in profilesInstalled, it uninstalls it
     else{
+
+
+
+    //removes profile config file
 
     QFile configDel(QString::fromStdString(profiles[ui->profilesInstalled->currentIndex()].profileConfigPath));
 
@@ -1095,21 +1403,31 @@ void Sekiro::on_removeProfile_clicked()
 
 
 
+    //removes profile archive file
+
     QFile modDel(QString::fromStdString(profiles[ui->profilesInstalled->currentIndex()].path + ".zip"));
 
     modDel.remove();
 
 
 
+
+    //removes profile modengine.ini
+
     QFile modEngineDel(QString::fromStdString(profiles[ui->profilesInstalled->currentIndex()].path + ".ini"));
 
     modEngineDel.remove();
 
 
+
+
+    //erases entry in profiles vector
+
     profiles.erase(profiles.begin() + ui->profilesInstalled->currentIndex());
 
 
 
+    //erases entry in profilesInstalled index
 
     ui->profilesInstalled->removeItem(ui->profilesInstalled->currentIndex());
 
@@ -1124,8 +1442,29 @@ void Sekiro::on_removeProfile_clicked()
 
 
 
+
+
+
+
+//sets the folder modenegine uses to the folder for the profile that is at the current index of the combo box
+
 void Sekiro::on_setActiveProfile_clicked()
 {
+
+
+    //checks if no profiles are installed, if there are no profiles installed, then it throws an error
+    if(ui->profilesInstalled->count() <= 0){
+
+        QMessageBox err;
+
+
+       err.critical(this, "Error", "No Mod Selected");
+    }
+
+    else{
+
+
+
 
 
 
@@ -1139,6 +1478,8 @@ void Sekiro::on_setActiveProfile_clicked()
 
 
 
+    //copys the modengine.ini for the profile at the current index to the sekiro directory
+
     string profileModengine  = ".\\profiles\\" + profiles[ui->profilesInstalled->currentIndex()].name + ".ini";
 
     string finalProfileModengine = sekDir + "\\modengine.ini";
@@ -1146,12 +1487,19 @@ void Sekiro::on_setActiveProfile_clicked()
     QFile::copy(QString::fromStdString(profileModengine), QString::fromStdString(finalProfileModengine));
 
 
-
+}
 
 }
 
 
 
+
+
+
+
+
+
+//sets the folder modenegine uses to the default, which is "mods" in the sekiro directory
 
 void Sekiro::on_defaultProfile_clicked()
 {
@@ -1168,6 +1516,8 @@ void Sekiro::on_defaultProfile_clicked()
 
 
 
+    //copys the default modengine.ini that was made on program startup to the sekiro directory
+
     string finalProfileModengine = sekDir + "\\modengine.ini";
 
     QFile::copy(".\\modengine.ini", QString::fromStdString(finalProfileModengine));
@@ -1179,10 +1529,17 @@ void Sekiro::on_defaultProfile_clicked()
 
 
 
+
+
+
+
+//launches sekiro
+
 void Sekiro::on_launchSekiro_clicked()
 {
 
 
+    //literally just launches sekiro lol
 
     unpackRepack("cd /d " + sekDir + " & START sekiro.exe");
 
@@ -1195,6 +1552,11 @@ void Sekiro::on_launchSekiro_clicked()
 
 
 
+
+
+
+//on startup, checks if modengine is installed, if not it downloads and installs it for the user
+
 void Sekiro::modEngineCheck(){
 
 
@@ -1202,13 +1564,18 @@ void Sekiro::modEngineCheck(){
 
     QFileInfo modengineInstallCheck(QString::fromStdString(sekDir + "\\modengine.ini"));
 
-    //checks if ".\dir.ini" exists, if it doesnt, then makes dir.ini
+    //checks if "modengine" exists in the sekiro directory, if it doesnt, then makes asks the user if they want to install modengine
     if(!(modengineInstallCheck.exists())){
 
 
-        QMessageBox::StandardButton reply;
-        reply = QMessageBox::question(this, "Modengine not installed", "Modengine is not currently installed?  \nDo you want to install it?", QMessageBox::Yes|QMessageBox::No);
 
+        //askes the user if they want to install modengine
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "Modengine not installed", "Modengine is not currently installed  \nDo you want to install it?", QMessageBox::Yes|QMessageBox::No);
+
+
+
+        //if the user clicks yes then downloads and installs modengine
         if (reply == QMessageBox::Yes) {
 
 
@@ -1225,7 +1592,7 @@ void Sekiro::modEngineCheck(){
 
             QDir().mkdir(".\\tmp");
 
-            unpackRepack("cd %cd%   &   7za e -y \""+ downloadsFolder + "//ModEngine-6-0-1-11-1555994013.zip\" -o\""+ sekDir +"\" *.txt *.ini *.dll -r & PAUSE");
+            unpackRepack("cd %cd%   &   7za e -y \""+ downloadsFolder + "//ModEngine*.zip\" -o\""+ sekDir +"\" *.txt *.ini *.dll -r");
 
         }
 
@@ -1239,3 +1606,28 @@ void Sekiro::modEngineCheck(){
 
 
 
+
+
+
+
+
+//enables or disables warning messages
+
+void Sekiro::on_warnings_stateChanged()
+{
+
+
+    if(!ui->warnings->isChecked()){
+
+        warning = false;
+
+    }
+
+
+    else if(ui->warnings->isChecked()){
+
+        warning = true;
+
+    }
+
+}
