@@ -7,6 +7,7 @@
 #include <QFileDialog>
 #include <fstream>
 #include <ostream>
+#include <Windows.h>
 #include <QDirIterator>
 #include <vector>
 #include <cstdlib>
@@ -15,8 +16,8 @@
 #include <modname.h>
 #include <QFileInfoList>
 #include <QMessageBox>
-
-#define AND_CMD +" & "+
+#include <QUrl>
+#include <QDesktopServices>
 
 using namespace std;
 
@@ -43,7 +44,7 @@ Sekiro::Sekiro(QWidget *parent)
 {
     ui->setupUi(this);
 
-    setFixedSize(423, 300);
+    setFixedSize(423, 401);
 
 
 
@@ -96,6 +97,8 @@ Sekiro::Sekiro(QWidget *parent)
 
 
 
+
+    modEngineCheck();
 
 
 }
@@ -1171,3 +1174,68 @@ void Sekiro::on_defaultProfile_clicked()
 
 
 }
+
+
+
+
+
+void Sekiro::on_launchSekiro_clicked()
+{
+
+
+
+    unpackRepack("cd /d " + sekDir + " & START sekiro.exe");
+
+
+}
+
+
+
+
+
+
+
+void Sekiro::modEngineCheck(){
+
+
+    //checks if modengine is installed
+
+    QFileInfo modengineInstallCheck(QString::fromStdString(sekDir + "\\modengine.ini"));
+
+    //checks if ".\dir.ini" exists, if it doesnt, then makes dir.ini
+    if(!(modengineInstallCheck.exists())){
+
+
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "Modengine not installed", "Modengine is not currently installed?  \nDo you want to install it?", QMessageBox::Yes|QMessageBox::No);
+
+        if (reply == QMessageBox::Yes) {
+
+
+            QString url = "https://cf-files.nexusmods.com/cdn/2763/6/ModEngine-6-0-1-11-1555994013.zip?md5=pDU1_H4yZ5AVMB-Z0AEk6w&expires=1581884707&user_id=8105063&rip=74.88.98.97";
+            QDesktopServices::openUrl (url);
+
+             string downloadsFolder = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation).toLocal8Bit().constData();
+
+
+            qDebug() << QString::fromStdString(downloadsFolder);
+
+            Sleep(2000);
+
+
+            QDir().mkdir(".\\tmp");
+
+            unpackRepack("cd %cd%   &   7za e -y \""+ downloadsFolder + "//ModEngine-6-0-1-11-1555994013.zip\" -o\""+ sekDir +"\" *.txt *.ini *.dll -r & PAUSE");
+
+        }
+
+
+
+
+
+    }
+
+}
+
+
+

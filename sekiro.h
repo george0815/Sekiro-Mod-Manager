@@ -132,6 +132,16 @@ private slots:
 
     void on_defaultProfile_clicked();
 
+
+    void on_launchSekiro_clicked();
+
+
+
+    void modEngineCheck();
+
+
+
+
 private:
 
     Ui::Sekiro *ui;

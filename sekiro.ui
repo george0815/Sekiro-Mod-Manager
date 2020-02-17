@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>423</width>
-    <height>300</height>
+    <height>401</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -227,6 +227,19 @@
     </property>
     <property name="text">
      <string>Default</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="launchSekiro">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>330</y>
+      <width>81</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Launch Sekiro</string>
     </property>
    </widget>
   </widget>
