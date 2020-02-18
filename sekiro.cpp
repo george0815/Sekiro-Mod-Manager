@@ -1385,7 +1385,7 @@ void Sekiro::on_removeProfile_clicked()
         QMessageBox err;
 
 
-       err.critical(this, "Error", "No Mod Selected");
+       err.critical(this, "Error", "No Profile Selected");
     }
 
 
@@ -1458,7 +1458,7 @@ void Sekiro::on_setActiveProfile_clicked()
         QMessageBox err;
 
 
-       err.critical(this, "Error", "No Mod Selected");
+       err.critical(this, "Error", "No Profile Selected");
     }
 
     else{

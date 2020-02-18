@@ -247,12 +247,12 @@
      <rect>
       <x>300</x>
       <y>330</y>
-      <width>70</width>
+      <width>111</width>
       <height>18</height>
      </rect>
     </property>
     <property name="text">
-     <string>Warnings</string>
+     <string>Disable Warnings</string>
     </property>
    </widget>
   </widget>
