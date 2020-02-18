@@ -217,7 +217,7 @@ void Sekiro::on_addMod_clicked()
     if(modExt == "7z" || modExt == "zip"){
 
 
-        unpackRepack("cd %cd%   &   7za e -spf -y -o%cd%\\tmp \"%cd%\\mods\\"  + modName + "." + modExt.toLocal8Bit().constData() + "\"");
+        unpackRepack("cd \"%cd%\"   &   7za e -spf -y -o\"%cd%\\tmp\" \"%cd%\\mods\\"  + modName + "." + modExt.toLocal8Bit().constData() + "\"");
 
 
     }
@@ -227,7 +227,7 @@ void Sekiro::on_addMod_clicked()
     else if(modExt == "rar"){
 
 
-        unpackRepack("cd %cd%    &    unrar x  -y \"%cd%\\mods\\"  + modName + ".rar\" * .\\tmp\\");
+        unpackRepack("cd \"%cd%\"    &    unrar x  -y \"%cd%\\mods\\"  + modName + ".rar\" * .\\tmp\\");
 
     }
 
@@ -243,12 +243,12 @@ void Sekiro::on_addMod_clicked()
     //restructures archive, the reason for doing this is while almost every mod uses the unpacked sekiro folders like "parts" "chr" etc
     //some mod compressed archives might have their files in an extra folder, like one mod archive might have a directory like bossrushV.012/bossrush/mod folders
     //and another might have sekiro/mod folder so by restructuring, it makes sure that the mod folders ("parts" "chr" "mtd" etc) are in the root folder of the mod archive
-    //for later exxtracting
+    //for later extracting
 
 
     traverse("*.*", ".\\tmp\\", 0);
 
-    unpackRepack("cd %cd%   &   7za a -y \".\\tmp\\"  + modName + ".zip\" \"" + trueModPath + "/*\"");
+    unpackRepack("cd \"%cd%\"   &   7za a -y \".\\tmp\\"  + modName + ".zip\" \"" + trueModPath + "/*\"");
 
 
     file.remove();
@@ -277,7 +277,7 @@ void Sekiro::on_addMod_clicked()
 
     QDir().mkdir(".\\tmp");
 
-    unpackRepack("cd %cd%   &   7za e -spf -y -o%cd%\\tmp \"%cd%\\mods\\"+ modName + ".zip\"");
+    unpackRepack("cd \"%cd%\"   &   7za e -spf -y -o\"%cd%\\tmp\" \"%cd%\\mods\\"+ modName + ".zip\"");
 
     traverse("*.*", ".\\tmp\\", 1);
 
@@ -631,7 +631,7 @@ void Sekiro::on_Install_clicked()
 
         if(warning == true){
 
-            unpackRepack("cd %cd%   &   7za e -spf -y -o\"" + sekDir + "\\mods\\\" \"%cd%\\mods\\"+ mods[ui->modsInstalled->currentIndex()].name + ".zip\" ");
+            unpackRepack("cd \"%cd%\"   &   7za e -spf -y -o\"" + sekDir + "\\mods\\\" \"%cd%\\mods\\"+ mods[ui->modsInstalled->currentIndex()].name + ".zip\" ");
 
 
         }
@@ -645,7 +645,7 @@ void Sekiro::on_Install_clicked()
         //if the user clicks yes then installs mod and if there is a mod at the current index, then unpacks the mod files into the sekiro directory
         if (reply == QMessageBox::Yes) {
 
-            unpackRepack("cd %cd%   &   7za e -spf -y -o\"" + sekDir + "\\mods\\\" \"%cd%\\mods\\"+ mods[ui->modsInstalled->currentIndex()].name + ".zip\" ");
+            unpackRepack("cd \"%cd%\"   &   7za e -spf -y -o\"" + sekDir + "\\mods\\\" \"%cd%\\mods\\"+ mods[ui->modsInstalled->currentIndex()].name + ".zip\" ");
 
 
         }
@@ -761,7 +761,7 @@ void Sekiro::getSettings(){
 
         QDir().mkdir(".\\tmp");
 
-        unpackRepack("cd %cd%   &   7za e -spf -y -o%cd%\\tmp \"%cd%\\mods\\"+ Mod.name + ".zip\"");
+        unpackRepack("cd \"%cd%\"   &   7za e -spf -y -o\"%cd%\\tmp\" \"%cd%\\mods\\"+ Mod.name + ".zip\"");
 
         traverse("*.*", ".\\tmp\\", 1);
 
@@ -1014,7 +1014,7 @@ void Sekiro::on_installProfile_clicked()
 
     QDir().mkdir(QString::fromStdString(profiles[ui->profilesInstalled->currentIndex()].profileFolder));
 
-    unpackRepack("cd %cd%   &   7za e -spf -y -o\"" + sekDir + "\\"+profiles[ui->profilesInstalled->currentIndex()].name +"\\\" \"%cd%\\profiles\\"+ profiles[ui->profilesInstalled->currentIndex()].name + ".zip\" ");
+    unpackRepack("cd \"%cd%\"   &   7za e -spf -y -o\"" + sekDir + "\\"+profiles[ui->profilesInstalled->currentIndex()].name +"\\\" \"%cd%\\profiles\\"+ profiles[ui->profilesInstalled->currentIndex()].name + ".zip\" ");
 
 
 
@@ -1233,7 +1233,7 @@ void Sekiro::getSettingsProfile(){
 
         QDir().mkdir(".\\tmp");
 
-        unpackRepack("cd %cd%   &   7za e -spf -y -o%cd%\\tmp \"%cd%\\profiles\\"+ Profile.name + ".zip\"");
+        unpackRepack("cd \"%cd%\"   &   7za e -spf -y -o\"%cd%\\tmp\" \"%cd%\\profiles\\"+ Profile.name + ".zip\"");
 
         traverseProfiles2("*.*", ".\\tmp\\", 1);
 

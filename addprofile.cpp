@@ -34,6 +34,8 @@ addProfile::~addProfile()
 void addProfile::on_profileConfirm_clicked()
 {
 
+
+
 //adds the data for the profile being added to the profile struct
 
 Profile.name = ui->profileNameLineEdit->text().toLocal8Bit().constData();
@@ -127,7 +129,7 @@ for(int i = 0; i < Profile.modNum; i++){
    //restructures archive, the reason for doing this is while almost every mod uses the unpacked sekiro folders like "parts" "chr" etc
    //some mod compressed archives might have their files in an extra folder, like one mod archive might have a directory like bossrushV.012/bossrush/mod folders
    //and another might have sekiro/mod folder so by restructuring, it makes sure that the mod folders ("parts" "chr" "mtd" etc) are in the root folder of the mod archive
-   //for later exxtracting
+   //for later extracting
 
    QFile file(modNAME);
 
@@ -139,7 +141,7 @@ for(int i = 0; i < Profile.modNum; i++){
 
     if(modExt == "7z" || modExt == "zip"){
 
-        unpackRepackProfiles("cd %cd%   &   7za e -spf -y -o%cd%\\tmp \"%cd%\\profiles\\"  + to_string(i) + "." + modExt.toLocal8Bit().constData() + "\"");
+        unpackRepackProfiles("cd \"%cd%\"   &   7za e -spf -y -o\"%cd%\\tmp\" \"%cd%\\profiles\\"  + to_string(i) + "." + modExt.toLocal8Bit().constData() + "\"");
 
 
     }
@@ -151,7 +153,7 @@ for(int i = 0; i < Profile.modNum; i++){
 
     traverseProfiles("*.*", ".\\tmp\\", 0);
 
-    unpackRepackProfiles("cd %cd%   &   7za a -y \".\\tmp\\"  + to_string(i) + ".zip\" \"" + modProfilePath + "/*\"");
+    unpackRepackProfiles("cd \"%cd%\"   &   7za a -y \".\\tmp\\"  + to_string(i) + ".zip\" \"" + modProfilePath + "/*\"");
 
     file.remove();
 
@@ -187,7 +189,7 @@ for(int i = 0; i < Profile.modNum; i++){
 
 for(int i = 0; i < Profile.modNum; i++){
 
-    unpackRepackProfiles("cd %cd%   &   7za e -spf -y -o%cd%\\tmp \"%cd%\\profiles\\"  + to_string(i) + ".zip""\"");
+    unpackRepackProfiles("cd \"%cd%\"   &   7za e -spf -y -o\"%cd%\\tmp\" \"%cd%\\profiles\\"  + to_string(i) + ".zip""\"");
 
 }
 
@@ -205,7 +207,7 @@ traverseProfiles("*.*", ".\\tmp\\", 1);
 
 //creates profile archive
 
-unpackRepackProfiles("cd %cd%   &   7za a -y \".\\tmp\\"  + Profile.name + ".zip\" .\\tmp\\*");
+unpackRepackProfiles("cd \"%cd%\"   &   7za a -y \".\\tmp\\"  + Profile.name + ".zip\" .\\tmp\\*");
 
 
 
