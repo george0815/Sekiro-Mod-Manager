@@ -1,7 +1,7 @@
 # Sekiro-Mod-Manager
 Mod Manger for the 2019 Game of The Year; Sekiro - Shadows Die Twice
 
-The manager is extremely simple at the moment. Currently you can add, remove, install, and uninstall mods. Down the road I plan to add support for, launching sekiro, as well as automatically installing modengine(if it isnt installed already) and a UI overhaul.
+The manager is extremely simple at the moment. Currently you can add, remove, install, and uninstall mods as well as launching sekiro and automatically installing modengine(if it isnt installed already).
 
 
 # Usage
