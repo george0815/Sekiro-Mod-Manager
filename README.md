@@ -4,6 +4,19 @@ Mod Manger for the 2019 Game of The Year; Sekiro - Shadows Die Twice
 The manager is extremely simple at the moment. Currently you can add, remove, install, and uninstall mods. Down the road I plan to add support for, launching sekiro, as well as automatically installing modengine(if it isnt installed already) and a UI overhaul.
 
 
+# Usage
+
+Mods
+
+To install a mod, first add it to the manager by pressing the "plus" button, then press the install button. This will unpack the mod files into the into the mods folder in the sekiro directory(provided modengine is installed). 
+
+
+
+Profiles
+
+Profiles are basically a merged mod. Lets say you want to have the Boss Rush mod, and have a cosmetic mod for sekiro you also like. You can make a mod profile which contains both mods.  Just click the "plus" button, specify the name of the profile and how many mods will be included, then choose what mods to add. Another advantage of using profiles is that you dont have to overwrite anything when installing a new one. Just install whatever profiles you plan on frequently using, then choose the profile you want to enable in the combo box and click "set active". This is done by changing the folder modengine uses in modengine.ini.   
+
+
 This uses 7-Zip Extra(7za.exe) and UnRAR(UnRAR.exe) to unpack and repack mods, so when compiling the source code put 7za.exe(and its required dll files) and unrar.exe in the build directory.
 
 
