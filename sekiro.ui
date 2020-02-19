@@ -252,7 +252,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Disable Warnings</string>
+     <string>Disable Warning</string>
     </property>
    </widget>
   </widget>

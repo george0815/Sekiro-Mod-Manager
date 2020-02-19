@@ -6,7 +6,7 @@
 
 #include <QMainWindow>
 #include <Windows.h>
-
+#include <set>
 
 
 
@@ -90,6 +90,8 @@ extern string trueModPath;
 
 
 
+extern set<string> modengineFolders;
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class Sekiro; }
 QT_END_NAMESPACE
@@ -107,7 +109,14 @@ public:
     ~Sekiro();
 
 
+    //checks if mod path is empty
+    static bool isModPathEmpty(string truemodpath);
 
+    //looks in directory for profile files
+    static void traverseProfiles(const QString &pattern, const QString &dirname, int mode);
+
+    //unpacks and repacks compressed archives
+    static void unpackRepack(string line);
 
 
 private slots:
@@ -134,8 +143,7 @@ private slots:
 
 
 
-    //looks in directory for profile files
-    void traverseProfiles2(const QString &pattern, const QString &dirname, int mode);
+
 
 
 
@@ -157,8 +165,7 @@ private slots:
 
 
 
-    //unpacks and repacks compressed archives
-    void unpackRepack(string line);
+
 
 
 
@@ -236,6 +243,10 @@ private slots:
 
     //enables or disables warning messages
     void on_warnings_stateChanged();
+
+
+
+
 
 private:
 

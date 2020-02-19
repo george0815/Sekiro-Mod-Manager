@@ -3,6 +3,7 @@
 #include "ui_addprofile.h"
 #include <QFileDialog>
 #include <iostream>
+#include <QMessageBox>
 #include <fstream>
 #include <qdebug.h>
 
@@ -33,6 +34,7 @@ addProfile::~addProfile()
 
 void addProfile::on_profileConfirm_clicked()
 {
+
 
 
 
@@ -141,19 +143,23 @@ for(int i = 0; i < Profile.modNum; i++){
 
     if(modExt == "7z" || modExt == "zip"){
 
-        unpackRepackProfiles("cd \"%cd%\"   &   7za e -spf -y -o\"%cd%\\tmp\" \"%cd%\\profiles\\"  + to_string(i) + "." + modExt.toLocal8Bit().constData() + "\"");
+        Sekiro::unpackRepack("cd \"%cd%\"   &   7za e -spf -y -o\"%cd%\\tmp\" \"%cd%\\profiles\\"  + to_string(i) + "." + modExt.toLocal8Bit().constData() + "\"");
 
 
     }
     else if(modExt == "rar"){
 
-        unpackRepackProfiles("cd %cd%    &    unrar x  -y \"%cd%\\profiles\\"  + to_string(i) + ".rar\" * .\\tmp\\");
+        Sekiro::unpackRepack("cd %cd%    &    unrar x  -y \"%cd%\\profiles\\"  + to_string(i) + ".rar\" * .\\tmp\\");
 
     }
 
-    traverseProfiles("*.*", ".\\tmp\\", 0);
+    Sekiro::traverseProfiles("*.*", ".\\tmp\\", 0);
 
-    unpackRepackProfiles("cd \"%cd%\"   &   7za a -y \".\\tmp\\"  + to_string(i) + ".zip\" \"" + modProfilePath + "/*\"");
+
+
+    if (Sekiro::isModPathEmpty(modProfilePath) == false){
+
+    Sekiro::unpackRepack("cd \"%cd%\"   &   7za a -y \".\\tmp\\"  + to_string(i) + ".zip\" \"" + modProfilePath + "/*\"");
 
     file.remove();
 
@@ -179,6 +185,26 @@ for(int i = 0; i < Profile.modNum; i++){
 
     QDir().mkdir(".\\tmp\\");
 
+
+    modProfilePath = "";
+
+    }
+
+    else if(Sekiro::isModPathEmpty(modProfilePath) == true){
+
+        QMessageBox err;
+
+        err.critical(this, "Error", "No folders used by modengine found. Please repack mod with the files in their respective folders");
+
+
+        //deletes tmp
+
+        QDir dir(".\\tmp\\");
+        dir.removeRecursively();
+
+    }
+
+
     }
 
 }
@@ -189,7 +215,7 @@ for(int i = 0; i < Profile.modNum; i++){
 
 for(int i = 0; i < Profile.modNum; i++){
 
-    unpackRepackProfiles("cd \"%cd%\"   &   7za e -spf -y -o\"%cd%\\tmp\" \"%cd%\\profiles\\"  + to_string(i) + ".zip""\"");
+    Sekiro::unpackRepack("cd \"%cd%\"   &   7za e -spf -y -o\"%cd%\\tmp\" \"%cd%\\profiles\\"  + to_string(i) + ".zip""\"");
 
 }
 
@@ -200,14 +226,19 @@ for(int i = 0; i < Profile.modNum; i++){
 
 //get all files in tmp and put them in Profiles.files
 
-traverseProfiles("*.*", ".\\tmp\\", 1);
+Sekiro::traverseProfiles("*.*", ".\\tmp\\", 1);
+
+
+
+
+
 
 
 
 
 //creates profile archive
 
-unpackRepackProfiles("cd \"%cd%\"   &   7za a -y \".\\tmp\\"  + Profile.name + ".zip\" .\\tmp\\*");
+Sekiro::unpackRepack("cd \"%cd%\"   &   7za a -y \".\\tmp\\"  + Profile.name + ".zip\" .\\tmp\\*");
 
 
 
@@ -267,6 +298,9 @@ profiles.push_back(Profile);
 
 isProfileDone = true;
 
+
+
+
 }
 
 
@@ -274,106 +308,8 @@ isProfileDone = true;
 
 
 
-//unpacks and repacks compressed archives
-
-void addProfile::unpackRepackProfiles(string line){
 
 
-    //creates batch file, then puts string line into batch file, then launches it  using system, even though it
-    //is called unpackRepack, it can be used whenever you need to execute a command prompt command
-
-    ofstream unpack;
-    unpack.open( "commands.cmd", ios::trunc );
-
-    unpack <<
-        line << endl;
-
-    unpack.close();
-
-
-
-    system( "cmd.exe /c commands.cmd" );
-
-
-    remove( "commands.cmd" );
-
-}
-
-
-
-//looks in directory for profile files
-
-void addProfile::traverseProfiles(const QString &pattern, const QString &dirname, int mode)
-{
-    QDir dir(dirname);
-    dir.setFilter(QDir::Dirs | QDir::Files | QDir::NoSymLinks | QDir::NoDot | QDir::NoDotDot);
-
-    int i = 0;
-
-    //recursivly looks in the directory that was given
-    foreach (QFileInfo fileInfo, dir.entryInfoList()) {
-
-
-
-        //if the fileinfo is a readable directory then it looks for a folder that matches the folders used by sekiro with modengine
-
-        if (fileInfo.isDir() && fileInfo.isReadable()){
-
-
-            //if it finds a folder used by sekiro with modengine then it puts it into the string trueModPath, which holds the
-            //folder in the mod archive that has the folders used by mod enigne
-
-            if((fileInfo.baseName() == "parts" || fileInfo.baseName() == "event" ||fileInfo.baseName() == "map" || fileInfo.baseName() == "msg" ||
-                    fileInfo.baseName() == "param" || fileInfo.baseName() == "script" || fileInfo.baseName() == "chr"  || fileInfo.baseName() == "cutscene"
-                || fileInfo.baseName() == "event" || fileInfo.baseName() == "facegen" || fileInfo.baseName() == "font" || fileInfo.baseName() == "action"
-                    || fileInfo.baseName() == "menu" || fileInfo.baseName() == "mtd" || fileInfo.baseName() == "obj" || fileInfo.baseName() == "other"
-                    || fileInfo.baseName() == "sfx" || fileInfo.baseName() == "shader" ) && mode == 0){
-
-
-                modProfilePath = fileInfo.path().toLocal8Bit().constData();
-                qDebug() << modProfilePath.c_str();
-
-
-            }
-
-
-            //calls function so it searches all the sub directories
-            traverseProfiles(pattern, fileInfo.filePath(), mode);
-
-
-
-        }
-
-
-
-        //if mode = 1 and the fileinfo is a file then puts all of the files in the profiles.files vector, so that when the user wants to uninstall the mod, the program has all of
-        //the names of the files to delete
-
-        if(mode == 1){
-
-
-
-
-        QString file = fileInfo.filePath().remove(0, 5);
-
-
-
-        if(fileInfo.isFile()){
-
-        Profile.files.push_back(file.toLocal8Bit().constData());
-
-        qDebug() << file;
-
-        i++;
-
-        }
-
-      }
-
-
-
-    }
-}
 
 
 

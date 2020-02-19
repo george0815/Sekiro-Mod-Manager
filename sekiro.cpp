@@ -14,8 +14,13 @@
 #include "direct.h"
 #include <QDir>
 #include <modname.h>
+#include <algorithm>
+#include <set>
 #include <QFileInfoList>
+#include <cctype>
 #include <QMessageBox>
+#include <cstring>
+#include <cstdio>
 #include <QUrl>
 #include <QDesktopServices>
 
@@ -30,6 +35,25 @@ string modName;
 
 struct mod Mod;
 
+set<string> modengineFolders = {"parts",
+                                   "event",
+                                   "map",
+                                   "msg",
+                                   "param",
+                                   "script",
+                                   "chr",
+                                   "cutscene",
+                                   "facegen",
+                                   "font",
+                                   "action",
+                                   "menu",
+                                   "mtd",
+                                   "obj",
+                                   "other",
+                                   "sfx",
+                                   "shader",
+                                   "sound",
+                                   "movie"};
 
 struct profile Profile;
 
@@ -37,7 +61,7 @@ vector<profile> profiles;
 
 vector<mod> mods;
 
-string trueModPath;
+string trueModPath = "";
 
 bool isProfileDone = false;
 
@@ -246,7 +270,14 @@ void Sekiro::on_addMod_clicked()
     //for later extracting
 
 
+
     traverse("*.*", ".\\tmp\\", 0);
+
+    qDebug() << QString::fromStdString(trueModPath);
+
+    if(isModPathEmpty(trueModPath) == false){
+
+
 
     unpackRepack("cd \"%cd%\"   &   7za a -y \".\\tmp\\"  + modName + ".zip\" \"" + trueModPath + "/*\"");
 
@@ -329,6 +360,26 @@ void Sekiro::on_addMod_clicked()
     //creates new mod entry in combo box
 
     ui->modsInstalled->addItem(QString::fromStdString(modName));
+
+    trueModPath = "";
+
+    }
+
+    else if(isModPathEmpty(trueModPath) == true){
+
+        QMessageBox err;
+
+        err.critical(this, "Error", "No folders used by modengine found. Please repack mod with the files in their respective folders");
+
+        file.remove();
+
+
+        QDir dir(".\\tmp\\");
+        dir.removeRecursively();
+
+
+    }
+
 
 }
 
@@ -473,15 +524,15 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
             //if it finds a folder used by sekiro with modengine then it puts it into the string trueModPath, which holds the
             //folder in the mod archive that has the folders used by mod enigne
 
-            if((fileInfo.baseName() == "parts" || fileInfo.baseName() == "event" ||fileInfo.baseName() == "map" || fileInfo.baseName() == "msg" ||
-                    fileInfo.baseName() == "param" || fileInfo.baseName() == "script" || fileInfo.baseName() == "chr"  || fileInfo.baseName() == "cutscene"
-                || fileInfo.baseName() == "event" || fileInfo.baseName() == "facegen" || fileInfo.baseName() == "font" || fileInfo.baseName() == "action"
-                    || fileInfo.baseName() == "menu" || fileInfo.baseName() == "mtd" || fileInfo.baseName() == "obj" || fileInfo.baseName() == "other"
-                    || fileInfo.baseName() == "sfx" || fileInfo.baseName() == "shader" ) && mode == 0){
+
+            //converts folder name to lowercase
+            string folderName = fileInfo.baseName().toLocal8Bit().constData();
+            transform(folderName.begin(),folderName.end(),folderName.begin(), tolower);
+
+            if(modengineFolders.find(folderName) != modengineFolders.end() && mode == 0){
 
 
                 trueModPath = fileInfo.path().toLocal8Bit().constData();
-                qDebug() << trueModPath.c_str();
 
 
             }
@@ -502,7 +553,6 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
 
         QString file = fileInfo.filePath().remove(0, 5);
 
-        //qDebug() << file;
 
 
         if(fileInfo.isFile()){
@@ -875,50 +925,7 @@ void Sekiro::on_changeSekDir_clicked()
 
 
 
-    //askes the user if they want to install mod
-    QMessageBox::StandardButton reply;
 
-    if(warning == false){
-
-    reply = QMessageBox::question(this, "Warning", "Changing the Sekiro directory will require you to reinstall your mods  \nDo you still want to change directory?", QMessageBox::Yes|QMessageBox::No);
-
-
-
-    //if the user clicks yes then downloads and installs modengine
-    if (reply == QMessageBox::Yes) {
-
-
-
-
-
-
-
-    //prompts the user for sekiro directory
-
-    QFileDialog dialog;
-
-    dialog.setFileMode(QFileDialog::Directory);
-    dialog.setOption(QFileDialog::ShowDirsOnly);
-
-    QString path = dialog.getExistingDirectory(this, "Open Sekiro Folder");
-
-
-
-    //checks if the directory is legit, if it is then puts it into sekDir
-    if(!path.isEmpty()&& !path.isNull()){
-
-    sekDir = path.toLocal8Bit().constData();
-
-    ui->currentSekDir->setText(path);
-
-    }
-
-
-}
-    }
-
-
-    else if(warning == true){
 
         //prompts the user for sekiro directory
 
@@ -938,9 +945,18 @@ void Sekiro::on_changeSekDir_clicked()
 
         ui->currentSekDir->setText(path);
 
+
+        QFile dir("dir.ini");
+        dir.remove();
+
+
+        ofstream dirNew(".\\dir.ini");
+        dirNew << sekDir;
+        dirNew.close();
+
         }
 
-    }
+
 }
 
 
@@ -1235,7 +1251,9 @@ void Sekiro::getSettingsProfile(){
 
         unpackRepack("cd \"%cd%\"   &   7za e -spf -y -o\"%cd%\\tmp\" \"%cd%\\profiles\\"+ Profile.name + ".zip\"");
 
-        traverseProfiles2("*.*", ".\\tmp\\", 1);
+        traverseProfiles("*.*", ".\\tmp\\", 1);
+
+
 
         debugFileList(2);
 
@@ -1269,6 +1287,12 @@ void Sekiro::getSettingsProfile(){
 
 
 
+
+
+
+
+
+
     }
 
 
@@ -1289,7 +1313,7 @@ void Sekiro::getSettingsProfile(){
 
 //looks in directory for profile files
 
-void Sekiro::traverseProfiles2(const QString &pattern, const QString &dirname, int mode){
+void Sekiro::traverseProfiles(const QString &pattern, const QString &dirname, int mode){
 
 
 
@@ -1311,11 +1335,11 @@ void Sekiro::traverseProfiles2(const QString &pattern, const QString &dirname, i
             //if it finds a folder used by sekiro with modengine then it puts it into the string trueModPath, which holds the
             //folder in the mod archive that has the folders used by mod enigne
 
-            if((fileInfo.baseName() == "parts" || fileInfo.baseName() == "event" ||fileInfo.baseName() == "map" || fileInfo.baseName() == "msg" ||
-                    fileInfo.baseName() == "param" || fileInfo.baseName() == "script" || fileInfo.baseName() == "chr"  || fileInfo.baseName() == "cutscene"
-                || fileInfo.baseName() == "event" || fileInfo.baseName() == "facegen" || fileInfo.baseName() == "font" || fileInfo.baseName() == "action"
-                    || fileInfo.baseName() == "menu" || fileInfo.baseName() == "mtd" || fileInfo.baseName() == "obj" || fileInfo.baseName() == "other"
-                    || fileInfo.baseName() == "sfx" || fileInfo.baseName() == "shader" ) && mode == 0){
+            //converts folder name to lowercase
+            string folderName = fileInfo.baseName().toLocal8Bit().constData();
+            transform(folderName.begin(),folderName.end(),folderName.begin(), tolower);
+
+            if(modengineFolders.find(folderName) != modengineFolders.end() && mode == 0){
 
 
                 modProfilePath = fileInfo.path().toLocal8Bit().constData();
@@ -1327,7 +1351,7 @@ void Sekiro::traverseProfiles2(const QString &pattern, const QString &dirname, i
 
 
             //calls function so it searches all the sub directories
-            traverseProfiles2(pattern, fileInfo.filePath(), mode);
+            traverseProfiles(pattern, fileInfo.filePath(), mode);
 
 
 
@@ -1594,6 +1618,7 @@ void Sekiro::modEngineCheck(){
 
             unpackRepack("cd %cd%   &   7za e -y \""+ downloadsFolder + "//ModEngine*.zip\" -o\""+ sekDir +"\" *.txt *.ini *.dll -r");
 
+            QDir().mkdir(QString::fromStdString(sekDir + "\\mods"));
         }
 
 
@@ -1631,3 +1656,31 @@ void Sekiro::on_warnings_stateChanged()
     }
 
 }
+
+
+
+
+
+//checks if mod path is empty
+
+ bool Sekiro::isModPathEmpty(string truemodpath){
+
+    if(truemodpath == "" ){
+
+        return true;
+    }
+
+    else{
+
+        return false;
+    }
+
+
+}
+
+
+
+
+
+
+

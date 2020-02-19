@@ -26,12 +26,9 @@ public:
 
 
 
-    //unpacks and repacks compressed archives
-    void unpackRepackProfiles(string line);
 
 
-    //looks in directory for profile files
-    void traverseProfiles(const QString &pattern, const QString &dirname, int mode);
+
 
 
 private slots:
