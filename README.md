@@ -23,6 +23,48 @@ This uses 7-Zip Extra(7za.exe) and UnRAR(UnRAR.exe) to unpack and repack mods, s
 This only supports mods that use modengine compressed in a RAR, Zip, or 7z format. It doesnt support dll chaining.
 
 
+# Installation
+
+Just extract the zip file and launch the program, you will be prompted to choose your sekiro directory  
+
+
+
+# Unsupported mods
+  
+**IMPORTANT**
+
+The manager does not support loose files, the mod archive has to include the folders used by modengine like "parts", "mtd", "msg" etc
+
+
+FOR EXAMPLE
+
+
+Supported
+
+![supported zip structure](https://i.imgur.com/vpfHSCX.png)
+
+
+
+
+
+
+Unsupported
+
+![unsupported zip structure](https://i.imgur.com/5FLBuZN.png)
+
+
+
+
+
+**ALSO IMPORTANT** 
+
+
+The manager does not support mod packs, if you try to install a modpack immediately after downloading it, only ONE of the mods in the pack will be installed. 
+To install a mod from a modpack, just unpack it, then repack only the mod you want (also follow the supported zip structure above) and install the repacked mod.
+
+
+
+# Licenses
 
 7-Zip Extra license
 
