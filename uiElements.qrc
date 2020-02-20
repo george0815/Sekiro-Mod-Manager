@@ -1,0 +1,24 @@
+<RCC>
+    <qresource prefix="/uielements">
+        <file>uielements/Sekiro Mod Manager UI 720p.png</file>
+        <file>uielements/install.png</file>
+        <file>uielements/installNoPaint.png</file>
+        <file>uielements/uninstall.png</file>
+        <file>uielements/uninstallNoPaint.png</file>
+        <file>uielements/default.png</file>
+        <file>uielements/defaultNoPaint.png</file>
+        <file>uielements/launchsekiro.png</file>
+        <file>uielements/launchsekiroNoPaint.png</file>
+        <file>uielements/setactive.png</file>
+        <file>uielements/setactiveNoPaint.png</file>
+        <file>uielements/add.png</file>
+        <file>uielements/addNoPaint.png</file>
+        <file>uielements/remove.png</file>
+        <file>uielements/removeNoPaint.png</file>
+        <file>uielements/kanji.png</file>
+        <file>uielements/kanji2.PNG</file>
+    </qresource>
+    <qresource prefix="/fonts">
+        <file>font/Assassin.ttf</file>
+    </qresource>
+</RCC>

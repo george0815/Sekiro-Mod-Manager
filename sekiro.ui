@@ -6,84 +6,147 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>423</width>
-    <height>401</height>
+    <width>1280</width>
+    <height>742</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Sekiro Mod Manager</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
   <widget class="QWidget" name="centralwidget">
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
    <widget class="QPushButton" name="Install">
     <property name="geometry">
      <rect>
-      <x>40</x>
-      <y>60</y>
-      <width>75</width>
-      <height>23</height>
+      <x>290</x>
+      <y>200</y>
+      <width>211</width>
+      <height>86</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">#Install{
+background-image: url(:/uielements/uielements/installNoPaint.png) 0 0 0 0 stretch stretch;
+background-color: rgb(0, 0, 0);
+}
+
+QPushButton#Install:hover{
+	background-image: url(:/uielements/uielements/install.png) 0 0 0 0 stretch stretch;
+
+border: none;
+}</string>
+    </property>
     <property name="text">
-     <string>Install</string>
+     <string/>
     </property>
    </widget>
    <widget class="QToolButton" name="addMod">
     <property name="geometry">
      <rect>
-      <x>330</x>
-      <y>60</y>
-      <width>23</width>
-      <height>20</height>
+      <x>700</x>
+      <y>200</y>
+      <width>150</width>
+      <height>83</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">#addMod{
+background-image: url(:/uielements/uielements/addNoPaint.png) 0 0 0 0 stretch stretch;
+background-color: rgb(0, 0, 0);
+}
+
+QToolButton#addMod:hover{
+	background-image: url(:/uielements/uielements/add.png) 0 0 0 0 stretch stretch;
+
+border: none;
+}</string>
+    </property>
     <property name="text">
-     <string>+</string>
+     <string/>
     </property>
    </widget>
    <widget class="QComboBox" name="modsInstalled">
     <property name="geometry">
      <rect>
-      <x>40</x>
-      <y>30</y>
-      <width>341</width>
-      <height>22</height>
+      <x>340</x>
+      <y>175</y>
+      <width>561</width>
+      <height>51</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: rgb(255, 255, 255);
+font: 26pt &quot;Assassin$&quot;;
+background-color: rgb(0, 0, 0);
+</string>
     </property>
    </widget>
    <widget class="QPushButton" name="Uninstall">
     <property name="geometry">
      <rect>
-      <x>120</x>
-      <y>60</y>
-      <width>75</width>
-      <height>23</height>
+      <x>500</x>
+      <y>200</y>
+      <width>211</width>
+      <height>86</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">#Uninstall{
+background-image: url(:/uielements/uielements/uninstallNoPaint.png) 0 0 0 0 stretch stretch;
+background-color: rgb(0, 0, 0);
+}
+
+QPushButton#Uninstall:hover{
+	background-image: url(:/uielements/uielements/uninstall.png) 0 0 0 0 stretch stretch;
+
+border: none;
+}</string>
+    </property>
     <property name="text">
-     <string>Uninstall</string>
+     <string/>
     </property>
    </widget>
    <widget class="QToolButton" name="removeMod">
     <property name="geometry">
      <rect>
-      <x>360</x>
-      <y>60</y>
-      <width>23</width>
-      <height>20</height>
+      <x>830</x>
+      <y>200</y>
+      <width>150</width>
+      <height>81</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">#removeMod{
+background-image: url(:/uielements/uielements/removeNoPaint.png) 0 0 0 0 stretch stretch;
+background-color: rgb(0, 0, 0);
+}
+
+QToolButton#removeMod:hover{
+	background-image: url(:/uielements/uielements/remove.png) 0 0 0 0 stretch stretch;
+
+border: none;
+}</string>
+    </property>
     <property name="text">
-     <string>-</string>
+     <string/>
     </property>
    </widget>
    <widget class="QLabel" name="currentSekDirLabel">
     <property name="geometry">
      <rect>
-      <x>40</x>
-      <y>105</y>
+      <x>10</x>
+      <y>3</y>
       <width>71</width>
       <height>16</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: rgb(255, 255, 255);</string>
     </property>
     <property name="text">
      <string>Sekiro Folder:</string>
@@ -92,11 +155,14 @@
    <widget class="QLabel" name="currentSekDir">
     <property name="geometry">
      <rect>
-      <x>120</x>
-      <y>105</y>
+      <x>80</x>
+      <y>4</y>
       <width>221</width>
       <height>16</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: rgb(255, 255, 255);</string>
     </property>
     <property name="text">
      <string>TextLabel</string>
@@ -105,11 +171,15 @@
    <widget class="QToolButton" name="changeSekDir">
     <property name="geometry">
      <rect>
-      <x>360</x>
-      <y>100</y>
-      <width>23</width>
+      <x>10</x>
+      <y>20</y>
+      <width>21</width>
       <height>20</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: rgb(255, 255, 255);
+background-color: rgb(71, 71, 71);</string>
     </property>
     <property name="text">
      <string>...</string>
@@ -118,156 +188,345 @@
    <widget class="QLabel" name="modLabel">
     <property name="geometry">
      <rect>
-      <x>190</x>
-      <y>10</y>
-      <width>47</width>
-      <height>14</height>
+      <x>240</x>
+      <y>176</y>
+      <width>111</width>
+      <height>51</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">color: rgb(255, 255, 255);
+font: 26pt &quot;Assassin$&quot;;</string>
+    </property>
     <property name="text">
-     <string>Mods</string>
+     <string>mods</string>
     </property>
    </widget>
    <widget class="QLabel" name="profilesLabel">
     <property name="geometry">
      <rect>
-      <x>180</x>
-      <y>160</y>
-      <width>47</width>
-      <height>14</height>
+      <x>240</x>
+      <y>362</y>
+      <width>131</width>
+      <height>41</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">color: rgb(255, 255, 255);
+font: 26pt &quot;Assassin$&quot;;</string>
+    </property>
     <property name="text">
-     <string>Profiles</string>
+     <string>profiles</string>
     </property>
    </widget>
    <widget class="QComboBox" name="profilesInstalled">
     <property name="geometry">
      <rect>
-      <x>40</x>
-      <y>180</y>
-      <width>341</width>
-      <height>22</height>
+      <x>340</x>
+      <y>357</y>
+      <width>561</width>
+      <height>51</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: rgb(255, 255, 255);
+font: 26pt &quot;Assassin$&quot;;
+background-color: rgb(0, 0, 0);
+</string>
     </property>
    </widget>
    <widget class="QToolButton" name="removeProfile">
     <property name="geometry">
      <rect>
-      <x>360</x>
-      <y>212</y>
-      <width>23</width>
-      <height>20</height>
+      <x>830</x>
+      <y>385</y>
+      <width>150</width>
+      <height>86</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">#removeProfile{
+background-image: url(:/uielements/uielements/removeNoPaint.png) 0 0 0 0 stretch stretch;
+background-color: rgb(0, 0, 0);
+}
+
+QToolButton#removeProfile:hover{
+	background-image: url(:/uielements/uielements/remove.png) 0 0 0 0 stretch stretch;
+
+border: none;
+}</string>
+    </property>
     <property name="text">
-     <string>-</string>
+     <string/>
     </property>
    </widget>
    <widget class="QToolButton" name="addProfile">
     <property name="geometry">
      <rect>
-      <x>330</x>
-      <y>212</y>
-      <width>23</width>
-      <height>20</height>
+      <x>700</x>
+      <y>385</y>
+      <width>150</width>
+      <height>86</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">#addProfile{
+background-image: url(:/uielements/uielements/addNoPaint.png) 0 0 0 0 stretch stretch;
+background-color: rgb(0, 0, 0);
+}
+
+QToolButton#addProfile:hover{
+	background-image: url(:/uielements/uielements/add.png) 0 0 0 0 stretch stretch;
+
+border: none;
+}</string>
+    </property>
     <property name="text">
-     <string>+</string>
+     <string/>
     </property>
    </widget>
    <widget class="QPushButton" name="installProfile">
     <property name="geometry">
      <rect>
-      <x>40</x>
-      <y>210</y>
-      <width>71</width>
-      <height>23</height>
+      <x>290</x>
+      <y>385</y>
+      <width>211</width>
+      <height>86</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">#installProfile{
+background-image: url(:/uielements/uielements/installNoPaint.png) 0 0 0 0 stretch stretch;
+background-color: rgb(0, 0, 0);
+}
+
+QPushButton#installProfile:hover{
+	background-image: url(:/uielements/uielements/install.png) 0 0 0 0 stretch stretch;
+
+border: none;
+}</string>
+    </property>
     <property name="text">
-     <string>Install</string>
+     <string/>
     </property>
    </widget>
    <widget class="QPushButton" name="uninstallProfile">
     <property name="geometry">
      <rect>
-      <x>120</x>
-      <y>210</y>
-      <width>61</width>
-      <height>23</height>
+      <x>500</x>
+      <y>385</y>
+      <width>211</width>
+      <height>86</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">#uninstallProfile{
+background-image: url(:/uielements/uielements/uninstallNoPaint.png) 0 0 0 0 stretch stretch;
+background-color: rgb(0, 0, 0);
+}
+
+QPushButton#uninstallProfile:hover{
+	background-image: url(:/uielements/uielements/uninstall.png) 0 0 0 0 stretch stretch;
+
+border: none;
+}</string>
+    </property>
     <property name="text">
-     <string>Uninstall</string>
+     <string/>
     </property>
    </widget>
    <widget class="QPushButton" name="setActiveProfile">
     <property name="geometry">
      <rect>
-      <x>190</x>
-      <y>210</y>
-      <width>71</width>
-      <height>23</height>
+      <x>370</x>
+      <y>450</y>
+      <width>300</width>
+      <height>91</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">#setActiveProfile{
+background-image: url(:/uielements/uielements/setactiveNoPaint.png) 0 0 0 0 stretch stretch;
+background-color: rgb(0, 0, 0);
+}
+
+QPushButton#setActiveProfile:hover{
+	background-image: url(:/uielements/uielements/setactive.png) 0 0 0 0 stretch stretch;
+
+border: none;
+}</string>
+    </property>
     <property name="text">
-     <string>Set Active</string>
+     <string/>
     </property>
    </widget>
    <widget class="QPushButton" name="defaultProfile">
     <property name="geometry">
      <rect>
-      <x>264</x>
-      <y>210</y>
-      <width>61</width>
-      <height>23</height>
+      <x>670</x>
+      <y>450</y>
+      <width>211</width>
+      <height>91</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">#defaultProfile{
+background-image: url(:/uielements/uielements/defaultNoPaint.png) 0 0 0 0 stretch stretch;
+background-color: rgb(0, 0, 0);
+}
+
+QPushButton#defaultProfile:hover{
+	background-image: url(:/uielements/uielements/default.png) 0 0 0 0 stretch stretch;
+
+border: none;
+}</string>
+    </property>
     <property name="text">
-     <string>Default</string>
+     <string/>
     </property>
    </widget>
    <widget class="QPushButton" name="launchSekiro">
     <property name="geometry">
      <rect>
-      <x>40</x>
-      <y>330</y>
-      <width>81</width>
-      <height>23</height>
+      <x>480</x>
+      <y>620</y>
+      <width>300</width>
+      <height>91</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">#launchSekiro{
+background-image: url(:/uielements/uielements/launchsekiroNoPaint.png) 0 0 0 0 stretch stretch;
+background-color: rgb(0, 0, 0);
+}
+
+QPushButton#launchSekiro:hover{
+	background-image: url(:/uielements/uielements/launchsekiro.png) 0 0 0 0 stretch stretch;
+
+border: none;
+}</string>
+    </property>
     <property name="text">
-     <string>Launch Sekiro</string>
+     <string/>
     </property>
    </widget>
    <widget class="QCheckBox" name="warnings">
     <property name="geometry">
      <rect>
-      <x>300</x>
-      <y>330</y>
+      <x>1176</x>
+      <y>4</y>
       <width>111</width>
       <height>18</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">color: rgb(255, 255, 255);</string>
+    </property>
     <property name="text">
-     <string>Disable Warning</string>
+     <string>Disable Warnings</string>
     </property>
    </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>1171</x>
+      <y>700</y>
+      <width>111</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: rgb(255, 255, 255);</string>
+    </property>
+    <property name="text">
+     <string>Created by Hunter S.</string>
+    </property>
+   </widget>
+   <widget class="Line" name="line">
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>320</y>
+      <width>801</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: rgb(255, 255, 255);</string>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="come">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>410</y>
+      <width>401</width>
+      <height>391</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="pixmap">
+     <pixmap resource="uiElements.qrc">:/uielements/uielements/kanji2.PNG</pixmap>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>880</x>
+      <y>390</y>
+      <width>521</width>
+      <height>371</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="pixmap">
+     <pixmap resource="uiElements.qrc">:/uielements/uielements/kanji.png</pixmap>
+    </property>
+   </widget>
+   <zorder>label_2</zorder>
+   <zorder>come</zorder>
+   <zorder>defaultProfile</zorder>
+   <zorder>setActiveProfile</zorder>
+   <zorder>removeMod</zorder>
+   <zorder>addMod</zorder>
+   <zorder>Uninstall</zorder>
+   <zorder>Install</zorder>
+   <zorder>modsInstalled</zorder>
+   <zorder>currentSekDirLabel</zorder>
+   <zorder>currentSekDir</zorder>
+   <zorder>changeSekDir</zorder>
+   <zorder>modLabel</zorder>
+   <zorder>removeProfile</zorder>
+   <zorder>addProfile</zorder>
+   <zorder>installProfile</zorder>
+   <zorder>uninstallProfile</zorder>
+   <zorder>launchSekiro</zorder>
+   <zorder>warnings</zorder>
+   <zorder>profilesInstalled</zorder>
+   <zorder>profilesLabel</zorder>
+   <zorder>label</zorder>
+   <zorder>line</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>423</width>
+     <width>1280</width>
      <height>22</height>
     </rect>
    </property>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
  </widget>
- <resources/>
+ <resources>
+  <include location="uiElements.qrc"/>
+ </resources>
  <connections/>
 </ui>

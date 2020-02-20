@@ -74,11 +74,14 @@ Sekiro::Sekiro(QWidget *parent)
     ui->setupUi(this);
 
 
+    //sets background of the main window
+    setStyleSheet("Sekiro {background-image: url(:/uielements/uielements/Sekiro Mod Manager UI 720p.png) 0 0 0 0 stretch stretch;}");
+
 
 
     //sets the size
 
-    setFixedSize(423, 401);
+    setFixedSize(1280, 720);
 
 
 

@@ -42,6 +42,9 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 DISTFILES += \ \
     Sekiro.pro.user
 
+RESOURCES += \
+    uiElements.qrc
+
 
 
 
