@@ -9,9 +9,20 @@ modname::modname(QWidget *parent) :
 {
     ui->setupUi(this);
 
-//makes window frameless
-setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
 
+
+setWindowFlags(Qt::WindowTitleHint);
+//sets background of the mod name window
+setStyleSheet("modname {background-color: rgb(0, 0, 0);}");
+
+
+//sets background of the main window
+setStyleSheet("modname {border: 1px solid white}");
+
+
+//sets the size
+
+setFixedSize(624, 232);
 
 
 }
@@ -34,5 +45,7 @@ void modname::on_modNameConfirm_clicked()
     modName = ui->modNameLineEdit->text().toLocal8Bit().constData();
 
     close();
+
+
 
 }

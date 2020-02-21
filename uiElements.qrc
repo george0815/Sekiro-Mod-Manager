@@ -17,6 +17,10 @@
         <file>uielements/removeNoPaint.png</file>
         <file>uielements/kanji.png</file>
         <file>uielements/kanji2.PNG</file>
+        <file>uielements/ok.PNG</file>
+        <file>uielements/okNoPaint.PNG</file>
+        <file>uielements/cancel.PNG</file>
+        <file>uielements/cancelNoPaint.PNG</file>
     </qresource>
     <qresource prefix="/fonts">
         <file>font/Assassin.ttf</file>

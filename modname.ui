@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>160</width>
-    <height>110</height>
+    <width>624</width>
+    <height>232</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,38 +16,61 @@
   <widget class="QLineEdit" name="modNameLineEdit">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>40</y>
-     <width>131</width>
-     <height>20</height>
+     <x>26</x>
+     <y>70</y>
+     <width>571</width>
+     <height>51</height>
     </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">color: rgb(255, 255, 255);
+background-color: rgb(0, 0, 0);
+font: 26pt &quot;Assassin$&quot;;</string>
+   </property>
+   <property name="text">
+    <string/>
    </property>
   </widget>
   <widget class="QPushButton" name="modNameConfirm">
    <property name="geometry">
     <rect>
-     <x>60</x>
-     <y>70</y>
-     <width>31</width>
-     <height>23</height>
+     <x>230</x>
+     <y>130</y>
+     <width>151</width>
+     <height>101</height>
     </rect>
    </property>
+   <property name="styleSheet">
+    <string notr="true">#modNameConfirm{
+background-image: url(:/uielements/uielements/okNoPaint.PNG) 0 0 0 0 stretch stretch;
+background-color: rgb(0, 0, 0);
+}
+
+QPushButton#modNameConfirm:hover{
+	background-image: url(:/uielements/uielements/ok.PNG) 0 0 0 0 stretch stretch;
+
+border: none;
+}</string>
+   </property>
    <property name="text">
-    <string>OK</string>
+    <string> </string>
    </property>
   </widget>
   <widget class="QLabel" name="modNameLabel">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>5</y>
-     <width>141</width>
-     <height>31</height>
+     <x>80</x>
+     <y>10</y>
+     <width>491</width>
+     <height>71</height>
     </rect>
    </property>
+   <property name="styleSheet">
+    <string notr="true">color: rgb(255, 255, 255);
+font: 26pt &quot;Assassin$&quot;;</string>
+   </property>
    <property name="text">
-    <string>Please enter the name of 
-the mod</string>
+    <string>Please enter the name of the mod</string>
    </property>
   </widget>
  </widget>

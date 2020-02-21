@@ -20,8 +20,29 @@ addProfile::addProfile(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    //makes window frameless
-    setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
+
+
+
+    setWindowFlags(Qt::WindowTitleHint);
+
+
+
+    //sets background of the mod name window
+    setStyleSheet("addProfile {background-color: rgb(0, 0, 0);}");
+
+
+    //sets background of the main window
+    setStyleSheet("addProfile {border: 1px solid white}");
+
+
+    //sets the size
+
+    setFixedSize(756, 259);
+
+
+
+
+
 }
 
 addProfile::~addProfile()
