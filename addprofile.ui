@@ -59,6 +59,9 @@ font: 26pt &quot;Assassin$&quot;;</string>
 background-color: rgb(0, 0, 0);
 font: 26pt &quot;Assassin$&quot;;</string>
    </property>
+   <property name="minimum">
+    <number>1</number>
+   </property>
   </widget>
   <widget class="QLabel" name="profileNumberLabel">
    <property name="geometry">
@@ -99,7 +102,7 @@ border: none;
 }</string>
    </property>
    <property name="text">
-    <string> </string>
+    <string/>
    </property>
   </widget>
   <widget class="QPushButton" name="cancel">
@@ -124,7 +127,7 @@ border: none;
 }</string>
    </property>
    <property name="text">
-    <string> </string>
+    <string/>
    </property>
   </widget>
   <zorder>cancel</zorder>

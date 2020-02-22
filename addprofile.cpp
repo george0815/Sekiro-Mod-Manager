@@ -12,6 +12,8 @@ extern struct profile Profile;
 
 string modProfilePath;
 
+bool passed;
+
 extern bool isProfileDone;
 
 addProfile::addProfile(QWidget *parent) :
@@ -55,6 +57,16 @@ addProfile::~addProfile()
 
 void addProfile::on_profileConfirm_clicked()
 {
+
+
+    int invalidModCounter = 0;
+
+    string nameCheck = ui->profileNameLineEdit->text().toLocal8Bit().constData();
+
+    if(nameCheck.find_first_not_of(' ') != std::string::npos && Sekiro::nameRepeatCheck(false, ui->profileNameLineEdit->text().toLocal8Bit().constData()) == 0){
+
+
+
 
 
 
@@ -158,7 +170,11 @@ for(int i = 0; i < Profile.modNum; i++){
 
    string modDir = ".\\profiles\\" + to_string(i) + "." + modExt.toLocal8Bit().constData();
 
-   file.rename(modDir.c_str());
+
+
+
+   QFile::copy(modNAME, QString::fromStdString(modDir));
+
 
     QDir().mkdir(".\\tmp");
 
@@ -182,7 +198,9 @@ for(int i = 0; i < Profile.modNum; i++){
 
     Sekiro::unpackRepack("cd \"%cd%\"   &   7za a -y \".\\tmp\\"  + to_string(i) + ".zip\" \"" + modProfilePath + "/*\"");
 
-    file.remove();
+    QFile fileDel(modDir.c_str());
+
+    fileDel.remove();
 
 
 
@@ -209,19 +227,50 @@ for(int i = 0; i < Profile.modNum; i++){
 
     modProfilePath = "";
 
+    passed = true;
+
     }
 
     else if(Sekiro::isModPathEmpty(modProfilePath) == true){
 
+        invalidModCounter++;
+
+        QFont sekFont("Assassin$");
+        QFont errFont("Segoe UI", 8);
+
         QMessageBox err;
+
+        QApplication::setFont(errFont);
 
         err.critical(this, "Error", "No folders used by modengine found. Please repack mod with the files in their respective folders");
 
+        QFile fileDel(modDir.c_str());
 
-        //deletes tmp
+        fileDel.remove();
+
 
         QDir dir(".\\tmp\\");
         dir.removeRecursively();
+
+        string delConfig = ".\\profiles\\"+ Profile.name + ".ini";
+
+
+        if(invalidModCounter == Profile.modNum){
+
+        QFile delModConfig(delConfig.c_str());
+        delModConfig.remove();
+
+        passed = false;
+
+    }
+
+       QApplication::setFont(sekFont);
+
+
+
+
+
+
 
     }
 
@@ -231,6 +280,8 @@ for(int i = 0; i < Profile.modNum; i++){
 }
 
 
+
+if (passed == true){
 
 //dump mod files in tmp
 
@@ -319,14 +370,60 @@ profiles.push_back(Profile);
 
 isProfileDone = true;
 
+    }
 
+else{
 
+    close();
+
+}
 
 }
 
 
 
 
+
+
+    else if (!(nameCheck.find_first_not_of(' ') != std::string::npos)){
+
+
+        QFont sekFont("Assassin$");
+        QFont errFont("Segoe UI", 8);
+
+        QApplication::setFont(errFont);
+
+        QMessageBox err;
+
+
+
+       err.critical(this, "Error", "No name was entered");
+
+       QApplication::setFont(sekFont);
+
+
+    }
+    else if(Sekiro::nameRepeatCheck(false, ui->profileNameLineEdit->text().toLocal8Bit().constData()) == 1){
+
+        QFont sekFont("Assassin$");
+        QFont errFont("Segoe UI", 8);
+
+        QApplication::setFont(errFont);
+
+        QMessageBox err;
+
+
+
+       err.critical(this, "Error", "Name already matches a previously installed profile");
+
+       QApplication::setFont(sekFont);
+
+    }
+
+
+
+
+}
 
 
 
@@ -344,3 +441,10 @@ void addProfile::on_cancel_clicked()
     close();
 
 }
+
+
+
+
+
+
+

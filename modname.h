@@ -26,6 +26,12 @@ private slots:
     //asks the user for the name of the mod and puts it into modName
     void on_modNameConfirm_clicked();
 
+
+
+
+
+
+
 private:
 
 

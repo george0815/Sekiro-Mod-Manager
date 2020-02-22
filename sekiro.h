@@ -83,6 +83,10 @@ extern vector<mod> mods;
 extern bool isProfileDone;
 
 
+//bool that holds whether the profile had a valid file hierarchy
+extern bool passed;
+
+
 
 //holds string for the path to the mod folder of the mod being added
 extern string trueModPath;
@@ -117,6 +121,12 @@ public:
 
     //unpacks and repacks compressed archives
     static void unpackRepack(string line);
+
+
+
+
+     //checks if entered name matches a name of a previously installed mod or profile
+     static int nameRepeatCheck(bool mode, string lineedit);
 
 
 private slots:
@@ -254,7 +264,10 @@ private slots:
 
 
     //displays error if no mpds/profiles selected
-    void error();
+    void error(int mode);
+
+
+
 
 
 private:

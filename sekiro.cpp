@@ -237,8 +237,10 @@ void Sekiro::on_addMod_clicked()
 
     string modDir = ".\\mods\\" + modName + "." + modExt.toLocal8Bit().constData();
 
-    file.rename(modDir.c_str());
 
+
+
+    QFile::copy(modNAME, QString::fromStdString(modDir));
 
 
 
@@ -304,7 +306,9 @@ void Sekiro::on_addMod_clicked()
     unpackRepack("cd \"%cd%\"   &   7za a -y \".\\tmp\\"  + modName + ".zip\" \"" + trueModPath + "/*\"");
 
 
-    file.remove();
+    QFile fileDel(modDir.c_str());
+
+    fileDel.remove();
 
 
     string modFinalTemp = ".\\tmp\\" + modName + ".zip";
@@ -389,15 +393,26 @@ void Sekiro::on_addMod_clicked()
 
     else if(isModPathEmpty(trueModPath) == true){
 
+        QFont sekFont("Assassin$");
+        QFont errFont("Segoe UI", 8);
+
         QMessageBox err;
+
+        QApplication::setFont(errFont);
 
         err.critical(this, "Error", "No folders used by modengine found. Please repack mod with the files in their respective folders");
 
-        file.remove();
+        QFile fileDel(modDir.c_str());
+
+        fileDel.remove();
 
 
         QDir dir(".\\tmp\\");
         dir.removeRecursively();
+
+
+
+       QApplication::setFont(sekFont);
 
 
     }
@@ -743,7 +758,7 @@ void Sekiro::on_Install_clicked()
     //checks if there are no mods installed, if there isnt, then throws an error
     if(ui->modsInstalled->count() <= 0){
 
-        error();
+        error(0);
     }
 
 
@@ -813,7 +828,7 @@ void Sekiro::on_Uninstall_clicked()
     //checks if there are no mods installed, if there isnt, then throws an error
     if(ui->modsInstalled->count() <= 0){
 
-        error();
+        error(0);
     }
 
     else{
@@ -951,7 +966,7 @@ void Sekiro::on_removeMod_clicked()
     //checks if no mods are installed, if there are no mods installed, then it throws an error
     if(ui->modsInstalled->count() <= 0){
 
-        error();
+        error(0);
     }
 
 
@@ -1083,7 +1098,7 @@ void Sekiro::on_addProfile_clicked()
     //when the profile is added, it then updates the combo box
 
 
-    if(isProfileDone == true){
+    if(isProfileDone == true && passed == true){
    ui->profilesInstalled->addItem(QString::fromStdString(profiles[ui->profilesInstalled->count()].name));
 }
 
@@ -1106,7 +1121,7 @@ void Sekiro::on_installProfile_clicked()
 
     if(ui->profilesInstalled->count() <= 0){
 
-        error();
+        error(1);
     }
 
     //if there is a profile installed at the current index then unpacks the profile files into the sekiro directory
@@ -1167,7 +1182,7 @@ void Sekiro::on_uninstallProfile_clicked()
     //checks if no profiles are installed, if there are no profiles installed, then it throws an error
     if(ui->profilesInstalled->count() <= 0){
 
-        error();
+        error(1);
     }
 
 
@@ -1496,7 +1511,7 @@ void Sekiro::on_removeProfile_clicked()
     //checks if no profiles are installed, if there are no profiles installed, then it throws an error
     if(ui->profilesInstalled->count() <= 0){
 
-        error();
+        error(1);
     }
 
 
@@ -1566,7 +1581,7 @@ void Sekiro::on_setActiveProfile_clicked()
     //checks if no profiles are installed, if there are no profiles installed, then it throws an error
     if(ui->profilesInstalled->count() <= 0){
 
-        error();
+        error(1);
     }
 
     else{
@@ -1839,8 +1854,10 @@ void Sekiro::on_warnings_stateChanged()
 
  //displays error if no mpds/profiles selected
 
- void Sekiro::error(){
+ void Sekiro::error(int mode){
 
+
+     if(mode == 0){
 
      QFont sekFont("Assassin$");
      QFont errFont("Segoe UI", 8);
@@ -1851,10 +1868,100 @@ void Sekiro::on_warnings_stateChanged()
 
 
 
-    err.critical(this, "Error", "No Mod Selected");
+    err.critical(this, "Error", "No mod selected");
 
     QApplication::setFont(sekFont);
+     }
+
+     else if(mode == 1){
+
+         QFont sekFont("Assassin$");
+         QFont errFont("Segoe UI", 8);
+
+         QApplication::setFont(errFont);
+
+         QMessageBox err;
+
+
+
+        err.critical(this, "Error", "No profile selected");
+
+        QApplication::setFont(sekFont);
+
+     }
 
 
  }
+
+
+
+
+
+//checks if entered name matches a name of a previously installed mod or profile
+ int Sekiro::nameRepeatCheck(bool mode, string lineedit){
+
+
+ if(mode == true){
+
+         int counter = 0;
+
+         for(int i = 0;i < mods.size();i++){
+
+             if(lineedit == mods[i].name){
+
+                 counter++;
+
+             }
+
+
+
+         }
+
+         if (counter == 0){
+
+             return 0;
+
+         }
+         else{
+
+             return 1;
+
+         }
+
+     }
+
+ else if( mode == false){
+
+
+     int counter = 0;
+
+     for(int i = 0;i < profiles.size();i++){
+
+         if(lineedit == profiles[i].name){
+
+             counter++;
+
+         }
+
+
+
+     }
+
+     if (counter == 0){
+
+         return 0;
+
+     }
+     else{
+
+         return 1;
+
+     }
+
+ }
+
+
+ }
+
+
 
