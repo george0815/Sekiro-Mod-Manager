@@ -20,8 +20,10 @@
 #include <cctype>
 #include <QMessageBox>
 #include <cstring>
+#include <QFontDatabase>
 #include <cstdio>
 #include <QUrl>
+#include <QDialogButtonBox>
 #include <QDesktopServices>
 
 using namespace std;
@@ -72,6 +74,19 @@ Sekiro::Sekiro(QWidget *parent)
     , ui(new Ui::Sekiro)
 {
     ui->setupUi(this);
+
+
+    //sets font
+    qDebug() << QFontDatabase::addApplicationFont(":/fonts/font/Assassin.ttf");
+
+     QFont sekFont("Assassin$");
+     QApplication::setFont(sekFont);
+
+
+
+
+
+
 
 
     //sets background of the main window
@@ -147,6 +162,10 @@ Sekiro::Sekiro(QWidget *parent)
 
     //see function definition
     modEngineCheck();
+
+
+    this->show();
+    this->setWindowState(Qt::WindowState::WindowActive);
 
 
 }
@@ -424,27 +443,51 @@ void Sekiro::checkDir(){
     if(!(sekDirIni.exists())){
 
 
-        QFileDialog dialog;
+        bool isFolderValid = false;
 
-        dialog.setFileMode(QFileDialog::Directory);
-        dialog.setOption(QFileDialog::ShowDirsOnly);
-
-        QString path = dialog.getExistingDirectory(this, "Open Sekiro Folder");
+        while (isFolderValid == false){
 
 
+            //prompts the user for sekiro directory
 
-        //checks if directory is legit, if it is then sets it equal to sekDir, then makes dir.ini
-        if(!path.isEmpty()&& !path.isNull()){
+            QFileDialog dialog;
 
-        sekDir = path.toLocal8Bit().constData();
+            dialog.setFileMode(QFileDialog::Directory);
+            dialog.setOption(QFileDialog::ShowDirsOnly);
 
-        ui->currentSekDir->setText(path);
+            QString path = dialog.getExistingDirectory(this, "Open Sekiro Folder");
 
-        ofstream dir(".\\dir.ini");
-        dir << sekDir;
-        dir.close();
 
-        }
+
+
+            sekDir = path.toLocal8Bit().constData();
+
+            //checks if the directory is legit, if it is then puts it into sekDir
+            if(sekiroCheck() == 1){
+
+                qDebug() << sekiroCheck();
+
+
+            ui->currentSekDir->setText(path);
+
+
+            QFile dir("dir.ini");
+            dir.remove();
+
+
+            ofstream dirNew(".\\dir.ini");
+            dirNew << sekDir;
+            dirNew.close();
+
+            isFolderValid = true;
+
+            }
+
+
+
+
+}
+
 
 
 
@@ -461,36 +504,66 @@ void Sekiro::checkDir(){
 
 
 
-        ui->currentSekDir->setText(QString::fromStdString(sekDir));
+        bool isFolderValid = false;
 
-        //if directory is empty, then prompts the user again for sekiro directory
-        if(sekDir == ""){
+        while (isFolderValid == false){
 
-            QFileDialog dialog;
 
-            dialog.setFileMode(QFileDialog::Directory);
-            dialog.setOption(QFileDialog::ShowDirsOnly);
 
-            QString path = dialog.getExistingDirectory(this, "Open Sekiro Folder");
 
-            if(!path.isEmpty()&& !path.isNull()){
+            //checks if the directory is legit, if it is then puts it into sekDir
+            if(sekiroCheck() == 1){
 
-            ui->currentSekDir->setText(path);
+                qDebug() << sekiroCheck();
 
-            sekDir = path.toLocal8Bit().constData();
 
-            ofstream dir(".\\dir.ini");
-            dir << sekDir;
-            dir.close();
+            ui->currentSekDir->setText(QString::fromStdString(sekDir));
+
+
+            QFile dir("dir.ini");
+            dir.remove();
+
+
+            ofstream dirNew(".\\dir.ini");
+            dirNew << sekDir;
+            dirNew.close();
+
+            isFolderValid = true;
+
+            }
+            else{
+
+                //prompts the user for sekiro directory
+
+                QFileDialog dialog;
+
+                dialog.setFileMode(QFileDialog::Directory);
+                dialog.setOption(QFileDialog::ShowDirsOnly);
+
+                QString path = dialog.getExistingDirectory(this, "Open Sekiro Folder");
+
+                sekDir = path.toLocal8Bit().constData();
 
             }
 
 
-        }
+
+
+}
+
+
+
+
 
 
 
     }
+
+
+
+
+    //see function definition
+    //qDebug() << sekiroCheck();
 
 
 
@@ -670,10 +743,7 @@ void Sekiro::on_Install_clicked()
     //checks if there are no mods installed, if there isnt, then throws an error
     if(ui->modsInstalled->count() <= 0){
 
-        QMessageBox err;
-
-
-       err.critical(this, "Error", "No Mod Selected");
+        error();
     }
 
 
@@ -690,13 +760,29 @@ void Sekiro::on_Install_clicked()
         }
         else if (warning == false){
 
-        QMessageBox::StandardButton reply;
-        reply = QMessageBox::question(this, "Warning", "Installing a mod might overwrite a previously installed mod  \nDo you still want to install this mod?", QMessageBox::Yes|QMessageBox::No);
+
+
+
+        QMessageBox r;
+
+        r.setWindowTitle("Overwrite");
+        r.setText(tr("Installing a mod might overwrite a previously installed mod  \nDo you still want to install this mod?"));
+        QAbstractButton* pButtonYes = r.addButton(tr("Yes"), QMessageBox::YesRole);
+        r.addButton(tr("No"), QMessageBox::NoRole);
+
+        QFont errFont("Segoe UI", 8);
+
+
+        r.setFont(errFont);
+
+        r.exec();
+
+
 
 
 
         //if the user clicks yes then installs mod and if there is a mod at the current index, then unpacks the mod files into the sekiro directory
-        if (reply == QMessageBox::Yes) {
+        if (r.clickedButton() == pButtonYes) {
 
             unpackRepack("cd \"%cd%\"   &   7za e -spf -y -o\"" + sekDir + "\\mods\\\" \"%cd%\\mods\\"+ mods[ui->modsInstalled->currentIndex()].name + ".zip\" ");
 
@@ -727,10 +813,7 @@ void Sekiro::on_Uninstall_clicked()
     //checks if there are no mods installed, if there isnt, then throws an error
     if(ui->modsInstalled->count() <= 0){
 
-        QMessageBox err;
-
-
-       err.critical(this, "Error", "No Mod Selected");
+        error();
     }
 
     else{
@@ -868,10 +951,7 @@ void Sekiro::on_removeMod_clicked()
     //checks if no mods are installed, if there are no mods installed, then it throws an error
     if(ui->modsInstalled->count() <= 0){
 
-        QMessageBox err;
-
-
-       err.critical(this, "Error", "No Mod Selected");
+        error();
     }
 
 
@@ -926,38 +1006,51 @@ void Sekiro::on_removeMod_clicked()
 void Sekiro::on_changeSekDir_clicked()
 {
 
+        bool isFolderValid = false;
+
+        while (isFolderValid == false){
+
+
+            //prompts the user for sekiro directory
+
+            QFileDialog dialog;
+
+            dialog.setFileMode(QFileDialog::Directory);
+            dialog.setOption(QFileDialog::ShowDirsOnly);
+
+
+
+            QString path = dialog.getExistingDirectory(this, "Open Sekiro Folder");
+
+            sekDir = path.toLocal8Bit().constData();
+
+            //checks if the directory is legit, if it is then puts it into sekDir
+            if(sekiroCheck() == 1){
+
+                qDebug() << sekiroCheck();
+
+
+            ui->currentSekDir->setText(path);
+
+
+            QFile dir("dir.ini");
+            dir.remove();
+
+
+            ofstream dirNew(".\\dir.ini");
+            dirNew << sekDir;
+            dirNew.close();
+
+            isFolderValid = true;
+
+            }
 
 
 
 
-        //prompts the user for sekiro directory
-
-        QFileDialog dialog;
-
-        dialog.setFileMode(QFileDialog::Directory);
-        dialog.setOption(QFileDialog::ShowDirsOnly);
-
-        QString path = dialog.getExistingDirectory(this, "Open Sekiro Folder");
+}
 
 
-
-        //checks if the directory is legit, if it is then puts it into sekDir
-        if(!path.isEmpty()&& !path.isNull()){
-
-        sekDir = path.toLocal8Bit().constData();
-
-        ui->currentSekDir->setText(path);
-
-
-        QFile dir("dir.ini");
-        dir.remove();
-
-
-        ofstream dirNew(".\\dir.ini");
-        dirNew << sekDir;
-        dirNew.close();
-
-        }
 
 
 }
@@ -1013,10 +1106,7 @@ void Sekiro::on_installProfile_clicked()
 
     if(ui->profilesInstalled->count() <= 0){
 
-        QMessageBox err;
-
-
-       err.critical(this, "Error", "No Profile Selected");
+        error();
     }
 
     //if there is a profile installed at the current index then unpacks the profile files into the sekiro directory
@@ -1077,10 +1167,7 @@ void Sekiro::on_uninstallProfile_clicked()
     //checks if no profiles are installed, if there are no profiles installed, then it throws an error
     if(ui->profilesInstalled->count() <= 0){
 
-        QMessageBox err;
-
-
-       err.critical(this, "Error", "No Profile Selected");
+        error();
     }
 
 
@@ -1409,10 +1496,7 @@ void Sekiro::on_removeProfile_clicked()
     //checks if no profiles are installed, if there are no profiles installed, then it throws an error
     if(ui->profilesInstalled->count() <= 0){
 
-        QMessageBox err;
-
-
-       err.critical(this, "Error", "No Profile Selected");
+        error();
     }
 
 
@@ -1482,10 +1566,7 @@ void Sekiro::on_setActiveProfile_clicked()
     //checks if no profiles are installed, if there are no profiles installed, then it throws an error
     if(ui->profilesInstalled->count() <= 0){
 
-        QMessageBox err;
-
-
-       err.critical(this, "Error", "No Profile Selected");
+        error();
     }
 
     else{
@@ -1596,14 +1677,27 @@ void Sekiro::modEngineCheck(){
 
 
 
-        //askes the user if they want to install modengine
-        QMessageBox::StandardButton reply;
-        reply = QMessageBox::question(this, "Modengine not installed", "Modengine is not currently installed  \nDo you want to install it?", QMessageBox::Yes|QMessageBox::No);
+
+        QMessageBox r;
+
+        r.setWindowTitle("Modengine not installed");
+        r.setText(tr("Modengine is not currently installed  \nDo you want to install it?"));
+        QAbstractButton* pButtonYes = r.addButton(tr("Yes"), QMessageBox::YesRole);
+        r.addButton(tr("No"), QMessageBox::NoRole);
+
+
+        QFont errFont("Segoe UI", 8);
+
+
+        r.setFont(errFont);
+
+        r.exec();
+
 
 
 
         //if the user clicks yes then downloads and installs modengine
-        if (reply == QMessageBox::Yes) {
+        if (r.clickedButton() == pButtonYes) {
 
 
             QString url = "https://cf-files.nexusmods.com/cdn/2763/6/ModEngine-6-0-1-11-1555994013.zip?md5=pDU1_H4yZ5AVMB-Z0AEk6w&expires=1581884707&user_id=8105063&rip=74.88.98.97";
@@ -1629,6 +1723,12 @@ void Sekiro::modEngineCheck(){
 
 
     }
+
+
+
+
+
+
 
 }
 
@@ -1685,5 +1785,76 @@ void Sekiro::on_warnings_stateChanged()
 
 
 
+//checks if folder has sekiro.exe
 
+ int Sekiro::sekiroCheck(){
+
+
+
+     QFileInfo sekiroCheck(QString::fromStdString(sekDir + "\\sekiro.exe"));
+
+     //checks if "sekiro" exists in the sekiro directory, if it doesnt, then m
+     if(!(sekiroCheck.exists())){
+
+
+
+         QMessageBox err(QMessageBox::Critical, tr("Error"), tr("Sekiro executable not found, please choose sekiro folder."));
+         err.setWindowFlags(err.windowFlags() | Qt::WindowStaysOnTopHint);
+
+
+         QFont errFont("Segoe UI", 8);
+
+
+         err.setFont(errFont);
+
+         err.exec();
+
+
+
+         ui->currentSekDir->setText("");
+
+         QFile delDir(".\\dir.ini");
+         delDir.remove();
+
+
+
+
+
+         return 0;
+
+     }
+
+     else{
+
+         return 1;
+
+     }
+
+
+
+
+
+ }
+
+
+ //displays error if no mpds/profiles selected
+
+ void Sekiro::error(){
+
+
+     QFont sekFont("Assassin$");
+     QFont errFont("Segoe UI", 8);
+
+     QApplication::setFont(errFont);
+
+     QMessageBox err;
+
+
+
+    err.critical(this, "Error", "No Mod Selected");
+
+    QApplication::setFont(sekFont);
+
+
+ }
 

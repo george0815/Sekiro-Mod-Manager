@@ -1,6 +1,9 @@
 QT       += core gui
 QT       += network
 
+RC_ICONS = ico.ico
+
+TARGET = SekiroModManager
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 

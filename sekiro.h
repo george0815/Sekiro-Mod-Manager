@@ -247,6 +247,15 @@ private slots:
 
 
 
+    //checks if folder has sekiro.exe
+    int sekiroCheck();
+
+
+
+
+    //displays error if no mpds/profiles selected
+    void error();
+
 
 private:
 
