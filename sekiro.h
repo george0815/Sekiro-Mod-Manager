@@ -27,6 +27,8 @@ extern bool warning;
 extern string modName;
 
 
+//log file
+extern ofstream logFile;
 
 
 
@@ -269,6 +271,32 @@ private slots:
 
 
 
+
+    //logs the program
+    void log(string log);
+
+
+
+
+    //sets log on or off
+    void on_logOn_stateChanged();
+
+
+
+
+    //handles settings
+    void settings(int mode);
+
+
+
+    //closes program on launch
+    void on_closeOnLaunch_stateChanged();
+
+
+
+
+    //gets active profile
+    void getActiveProfile();
 
 private:
 

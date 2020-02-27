@@ -67,6 +67,7 @@ string trueModPath = "";
 
 bool isProfileDone = false;
 
+ofstream logFile(".\\log.txt");
 
 
 Sekiro::Sekiro(QWidget *parent)
@@ -161,7 +162,16 @@ Sekiro::Sekiro(QWidget *parent)
 
 
     //see function definition
+    settings(0);
+
+
+    //see function definition
     modEngineCheck();
+
+
+
+    //see function definion
+    getActiveProfile();
 
 
     this->show();
@@ -387,6 +397,8 @@ void Sekiro::on_addMod_clicked()
 
     ui->modsInstalled->addItem(QString::fromStdString(modName));
 
+    log("Added: " + modName);
+
     trueModPath = "";
 
     }
@@ -413,6 +425,8 @@ void Sekiro::on_addMod_clicked()
 
 
        QApplication::setFont(sekFont);
+
+       log("Error: No folders used by modengine found");
 
 
     }
@@ -577,8 +591,9 @@ void Sekiro::checkDir(){
 
 
 
-    //see function definition
-    //qDebug() << sekiroCheck();
+    //hides line edit
+    ui->logTextEdit->hide();
+
 
 
 
@@ -759,6 +774,9 @@ void Sekiro::on_Install_clicked()
     if(ui->modsInstalled->count() <= 0){
 
         error(0);
+
+        log("Error: No mod selected");
+
     }
 
 
@@ -771,7 +789,7 @@ void Sekiro::on_Install_clicked()
 
             unpackRepack("cd \"%cd%\"   &   7za e -spf -y -o\"" + sekDir + "\\mods\\\" \"%cd%\\mods\\"+ mods[ui->modsInstalled->currentIndex()].name + ".zip\" ");
 
-
+            log("Installed: " + mods[ui->modsInstalled->currentIndex()].name);
         }
         else if (warning == false){
 
@@ -801,6 +819,8 @@ void Sekiro::on_Install_clicked()
 
             unpackRepack("cd \"%cd%\"   &   7za e -spf -y -o\"" + sekDir + "\\mods\\\" \"%cd%\\mods\\"+ mods[ui->modsInstalled->currentIndex()].name + ".zip\" ");
 
+            log("Installed: " + mods[ui->modsInstalled->currentIndex()].name);
+
 
         }
 
@@ -829,6 +849,9 @@ void Sekiro::on_Uninstall_clicked()
     if(ui->modsInstalled->count() <= 0){
 
         error(0);
+
+        log("Error: No mod selected");
+
     }
 
     else{
@@ -852,7 +875,7 @@ void Sekiro::on_Uninstall_clicked()
 
     }
 
-
+    log("Uninstalled: " + mods[ui->modsInstalled->currentIndex()].name);
 
 }
 
@@ -967,6 +990,8 @@ void Sekiro::on_removeMod_clicked()
     if(ui->modsInstalled->count() <= 0){
 
         error(0);
+
+        log("Error: No mod selected");
     }
 
 
@@ -992,7 +1017,7 @@ void Sekiro::on_removeMod_clicked()
     modDel.remove();
 
 
-
+    log("Removed: " + mods[ui->modsInstalled->currentIndex()].name);
 
     //deletes mod entry in vector
 
@@ -1000,9 +1025,15 @@ void Sekiro::on_removeMod_clicked()
 
 
 
+
+
+
     //deletes mod entry in combp box
 
     ui->modsInstalled->removeItem(ui->modsInstalled->currentIndex());
+
+
+
 
     }
 }
@@ -1066,7 +1097,9 @@ void Sekiro::on_changeSekDir_clicked()
 }
 
 
+        log("Directory Changed: " + sekDir);
 
+        getActiveProfile();
 
 }
 
@@ -1099,7 +1132,12 @@ void Sekiro::on_addProfile_clicked()
 
 
     if(isProfileDone == true && passed == true){
+
+        log("Added Profile: " + profiles[ui->profilesInstalled->count()].name);
+
    ui->profilesInstalled->addItem(QString::fromStdString(profiles[ui->profilesInstalled->count()].name));
+
+
 }
 
 }
@@ -1122,6 +1160,8 @@ void Sekiro::on_installProfile_clicked()
     if(ui->profilesInstalled->count() <= 0){
 
         error(1);
+
+        log("Error: No profile selected");
     }
 
     //if there is a profile installed at the current index then unpacks the profile files into the sekiro directory
@@ -1152,6 +1192,10 @@ void Sekiro::on_installProfile_clicked()
     file.remove();
 
 
+    //sets active profile label
+    ui->activeProfile->setText(QString::fromStdString(profiles[ui->profilesInstalled->currentIndex()].name));
+
+
 
     //moves profiles modengine.ini to sekiro directory
 
@@ -1160,6 +1204,8 @@ void Sekiro::on_installProfile_clicked()
     string finalProfileModengine = sekDir + "\\modengine.ini";
 
     QFile::copy(QString::fromStdString(profileModengine), QString::fromStdString(finalProfileModengine));
+
+    log("Installed Profile: " + profiles[ui->profilesInstalled->currentIndex()].name);
 
 }
 
@@ -1183,6 +1229,9 @@ void Sekiro::on_uninstallProfile_clicked()
     if(ui->profilesInstalled->count() <= 0){
 
         error(1);
+
+        log("Error: No profile selected");
+
     }
 
 
@@ -1237,6 +1286,11 @@ void Sekiro::on_uninstallProfile_clicked()
     }
 
 
+
+    ui->activeProfile->setText("mods (default)");
+
+
+    log("Uninstalled Profile: " + profiles[ui->profilesInstalled->currentIndex()].name);
 
 }
 
@@ -1512,6 +1566,9 @@ void Sekiro::on_removeProfile_clicked()
     if(ui->profilesInstalled->count() <= 0){
 
         error(1);
+
+
+        log("Error: No profile selected");
     }
 
 
@@ -1545,7 +1602,7 @@ void Sekiro::on_removeProfile_clicked()
     modEngineDel.remove();
 
 
-
+    log("Profile Removed: " + profiles[ui->profilesInstalled->currentIndex()].name);
 
     //erases entry in profiles vector
 
@@ -1582,6 +1639,8 @@ void Sekiro::on_setActiveProfile_clicked()
     if(ui->profilesInstalled->count() <= 0){
 
         error(1);
+
+        log("Error: No profile selected");
     }
 
     else{
@@ -1601,6 +1660,10 @@ void Sekiro::on_setActiveProfile_clicked()
 
 
 
+    //sets active profile label
+    ui->activeProfile->setText(QString::fromStdString(profiles[ui->profilesInstalled->currentIndex()].name));
+
+
     //copys the modengine.ini for the profile at the current index to the sekiro directory
 
     string profileModengine  = ".\\profiles\\" + profiles[ui->profilesInstalled->currentIndex()].name + ".ini";
@@ -1608,6 +1671,8 @@ void Sekiro::on_setActiveProfile_clicked()
     string finalProfileModengine = sekDir + "\\modengine.ini";
 
     QFile::copy(QString::fromStdString(profileModengine), QString::fromStdString(finalProfileModengine));
+
+    log("Profile Active: " + profiles[ui->profilesInstalled->currentIndex()].name);
 
 
 }
@@ -1645,6 +1710,12 @@ void Sekiro::on_defaultProfile_clicked()
 
     QFile::copy(".\\modengine.ini", QString::fromStdString(finalProfileModengine));
 
+    log("Default Profile (mods)");
+
+
+
+    //sets activeProfile
+    ui->activeProfile->setText("mods (default)");
 
 }
 
@@ -1665,6 +1736,19 @@ void Sekiro::on_launchSekiro_clicked()
     //literally just launches sekiro lol
 
     unpackRepack("cd /d " + sekDir + " & START sekiro.exe");
+
+    log("Sekiro Launched");
+
+
+
+    if(ui->closeOnLaunch->checkState()){
+
+        close();
+
+
+    }
+
+
 
 
 }
@@ -1772,6 +1856,10 @@ void Sekiro::on_warnings_stateChanged()
         warning = true;
 
     }
+
+
+
+    settings(2);
 
 }
 
@@ -1963,5 +2051,338 @@ void Sekiro::on_warnings_stateChanged()
 
  }
 
+
+
+ //logs what happens in the program
+ void Sekiro::log(string log){
+
+
+ui->logTextEdit->insertPlainText(QString::fromStdString(log) + "\n");
+
+logFile << log + "\n";
+
+
+
+
+}
+
+
+
+ //sets log on or off
+void Sekiro::on_logOn_stateChanged()
+{
+
+    if(ui->logOn->isChecked()){
+
+        ui->logTextEdit->show();
+        qDebug() << "fe";
+
+    }
+    else if(ui->logOn->checkState() == false){
+
+        ui->logTextEdit->hide();
+    }
+
+
+    settings(1);
+
+}
+
+
+
+
+
+//handles settings
+void Sekiro::settings(int mode){
+
+    if(mode  == 0){
+
+
+        QFileInfo settings(".\\conf.ini");
+
+
+        if(!(settings.exists())){
+
+
+            QFile set(".\\conf.ini");
+
+            ofstream setNew(".\\conf.ini");
+            setNew << ui->logOn->checkState() << endl << ui->warnings->checkState() << endl << ui->closeOnLaunch->checkState();
+            setNew.close();
+
+
+        }
+
+        else{
+
+            ifstream settings(".\\conf.ini");
+
+            int i = 0;
+
+            for(string line; getline(settings, line);){
+
+
+                i++;
+
+
+                if(i == 1){
+
+                    if (line ==  "0"){
+
+                        ui->logOn->setChecked(false );
+
+                    }
+                    else if(line == "1"){
+
+                        ui->logOn->setChecked(true);
+
+                    }
+
+
+                }
+
+                else if(i == 2){
+
+                    if (line ==  "0"){
+
+                        ui->warnings->setChecked(false );
+
+                    }
+                    else if(line == "1"){
+
+                        ui->warnings->setChecked(true);
+
+                    }
+
+                }
+                else if(i == 3){
+
+
+                    if (line ==  "0"){
+
+                        ui->closeOnLaunch->setChecked(false );
+
+                    }
+                    else if(line == "1"){
+
+                        ui->closeOnLaunch->setChecked(true);
+
+                    }
+
+
+                }
+
+
+
+            }
+
+
+        }
+
+
+    }
+
+    else if(mode == 1){
+
+
+    string tempPath = ".\\ini.conf";
+    string path = ".\\conf.ini";
+
+    ofstream settingsTemp(tempPath);
+    ifstream settings(path);
+
+
+    const char *s = tempPath.c_str();
+    const char *t = path.c_str();
+
+    int i = 0;
+
+    for(string line; getline(settings, line);){
+
+
+        i++;
+
+        if(i == 1){
+
+
+            if(ui->logOn->isChecked()){
+
+                line = "1";
+            }
+            else{
+
+                line = "0";
+            }
+
+
+        }
+
+
+        settingsTemp << line << endl;
+
+    }
+
+    settings.close();
+    settingsTemp.close();
+
+    remove(t);
+    rename(s, t);
+
+    }
+
+
+
+
+else if(mode == 2){
+
+
+string tempPath = ".\\ini.conf";
+string path = ".\\conf.ini";
+
+ofstream settingsTemp(tempPath);
+ifstream settings(path);
+
+
+const char *s = tempPath.c_str();
+const char *t = path.c_str();
+
+int i = 0;
+
+for(string line; getline(settings, line);){
+
+
+    i++;
+
+    if(i == 2){
+
+        if(ui->warnings->isChecked()){
+
+            line = "1";
+        }
+        else{
+
+            line = "0";
+        }
+
+    }
+
+
+    settingsTemp << line << endl;
+
+}
+
+settings.close();
+settingsTemp.close();
+
+remove(t);
+rename(s, t);
+
+}
+
+
+else if(mode == 3){
+
+
+string tempPath = ".\\ini.conf";
+string path = ".\\conf.ini";
+
+ofstream settingsTemp(tempPath);
+ifstream settings(path);
+
+
+const char *s = tempPath.c_str();
+const char *t = path.c_str();
+
+int i = 0;
+
+for(string line; getline(settings, line);){
+
+
+    i++;
+
+    if(i == 3){
+
+        if(ui->closeOnLaunch->isChecked()){
+
+            line = "1";
+        }
+        else{
+
+            line = "0";
+        }
+
+    }
+
+
+    settingsTemp << line << endl;
+
+}
+
+settings.close();
+settingsTemp.close();
+
+remove(t);
+rename(s, t);
+
+}
+
+}
+
+
+
+
+//close program on launch
+void Sekiro::on_closeOnLaunch_stateChanged()
+{
+
+    settings(3);
+
+
+}
+
+
+
+
+
+
+//gets active profile
+void Sekiro::getActiveProfile(){
+
+
+
+    ifstream modEngineConfig(sekDir + "\\modengine.ini");
+
+    string tmp;
+
+    for(string line; getline(modEngineConfig, line);){
+
+
+
+        if(line.find("modOverrideDirectory=\"") != string::npos){
+
+            tmp = line.erase(0, 22);
+            qDebug() << QString::fromStdString(tmp);
+
+
+tmp.erase(remove(tmp.begin(), tmp.end(), '\\'), tmp.end());
+tmp.erase(remove(tmp.begin(), tmp.end(), '\"'), tmp.end());
+
+
+
+            if(tmp == "mods"){
+
+                ui->activeProfile->setText(QString::fromStdString("mods (default)"));
+            }
+            else{
+            ui->activeProfile->setText(QString::fromStdString(tmp));
+
+            }
+        }
+
+
+    }
+
+
+}
 
 
