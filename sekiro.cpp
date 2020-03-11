@@ -22,6 +22,8 @@
 #include <cstring>
 #include <QFontDatabase>
 #include <cstdio>
+#include <sstream>
+#include <cstdlib>
 #include <QUrl>
 #include <QDialogButtonBox>
 #include <QDesktopServices>
@@ -312,7 +314,6 @@ void Sekiro::on_addMod_clicked()
     if(isModPathEmpty(trueModPath) == false){
 
 
-
     unpackRepack("cd \"%cd%\"   &   7za a -y \".\\tmp\\"  + modName + ".zip\" \"" + trueModPath + "/*\"");
 
 
@@ -370,16 +371,32 @@ void Sekiro::on_addMod_clicked()
     Mod.modConfigPath = ".\\configs\\" + Mod.name + ".ini";
     ofstream modConfig(Mod.modConfigPath);
 
-    modConfig << Mod.name + "\n" + Mod.path + "\n" + Mod.modConfigPath;
+    modConfig << Mod.name + "\n" + Mod.path + "\n" + Mod.modConfigPath + "\n";
+    modConfig << Mod.files.size() << "\n";
+
+
+    for(int i = 0; i < Mod.files.size(); i++){
+
+
+        modConfig << Mod.files[i] << endl;
 
 
 
+    }
+
+    modConfig.close();
 
 
-    //psuhes mod to vector of mods
+    //pushes mod to vector of mods
 
     mods.push_back(Mod);
 
+
+    //resets mod structure
+    Mod.name = "";
+    Mod.path = "";
+    Mod.modConfigPath = "";
+    Mod.files.clear();
 
 
 
@@ -641,11 +658,14 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
                 trueModPath = fileInfo.path().toLocal8Bit().constData();
 
 
+
             }
 
 
+            else{
             //calls function so it searches all the sub directories
             traverse(pattern, fileInfo.filePath(), mode);
+            }
 
 
 
@@ -668,6 +688,9 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
         i++;
 
         }
+
+
+
 
       }
 
@@ -908,7 +931,7 @@ void Sekiro::getSettings(){
 
 
 
-    //for each ini files, installs the mod for that ini file
+    //for each ini file, installs the mod for that ini file
 
     foreach(QString filename, configs) {
 
@@ -917,29 +940,38 @@ void Sekiro::getSettings(){
 
         //gets mod name, path, and the path for the config
 
+        string fileAmountS;
+
         ifstream config(".\\configs\\" + filename.toStdString());
 
         getline(config, Mod.name);
         getline(config, Mod.path);
         getline(config, Mod.modConfigPath);
+        getline(config, fileAmountS);
+
+        int fileAmount = stoi(fileAmountS);
+
+
+
+
+        for(int j = 0; j <= fileAmount; j++){
+
+            string tmp;
+            getline(config, tmp);
+
+           Mod.files.push_back(tmp);
+
+
+
+        }
+
+
 
         qDebug() << QString::fromStdString(Mod.name);
         qDebug() << QString::fromStdString(Mod.path);
         qDebug() << QString::fromStdString(Mod.modConfigPath);
+         debugFileList(1);
 
-
-
-
-
-        //gets files for mod
-
-        QDir().mkdir(".\\tmp");
-
-        unpackRepack("cd \"%cd%\"   &   7za e -spf -y -o\"%cd%\\tmp\" \"%cd%\\mods\\"+ Mod.name + ".zip\"");
-
-        traverse("*.*", ".\\tmp\\", 1);
-
-        debugFileList(1);
 
 
 
@@ -950,6 +982,12 @@ void Sekiro::getSettings(){
 
 
 
+
+        //resets mod structure
+        Mod.name = "";
+        Mod.path = "";
+        Mod.modConfigPath = "";
+        Mod.files.clear();
 
 
         //deletes tmp folder
@@ -1330,6 +1368,8 @@ void Sekiro::getSettingsProfile(){
 
 
         //gets profile name, path, and the path for the config
+        string fileAmountS;
+        string tmpNum;
 
         ifstream config(".\\configsP\\" + filename.toStdString());
 
@@ -1337,13 +1377,28 @@ void Sekiro::getSettingsProfile(){
         getline(config, Profile.path);
         getline(config, Profile.profileConfigPath);
         getline(config, Profile.profileFolder);
-
-        string tmp;
-
-        getline(config, tmp);
+        getline(config, tmpNum);
+        getline(config, fileAmountS);
 
 
-        Profile.modNum = stoi(tmp);
+        int fileAmount = atoi(fileAmountS.c_str());
+
+
+
+
+        for(int j = 0; j <= fileAmount; j++){
+
+            string tmp;
+            getline(config, tmp);
+
+           Profile.files.push_back(tmp);
+
+
+
+        }
+
+        Profile.modNum = stoi(tmpNum);
+
 
         qDebug() << QString::fromStdString(Profile.name);
         qDebug() << QString::fromStdString(Profile.path);
@@ -1403,28 +1458,18 @@ void Sekiro::getSettingsProfile(){
 
 
 
-
-        //gets files for profiles
-
-        QDir().mkdir(".\\tmp");
-
-        unpackRepack("cd \"%cd%\"   &   7za e -spf -y -o\"%cd%\\tmp\" \"%cd%\\profiles\\"+ Profile.name + ".zip\"");
-
-        traverseProfiles("*.*", ".\\tmp\\", 1);
-
-
-
-        debugFileList(2);
-
-
-
-
-
         //creates profile entry in vector of profiles
 
         profiles.push_back(Profile);
 
 
+
+        //resets profile structure
+        Profile.name = "";
+        Profile.path = "";
+        Profile.profileConfigPath = "";
+        Profile.profileFolder = "";
+        Profile.files.clear();
 
 
 
@@ -1508,9 +1553,10 @@ void Sekiro::traverseProfiles(const QString &pattern, const QString &dirname, in
             }
 
 
-
+            else{
             //calls function so it searches all the sub directories
             traverseProfiles(pattern, fileInfo.filePath(), mode);
+            }
 
 
 

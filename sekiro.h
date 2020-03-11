@@ -298,6 +298,9 @@ private slots:
     //gets active profile
     void getActiveProfile();
 
+
+
+
 private:
 
     Ui::Sekiro *ui;

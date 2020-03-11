@@ -291,20 +291,7 @@ for(int i = 0; i < Profile.modNum; i++){
 
 }
 
-
-
-
-
-
-//get all files in tmp and put them in Profiles.files
-
 Sekiro::traverseProfiles("*.*", ".\\tmp\\", 1);
-
-
-
-
-
-
 
 
 
@@ -362,11 +349,32 @@ close();
 Profile.profileConfigPath = ".\\configsP\\" + Profile.name + ".ini";
 ofstream profileConfig(Profile.profileConfigPath);
 
-profileConfig << Profile.name + "\n" + Profile.path + "\n" + Profile.profileConfigPath + "\n" + Profile.profileFolder + "\n" + to_string(Profile.modNum);
+profileConfig << Profile.name + "\n" + Profile.path + "\n" + Profile.profileConfigPath + "\n" + Profile.profileFolder + "\n" + to_string(Profile.modNum) + "\n";
+
+profileConfig << Profile.files.size() << "\n";
+
+
+for(int i = 0; i < Profile.files.size(); i++){
+
+
+    profileConfig << Profile.files[i] << endl;
+
+
+
+}
+
 
 profileConfig.close();
 
 profiles.push_back(Profile);
+
+
+//resets profile structure
+Profile.name = "";
+Profile.path = "";
+Profile.profileConfigPath = "";
+Profile.profileFolder = "";
+Profile.files.clear();
 
 isProfileDone = true;
 
