@@ -27,6 +27,8 @@
 #include <QUrl>
 #include <QDialogButtonBox>
 #include <QDesktopServices>
+#include "windows.h"
+#include "repeatfile.h"
 
 using namespace std;
 
@@ -34,6 +36,10 @@ using namespace std;
 bool  warning = false;
 
 string sekDir;
+
+string repeatFileName;
+
+short repeatType;
 
 string modName;
 
@@ -309,9 +315,11 @@ void Sekiro::on_addMod_clicked()
 
     traverse("*.*", ".\\tmp\\", 0);
 
-    qDebug() << QString::fromStdString(trueModPath);
+
 
     if(isModPathEmpty(trueModPath) == false){
+
+
 
 
     unpackRepack("cd \"%cd%\"   &   7za a -y \".\\tmp\\"  + modName + ".zip\" \"" + trueModPath + "/*\"");
@@ -322,13 +330,10 @@ void Sekiro::on_addMod_clicked()
     fileDel.remove();
 
 
-    string modFinalTemp = ".\\tmp\\" + modName + ".zip";
 
-    QFile modFinal(modFinalTemp.c_str());
 
-    string modDirTemp = ".\\mods\\" + modName + ".zip";
 
-    modFinal.rename(modDirTemp.c_str());
+    QFile::copy(".\\tmp\\" + QString::fromStdString(modName) + ".zip", ".\\mods\\" + QString::fromStdString(modName) + ".zip");
 
 
     QDir dir(".\\tmp\\");
@@ -341,7 +346,7 @@ void Sekiro::on_addMod_clicked()
 
 
 
-    //gets names of all files and puts all file names in mods[n].files[i]
+  // gets names of all files and puts all file names in mods[n].files[i]
 
     QDir().mkdir(".\\tmp");
 
@@ -422,6 +427,105 @@ void Sekiro::on_addMod_clicked()
 
     else if(isModPathEmpty(trueModPath) == true){
 
+
+        traverse("*.*", ".\\tmp\\", 2);
+
+
+
+        unpackRepack("cd \"%cd%\"   &   7za a -y \".\\tmp\\tmp1\\"  + modName + ".zip\" \".\\tmp\\tmp1\\*\"");
+
+        QFile fileDel(modDir.c_str());
+
+        fileDel.remove();
+
+
+
+
+
+        QFile::copy(".\\tmp\\tmp1\\" + QString::fromStdString(modName) + ".zip", ".\\mods\\" + QString::fromStdString(modName) + ".zip");
+
+
+        QDir dir(".\\tmp\\");
+        dir.removeRecursively();
+
+
+
+
+
+
+
+
+        //gets names of all files and puts all file names in mods[n].files[i]
+
+        QDir().mkdir(".\\tmp");
+
+        unpackRepack("cd \"%cd%\"   &   7za e -spf -y -o\"%cd%\\tmp\" \"%cd%\\mods\\"+ modName + ".zip\"");
+
+        traverse("*.*", ".\\tmp\\", 1);
+
+
+
+        //see function definition
+        debugFileList(1);
+
+
+
+
+
+
+        //creates mod config file
+        Mod.modConfigPath = ".\\configs\\" + Mod.name + ".ini";
+        ofstream modConfig(Mod.modConfigPath);
+
+        modConfig << Mod.name + "\n" + Mod.path + "\n" + Mod.modConfigPath + "\n";
+        modConfig << Mod.files.size() << "\n";
+
+
+        for(int i = 0; i < Mod.files.size(); i++){
+
+
+            modConfig << Mod.files[i] << endl;
+
+
+
+        }
+
+        modConfig.close();
+
+
+        //pushes mod to vector of mods
+
+        mods.push_back(Mod);
+
+
+        //resets mod structure
+        Mod.name = "";
+        Mod.path = "";
+        Mod.modConfigPath = "";
+        Mod.files.clear();
+
+
+
+
+        //deletes tmp folder
+
+        dir.removeRecursively();
+
+
+
+
+
+
+        //creates new mod entry in combo box
+
+        ui->modsInstalled->addItem(QString::fromStdString(modName));
+
+        log("Added: " + modName);
+
+        trueModPath = "";
+
+
+        /*
         QFont sekFont("Assassin$");
         QFont errFont("Segoe UI", 8);
 
@@ -444,6 +548,7 @@ void Sekiro::on_addMod_clicked()
        QApplication::setFont(sekFont);
 
        log("Error: No folders used by modengine found");
+       */
 
 
     }
@@ -693,6 +798,1095 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
 
 
       }
+
+        //sorts loose files
+        if(mode == 2){
+
+
+
+            QDir tmp1(".\\tmp\\tmp1\\");
+            if(!tmp1.exists()){
+
+                mkdir(".\\tmp\\tmp1\\");
+
+            }
+
+
+
+
+            string looseFileName = fileInfo.fileName().toUtf8().constData();
+
+            //"action" folder
+            if(looseFileName.find(".txt") != string::npos){
+
+
+                QDir parts(".\\tmp\\tmp1\\action\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\action\\");
+
+
+
+
+                }
+
+                 QDir newLooseDir = fileInfo.dir();
+                 QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\action\\" + QString::fromStdString(looseFileName));
+
+
+             }
+            else if(looseFileName.find(".hks") != string::npos){
+
+
+
+
+                QDir parts(".\\tmp\\tmp1\\action\\script\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\action\\");
+                    mkdir(".\\tmp\\tmp1\\action\\script\\");
+
+
+
+                }
+
+
+
+
+
+                QDir newLooseDir = fileInfo.dir();
+                qDebug() << QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\action\\script\\" + QString::fromStdString(looseFileName)) << "BGOI$BGBORGGEG";
+                qDebug() << newLooseDir.path() << "GNEIOBGIBOEBGOBGIBEOBNGI";
+                qDebug() << QString::fromStdString(looseFileName) << "GNEIOBGIBOEBGOBGIBEOBNGI";
+
+            }
+
+
+            //"chr" folder
+            else if(looseFileName.find(".ani") != string::npos || looseFileName.find(".tex") != string::npos || looseFileName.find(".beh") != string::npos ||looseFileName.find(".chr") != string::npos){
+
+                QDir parts(".\\tmp\\tmp1\\chr\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\chr\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\chr\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+            }
+
+
+            //cutscene folder
+            else if(looseFileName.find(".cutscene") != string::npos){
+
+                QDir parts(".\\tmp\\tmp1\\cutscene\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\cutscene\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\cutscene\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+            }
+
+
+            //event folder
+            else if(looseFileName.find(".emevd") != string::npos){
+
+                QDir parts(".\\tmp\\tmp1\\event\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\event\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\event\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+            }
+
+
+            //facegen folder
+            else if(looseFileName.find("facegen.fgbnd.dcx") != string::npos){
+
+
+                QDir parts(".\\tmp\\tmp1\\facegen\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\facegen\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\facegen\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+            }
+
+
+            //parts folder
+            else if(looseFileName.find(".partsbnd") != string::npos){
+
+                QDir parts(".\\tmp\\tmp1\\parts\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\parts\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\parts\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+
+            }
+
+
+
+            //script folder
+            else if(looseFileName.find("talke") != string::npos){
+
+
+                QDir parts(".\\tmp\\tmp1\\script\\talk\\");
+
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\script\\");
+                    mkdir(".\\tmp\\tmp1\\script\\talk\\");
+
+                }
+
+
+                QDir newLooseDir = fileInfo.dir();
+                qDebug() << QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\script\\talk\\" + QString::fromStdString(looseFileName)) << "BGOI$BGBORGGEG";
+                qDebug() << newLooseDir.path() << "GNEIOBGIBOEBGOBGIBEOBNGI";
+                qDebug() << QString::fromStdString(looseFileName) << "GNEIOBGIBOEBGOBGIBEOBNGI";
+
+            }
+            else if(looseFileName.find(".lua") != string::npos){
+
+                    QDir parts(".\\tmp\\tmp1\\script\\");
+                    if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\script\\");
+
+
+                }
+
+
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\script\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+            }
+
+
+
+
+            //sfx
+            else if(looseFileName.find(".ffx") != string::npos){
+
+                QDir parts(".\\tmp\\tmp1\\sfx\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\sfx\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\sfx\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+            }
+
+
+
+            //shader
+            else if(looseFileName.find(".shader") != string::npos){
+
+                QDir parts(".\\tmp\\tmp1\\shader\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\shader\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\shader\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+            }
+
+
+            //sound
+            else if(looseFileName.find(".itl") != string::npos ||looseFileName.find(".fev") != string::npos || looseFileName.find(".fsb") != string::npos ||
+                    looseFileName.find("multich.mch") != string::npos || looseFileName.find("multimix.mix") != string::npos || looseFileName.find("multirpc.rpc") != string::npos){
+
+                QDir parts(".\\tmp\\tmp1\\sound\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\sound\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\sound\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+            }
+
+
+            //movie
+            else if(looseFileName.find(".bk2") != string::npos){
+
+                QDir parts(".\\tmp\\tmp1\\movie\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\movie\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\movie\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+            }
+
+
+            //mtd
+            else if(looseFileName.find("allmaterialbnd.mtdbnd.dcx") != string::npos){
+
+                QDir parts(".\\tmp\\tmp1\\mtd\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\mtd\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\mtd\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+            }
+
+
+            //obj
+            else if(looseFileName.find(".obj") != string::npos){
+
+                QDir parts(".\\tmp\\tmp1\\obj\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\obj\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\obj\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+            }
+
+
+            //other
+            else if(looseFileName.find("decaltex.tpf.dcx") != string::npos || looseFileName.find("default.rumblebnd.dcx") != string::npos ||looseFileName.find("ingamestay.loadlist") != string::npos ||
+                    looseFileName.find("maptex.tpf.dcx") != string::npos || looseFileName.find("modelviewer_default") != string::npos || looseFileName.find("movtae.movtae.dcx") != string::npos || looseFileName.find("systex.tpf.dcx") != string::npos){
+
+                QDir parts(".\\tmp\\tmp1\\other\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\other\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\other\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+            }
+
+
+            //param
+            else if(looseFileName.find(".gparam") != string::npos){
+
+                QDir parts(".\\tmp\\tmp1\\param\\drawparam\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\param\\");
+                    mkdir(".\\tmp\\tmp1\\param\\drawparam\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\param\\drawparam\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+            }
+            else if(looseFileName.find("gameparam.parambnd.dcx") != string::npos){
+
+                QDir parts(".\\tmp\\tmp1\\param\\gameparam\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\param\\");
+                    mkdir(".\\tmp\\tmp1\\param\\gameparam\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\param\\gameparam\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+            }
+            else if(looseFileName.find("graphicsconfig.parambnd.dcx") != string::npos){
+
+                QDir parts(".\\tmp\\tmp1\\param\\graphicsconfig\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\param\\");
+                    mkdir(".\\tmp\\tmp1\\param\\graphicsconfig\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\param\\graphicsconfig\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+            }
+
+
+            //parts
+            else if(looseFileName.find(".partsbnd") != string::npos || looseFileName.find("common_body.tpf.dcx") != string::npos){
+
+                QDir parts(".\\tmp\\tmp1\\parts\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\parts\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\parts\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+            }
+
+
+            //map
+            else if((looseFileName.find("m10") != string::npos && looseFileName.find(".tpfbdt") != string::npos) || looseFileName.find("m10") != string::npos && looseFileName.find(".tpfbhd") != string::npos || looseFileName.find("m10_cgrading.tpf.dcx") != string::npos){
+
+                QDir parts(".\\tmp\\tmp1\\map\\m10\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\map\\");
+                    mkdir(".\\tmp\\tmp1\\map\\m10\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                qDebug() << QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\map\\m10\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+            }
+            else if((looseFileName.find("m11") != string::npos && looseFileName.find(".tpfbdt") != string::npos) || looseFileName.find("m11") != string::npos && looseFileName.find(".tpfbhd") != string::npos || looseFileName.find("m11_cgrading.tpf.dcx") != string::npos){
+
+                QDir parts(".\\tmp\\tmp1\\map\\m11\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\map\\");
+                    mkdir(".\\tmp\\tmp1\\map\\m11\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\map\\m11\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+            }
+            else if((looseFileName.find("m13") != string::npos && looseFileName.find(".tpfbdt") != string::npos) || looseFileName.find("m13") != string::npos && looseFileName.find(".tpfbhd") != string::npos || looseFileName.find("m13_cgrading.tpf.dcx") != string::npos){
+
+                QDir parts(".\\tmp\\tmp1\\map\\m13\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\map\\");
+                    mkdir(".\\tmp\\tmp1\\map\\m13\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\map\\m13\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+            }
+            else if((looseFileName.find("m15") != string::npos && looseFileName.find(".tpfbdt") != string::npos) || looseFileName.find("m15") != string::npos && looseFileName.find(".tpfbhd") != string::npos || looseFileName.find("m15_cgrading.tpf.dcx") != string::npos){
+
+                QDir parts(".\\tmp\\tmp1\\map\\m15\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\map\\");
+                    mkdir(".\\tmp\\tmp1\\map\\m15\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\map\\m15\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+            }
+            else if((looseFileName.find("m17") != string::npos && looseFileName.find(".tpfbdt") != string::npos) || looseFileName.find("m17") != string::npos && looseFileName.find(".tpfbhd") != string::npos || looseFileName.find("m17_cgrading.tpf.dcx") != string::npos){
+
+                QDir parts(".\\tmp\\tmp1\\map\\m17\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\map\\");
+                    mkdir(".\\tmp\\tmp1\\map\\m17\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\map\\m17\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+            }
+            else if((looseFileName.find("m20") != string::npos && looseFileName.find(".tpfbdt") != string::npos) || looseFileName.find("m20") != string::npos && looseFileName.find(".tpfbhd") != string::npos || looseFileName.find("m20_cgrading.tpf.dcx") != string::npos){
+
+                QDir parts(".\\tmp\\tmp1\\map\\m20\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\map\\");
+                    mkdir(".\\tmp\\tmp1\\map\\m20\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\map\\m20\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+            }
+            else if((looseFileName.find("m25") != string::npos && looseFileName.find(".tpfbdt") != string::npos) || looseFileName.find("m25") != string::npos && looseFileName.find(".tpfbhd") != string::npos || looseFileName.find("m25_cgrading.tpf.dcx") != string::npos){
+
+                QDir parts(".\\tmp\\tmp1\\map\\m25\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\map\\");
+                    mkdir(".\\tmp\\tmp1\\map\\m25\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\map\\m25\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+            }
+
+            else if((looseFileName.find("10_00_00_00") != string::npos && looseFileName.find(".mapbnd.dcx") != string::npos) ||
+                    (looseFileName.find("10_00_00_00") != string::npos && looseFileName.find(".hkxbdt") != string::npos) ||
+                    (looseFileName.find("10_00_00_00") != string::npos && looseFileName.find(".hkxbhd") != string::npos) ||
+                    (looseFileName.find("10_00_00_00") != string::npos && looseFileName.find(".btl.dcx") != string::npos) ||
+                    (looseFileName.find("10_00_00_00") != string::npos && looseFileName.find(".partsgroup.dcx") != string::npos) ||
+                    (looseFileName.find("10_00_00_00") != string::npos && looseFileName.find(".nva.dcx") != string::npos) ||
+                    (looseFileName.find("10_00_00_00") != string::npos && looseFileName.find(".nvmhktbnd.dcx") != string::npos) ||
+                    (looseFileName.find("10_00_00_00") != string::npos && looseFileName.find(".tpf.dcx") != string::npos) ||
+                    (looseFileName.find("10_00_00_00") != string::npos && looseFileName.find(".param.dcx") != string::npos) ||
+                    (looseFileName.find("10_00_00_00") != string::npos && looseFileName.find(".edgebdt") != string::npos) ||
+                    (looseFileName.find("10_00_00_00") != string::npos && looseFileName.find(".edgebhd") != string::npos) ||
+                    (looseFileName.find("10_00_00_00") != string::npos && looseFileName.find(".wallbdt") != string::npos) ||
+                    (looseFileName.find("10_00_00_00") != string::npos && looseFileName.find(".wallbhd") != string::npos)){
+
+                QDir parts(".\\tmp\\tmp1\\map\\m10_00_00_00\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\map\\");
+                    mkdir(".\\tmp\\tmp1\\map\\m10_00_00_00\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\map\\m10_00_00_00\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+            }
+            else if((looseFileName.find("11_00_00_00") != string::npos && looseFileName.find(".mapbnd.dcx") != string::npos) ||
+                    (looseFileName.find("11_00_00_00") != string::npos && looseFileName.find(".hkxbdt") != string::npos) ||
+                    (looseFileName.find("11_00_00_00") != string::npos && looseFileName.find(".hkxbhd") != string::npos) ||
+                    (looseFileName.find("11_00_00_00") != string::npos && looseFileName.find(".btl.dcx") != string::npos) ||
+                    (looseFileName.find("11_00_00_00") != string::npos && looseFileName.find(".partsgroup.dcx") != string::npos) ||
+                    (looseFileName.find("11_00_00_00") != string::npos && looseFileName.find(".nva.dcx") != string::npos) ||
+                    (looseFileName.find("11_00_00_00") != string::npos && looseFileName.find(".nvmhktbnd.dcx") != string::npos) ||
+                    (looseFileName.find("11_00_00_00") != string::npos && looseFileName.find(".tpf.dcx") != string::npos) ||
+                    (looseFileName.find("11_00_00_00") != string::npos && looseFileName.find(".param.dcx") != string::npos) ||
+                    (looseFileName.find("11_00_00_00") != string::npos && looseFileName.find(".edgebdt") != string::npos) ||
+                    (looseFileName.find("11_00_00_00") != string::npos && looseFileName.find(".edgebhd") != string::npos) ||
+                    (looseFileName.find("11_00_00_00") != string::npos && looseFileName.find(".wallbdt") != string::npos) ||
+                    (looseFileName.find("11_00_00_00") != string::npos && looseFileName.find(".wallbhd") != string::npos)){
+
+                QDir parts(".\\tmp\\tmp1\\map\\m11_00_00_00\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\map\\");
+                    mkdir(".\\tmp\\tmp1\\map\\m11_00_00_00\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\map\\m11_00_00_00\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+            }
+            else if((looseFileName.find("11_01_00_00") != string::npos && looseFileName.find(".mapbnd.dcx") != string::npos) ||
+                    (looseFileName.find("11_01_00_00") != string::npos && looseFileName.find(".hkxbdt") != string::npos) ||
+                    (looseFileName.find("11_01_00_00") != string::npos && looseFileName.find(".hkxbhd") != string::npos) ||
+                    (looseFileName.find("11_01_00_00") != string::npos && looseFileName.find(".btl.dcx") != string::npos) ||
+                    (looseFileName.find("11_01_00_00") != string::npos && looseFileName.find(".partsgroup.dcx") != string::npos) ||
+                    (looseFileName.find("11_01_00_00") != string::npos && looseFileName.find(".nva.dcx") != string::npos) ||
+                    (looseFileName.find("11_01_00_00") != string::npos && looseFileName.find(".nvmhktbnd.dcx") != string::npos) ||
+                    (looseFileName.find("11_01_00_00") != string::npos && looseFileName.find(".tpf.dcx") != string::npos) ||
+                    (looseFileName.find("11_01_00_00") != string::npos && looseFileName.find(".param.dcx") != string::npos) ||
+                    (looseFileName.find("11_01_00_00") != string::npos && looseFileName.find(".edgebdt") != string::npos) ||
+                    (looseFileName.find("11_01_00_00") != string::npos && looseFileName.find(".edgebhd") != string::npos) ||
+                    (looseFileName.find("11_01_00_00") != string::npos && looseFileName.find(".wallbdt") != string::npos) ||
+                    (looseFileName.find("11_01_00_00") != string::npos && looseFileName.find(".wallbhd") != string::npos)){
+
+                QDir parts(".\\tmp\\tmp1\\map\\m11_01_00_00\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\map\\");
+                    mkdir(".\\tmp\\tmp1\\map\\m11_01_00_00\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\map\\m11_01_00_00\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+            }
+            else if((looseFileName.find("11_02_00_00") != string::npos && looseFileName.find(".mapbnd.dcx") != string::npos) ||
+                    (looseFileName.find("11_02_00_00") != string::npos && looseFileName.find(".hkxbdt") != string::npos) ||
+                    (looseFileName.find("11_02_00_00") != string::npos && looseFileName.find(".hkxbhd") != string::npos) ||
+                    (looseFileName.find("11_02_00_00") != string::npos && looseFileName.find(".btl.dcx") != string::npos) ||
+                    (looseFileName.find("11_02_00_00") != string::npos && looseFileName.find(".partsgroup.dcx") != string::npos) ||
+                    (looseFileName.find("11_02_00_00") != string::npos && looseFileName.find(".nva.dcx") != string::npos) ||
+                    (looseFileName.find("11_02_00_00") != string::npos && looseFileName.find(".nvmhktbnd.dcx") != string::npos) ||
+                    (looseFileName.find("11_02_00_00") != string::npos && looseFileName.find(".tpf.dcx") != string::npos) ||
+                    (looseFileName.find("11_02_00_00") != string::npos && looseFileName.find(".param.dcx") != string::npos) ||
+                    (looseFileName.find("11_02_00_00") != string::npos && looseFileName.find(".edgebdt") != string::npos) ||
+                    (looseFileName.find("11_02_00_00") != string::npos && looseFileName.find(".edgebhd") != string::npos) ||
+                    (looseFileName.find("11_02_00_00") != string::npos && looseFileName.find(".wallbdt") != string::npos) ||
+                    (looseFileName.find("11_02_00_00") != string::npos && looseFileName.find(".wallbhd") != string::npos)){
+
+                QDir parts(".\\tmp\\tmp1\\map\\m11_02_00_00\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\map\\");
+                    mkdir(".\\tmp\\tmp1\\map\\m11_02_00_00\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\map\\m11_02_00_00\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+            }
+            else if((looseFileName.find("13_00_00_00") != string::npos && looseFileName.find(".mapbnd.dcx") != string::npos) ||
+                    (looseFileName.find("13_00_00_00") != string::npos && looseFileName.find(".hkxbdt") != string::npos) ||
+                    (looseFileName.find("13_00_00_00") != string::npos && looseFileName.find(".hkxbhd") != string::npos) ||
+                    (looseFileName.find("13_00_00_00") != string::npos && looseFileName.find(".btl.dcx") != string::npos) ||
+                    (looseFileName.find("13_00_00_00") != string::npos && looseFileName.find(".partsgroup.dcx") != string::npos) ||
+                    (looseFileName.find("13_00_00_00") != string::npos && looseFileName.find(".nva.dcx") != string::npos) ||
+                    (looseFileName.find("13_00_00_00") != string::npos && looseFileName.find(".nvmhktbnd.dcx") != string::npos) ||
+                    (looseFileName.find("13_00_00_00") != string::npos && looseFileName.find(".tpf.dcx") != string::npos) ||
+                    (looseFileName.find("13_00_00_00") != string::npos && looseFileName.find(".param.dcx") != string::npos) ||
+                    (looseFileName.find("13_00_00_00") != string::npos && looseFileName.find(".edgebdt") != string::npos) ||
+                    (looseFileName.find("13_00_00_00") != string::npos && looseFileName.find(".edgebhd") != string::npos) ||
+                    (looseFileName.find("13_00_00_00") != string::npos && looseFileName.find(".wallbdt") != string::npos) ||
+                    (looseFileName.find("13_00_00_00") != string::npos && looseFileName.find(".wallbhd") != string::npos)){
+
+                QDir parts(".\\tmp\\tmp1\\map\\m13_00_00_00\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\map\\");
+                    mkdir(".\\tmp\\tmp1\\map\\m13_00_00_00\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\map\\m13_00_00_00\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+            }
+            else if((looseFileName.find("15_00_00_00") != string::npos && looseFileName.find(".mapbnd.dcx") != string::npos) ||
+                    (looseFileName.find("15_00_00_00") != string::npos && looseFileName.find(".hkxbdt") != string::npos) ||
+                    (looseFileName.find("15_00_00_00") != string::npos && looseFileName.find(".hkxbhd") != string::npos) ||
+                    (looseFileName.find("15_00_00_00") != string::npos && looseFileName.find(".btl.dcx") != string::npos) ||
+                    (looseFileName.find("15_00_00_00") != string::npos && looseFileName.find(".partsgroup.dcx") != string::npos) ||
+                    (looseFileName.find("15_00_00_00") != string::npos && looseFileName.find(".nva.dcx") != string::npos) ||
+                    (looseFileName.find("15_00_00_00") != string::npos && looseFileName.find(".nvmhktbnd.dcx") != string::npos) ||
+                    (looseFileName.find("15_00_00_00") != string::npos && looseFileName.find(".tpf.dcx") != string::npos) ||
+                    (looseFileName.find("15_00_00_00") != string::npos && looseFileName.find(".param.dcx") != string::npos) ||
+                    (looseFileName.find("15_00_00_00") != string::npos && looseFileName.find(".edgebdt") != string::npos) ||
+                    (looseFileName.find("15_00_00_00") != string::npos && looseFileName.find(".edgebhd") != string::npos) ||
+                    (looseFileName.find("15_00_00_00") != string::npos && looseFileName.find(".wallbdt") != string::npos) ||
+                    (looseFileName.find("15_00_00_00") != string::npos && looseFileName.find(".wallbhd") != string::npos)){
+
+                QDir parts(".\\tmp\\tmp1\\map\\m15_00_00_00\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\map\\");
+                    mkdir(".\\tmp\\tmp1\\map\\m15_00_00_00\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\map\\m15_00_00_00\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+            }
+            else if((looseFileName.find("17_00_00_00") != string::npos && looseFileName.find(".mapbnd.dcx") != string::npos) ||
+                    (looseFileName.find("17_00_00_00") != string::npos && looseFileName.find(".hkxbdt") != string::npos) ||
+                    (looseFileName.find("17_00_00_00") != string::npos && looseFileName.find(".hkxbhd") != string::npos) ||
+                    (looseFileName.find("17_00_00_00") != string::npos && looseFileName.find(".btl.dcx") != string::npos) ||
+                    (looseFileName.find("17_00_00_00") != string::npos && looseFileName.find(".partsgroup.dcx") != string::npos) ||
+                    (looseFileName.find("17_00_00_00") != string::npos && looseFileName.find(".nva.dcx") != string::npos) ||
+                    (looseFileName.find("17_00_00_00") != string::npos && looseFileName.find(".nvmhktbnd.dcx") != string::npos) ||
+                    (looseFileName.find("17_00_00_00") != string::npos && looseFileName.find(".tpf.dcx") != string::npos) ||
+                    (looseFileName.find("17_00_00_00") != string::npos && looseFileName.find(".param.dcx") != string::npos) ||
+                    (looseFileName.find("17_00_00_00") != string::npos && looseFileName.find(".edgebdt") != string::npos) ||
+                    (looseFileName.find("17_00_00_00") != string::npos && looseFileName.find(".edgebhd") != string::npos) ||
+                    (looseFileName.find("17_00_00_00") != string::npos && looseFileName.find(".wallbdt") != string::npos) ||
+                    (looseFileName.find("17_00_00_00") != string::npos && looseFileName.find(".wallbhd") != string::npos)){
+
+                QDir parts(".\\tmp\\tmp1\\map\\m17_00_00_00\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\map\\");
+                    mkdir(".\\tmp\\tmp1\\map\\m17_00_00_00\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\map\\m17_00_00_00\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+            }
+            else if((looseFileName.find("20_00_00_00") != string::npos && looseFileName.find(".mapbnd.dcx") != string::npos) ||
+                    (looseFileName.find("20_00_00_00") != string::npos && looseFileName.find(".hkxbdt") != string::npos) ||
+                    (looseFileName.find("20_00_00_00") != string::npos && looseFileName.find(".hkxbhd") != string::npos) ||
+                    (looseFileName.find("20_00_00_00") != string::npos && looseFileName.find(".btl.dcx") != string::npos) ||
+                    (looseFileName.find("20_00_00_00") != string::npos && looseFileName.find(".partsgroup.dcx") != string::npos) ||
+                    (looseFileName.find("20_00_00_00") != string::npos && looseFileName.find(".nva.dcx") != string::npos) ||
+                    (looseFileName.find("20_00_00_00") != string::npos && looseFileName.find(".nvmhktbnd.dcx") != string::npos) ||
+                    (looseFileName.find("20_00_00_00") != string::npos && looseFileName.find(".tpf.dcx") != string::npos) ||
+                    (looseFileName.find("20_00_00_00") != string::npos && looseFileName.find(".param.dcx") != string::npos) ||
+                    (looseFileName.find("20_00_00_00") != string::npos && looseFileName.find(".edgebdt") != string::npos) ||
+                    (looseFileName.find("20_00_00_00") != string::npos && looseFileName.find(".edgebhd") != string::npos) ||
+                    (looseFileName.find("20_00_00_00") != string::npos && looseFileName.find(".wallbdt") != string::npos) ||
+                    (looseFileName.find("20_00_00_00") != string::npos && looseFileName.find(".wallbhd") != string::npos)){
+
+                QDir parts(".\\tmp\\tmp1\\map\\m20_00_00_00\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\map\\");
+                    mkdir(".\\tmp\\tmp1\\map\\m20_00_00_00\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\map\\m20_00_00_00\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+            }
+            else if((looseFileName.find("25_00_00_00") != string::npos && looseFileName.find(".mapbnd.dcx") != string::npos) ||
+                    (looseFileName.find("25_00_00_00") != string::npos && looseFileName.find(".hkxbdt") != string::npos) ||
+                    (looseFileName.find("25_00_00_00") != string::npos && looseFileName.find(".hkxbhd") != string::npos) ||
+                    (looseFileName.find("25_00_00_00") != string::npos && looseFileName.find(".btl.dcx") != string::npos) ||
+                    (looseFileName.find("25_00_00_00") != string::npos && looseFileName.find(".partsgroup.dcx") != string::npos) ||
+                    (looseFileName.find("25_00_00_00") != string::npos && looseFileName.find(".nva.dcx") != string::npos) ||
+                    (looseFileName.find("25_00_00_00") != string::npos && looseFileName.find(".nvmhktbnd.dcx") != string::npos) ||
+                    (looseFileName.find("25_00_00_00") != string::npos && looseFileName.find(".tpf.dcx") != string::npos) ||
+                    (looseFileName.find("25_00_00_00") != string::npos && looseFileName.find(".param.dcx") != string::npos) ||
+                    (looseFileName.find("25_00_00_00") != string::npos && looseFileName.find(".edgebdt") != string::npos) ||
+                    (looseFileName.find("25_00_00_00") != string::npos && looseFileName.find(".edgebhd") != string::npos) ||
+                    (looseFileName.find("25_00_00_00") != string::npos && looseFileName.find(".wallbdt") != string::npos) ||
+                    (looseFileName.find("25_00_00_00") != string::npos && looseFileName.find(".wallbhd") != string::npos)){
+
+                QDir parts(".\\tmp\\tmp1\\map\\m25_00_00_00\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\map\\");
+                    mkdir(".\\tmp\\tmp1\\map\\m25_00_00_00\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\map\\m25_00_00_00\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+            }
+            else if((looseFileName.find("89_00_00_99") != string::npos && looseFileName.find(".mapbnd.dcx") != string::npos) ||
+                    (looseFileName.find("89_00_00_99") != string::npos && looseFileName.find(".hkxbdt") != string::npos) ||
+                    (looseFileName.find("89_00_00_99") != string::npos && looseFileName.find(".hkxbhd") != string::npos) ||
+                    (looseFileName.find("89_00_00_99") != string::npos && looseFileName.find(".btl.dcx") != string::npos) ||
+                    (looseFileName.find("89_00_00_99") != string::npos && looseFileName.find(".partsgroup.dcx") != string::npos) ||
+                    (looseFileName.find("89_00_00_99") != string::npos && looseFileName.find(".nva.dcx") != string::npos) ||
+                    (looseFileName.find("89_00_00_99") != string::npos && looseFileName.find(".nvmhktbnd.dcx") != string::npos) ||
+                    (looseFileName.find("89_00_00_99") != string::npos && looseFileName.find(".tpf.dcx") != string::npos) ||
+                    (looseFileName.find("89_00_00_99") != string::npos && looseFileName.find(".param.dcx") != string::npos) ||
+                    (looseFileName.find("89_00_00_99") != string::npos && looseFileName.find(".edgebdt") != string::npos) ||
+                    (looseFileName.find("89_00_00_99") != string::npos && looseFileName.find(".edgebhd") != string::npos) ||
+                    (looseFileName.find("89_00_00_99") != string::npos && looseFileName.find(".wallbdt") != string::npos) ||
+                    (looseFileName.find("89_00_00_99") != string::npos && looseFileName.find(".wallbhd") != string::npos)){
+
+                QDir parts(".\\tmp\\tmp1\\map\\m89_00_00_99\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\map\\");
+                    mkdir(".\\tmp\\tmp1\\map\\m89_00_00_99\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\map\\m89_00_00_99\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+            }
+
+
+
+
+            else if(looseFileName.find(".entryfilelist") != string::npos){
+
+                QDir parts(".\\tmp\\tmp1\\map\\entryfilelist\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\map\\");
+                    mkdir(".\\tmp\\tmp1\\map\\entryfilelist\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\map\\entryfilelist\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+            }
+            else if(looseFileName.find(".onav") != string::npos){
+
+                QDir parts(".\\tmp\\tmp1\\map\\onav\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\map\\");
+                    mkdir(".\\tmp\\tmp1\\map\\onav\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\map\\onav\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+            }
+            else if(looseFileName.find(".msb") != string::npos){
+
+                QDir parts(".\\tmp\\tmp1\\map\\mapstudio\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\map\\");
+                    mkdir(".\\tmp\\tmp1\\map\\mapstudio\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\map\\mapstudio\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+            }
+            else if(looseFileName.find("worldmsblist.worldloadlistlist") != string::npos){
+
+                QDir parts(".\\tmp\\tmp1\\map\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\map\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\map\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+            }
+
+
+            //menu
+            else if(looseFileName.find(".gfx") != string::npos && looseFileName[0] == '0'){
+
+                QDir parts(".\\tmp\\tmp1\\menu\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\menu\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\menu\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+            }
+
+
+            //font
+            else if(looseFileName.find("dbgfont14h") != string::npos){
+
+                QDir parts(".\\tmp\\tmp1\\font\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\font\\");
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\font\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+
+            }
+
+
+            //REPEATED FILES
+
+            //font
+            else if(looseFileName.find("font.gfx") != string::npos){
+
+repeatFileName = looseFileName;
+                repeatType = 0;
+
+                repeatFile repeat;
+                repeat.setModal(true);
+                repeat.exec();
+
+                repeat.setAttribute(Qt::WA_DeleteOnClose);
+
+
+                QDir parts(".\\tmp\\tmp1\\font\\" + QString::fromStdString(repeatFileName) + "\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\font\\");
+
+                    string tempDir = ".\\tmp\\tmp1\\font\\" + repeatFileName + "\\";
+                    mkdir(tempDir.c_str());
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\font\\" + QString::fromStdString(repeatFileName) + "\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+                qDebug() << QString::fromStdString(repeatFileName);
+
+            }
+
+            //msg 2 letter folders
+            else if(looseFileName.find("sellregion.msgbnd.dcx") != string::npos){
+
+repeatFileName = looseFileName;
+                repeatType = 1;
+
+                repeatFile repeat;
+                repeat.setModal(true);
+                repeat.exec();
+
+                repeat.setAttribute(Qt::WA_DeleteOnClose);
+
+
+                QDir parts(".\\tmp\\tmp1\\msg\\" + QString::fromStdString(repeatFileName) + "\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\msg\\");
+
+                    string tempDir = ".\\tmp\\tmp1\\msg\\" + repeatFileName + "\\";
+                    mkdir(tempDir.c_str());
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\msg\\" + QString::fromStdString(repeatFileName) + "\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+                qDebug() << QString::fromStdString(repeatFileName);
+
+            }
+
+
+            //msg other folders
+            else if(looseFileName.find("menu.msgbnd.dcx") != string::npos || looseFileName.find("item.msgbnd.dcx") != string::npos){
+
+repeatFileName = looseFileName;
+                repeatType = 2;
+
+                repeatFile repeat;
+                repeat.setModal(true);
+                repeat.exec();
+
+                repeat.setAttribute(Qt::WA_DeleteOnClose);
+
+
+                QDir parts(".\\tmp\\tmp1\\msg\\" + QString::fromStdString(repeatFileName) + "\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\msg\\");
+
+                    string tempDir = ".\\tmp\\tmp1\\msg\\" + repeatFileName + "\\";
+                    mkdir(tempDir.c_str());
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\msg\\" + QString::fromStdString(repeatFileName) + "\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+                qDebug() << QString::fromStdString(repeatFileName);
+
+            }
+
+
+            //menu
+            else if(looseFileName.find("menu_load") != string::npos || looseFileName.find("01_common") != string::npos || looseFileName.find("05_dummy.tpf.dcx") != string::npos){
+
+        repeatFileName = looseFileName;
+                repeatType = 3;
+
+                repeatFile repeat;
+                repeat.setModal(true);
+                repeat.exec();
+
+                repeat.setAttribute(Qt::WA_DeleteOnClose);
+
+
+                QDir parts(".\\tmp\\tmp1\\menu\\" + QString::fromStdString(repeatFileName) + "\\");
+                if(!parts.exists()){
+
+                    mkdir(".\\tmp\\tmp1\\menu\\");
+
+                    string tempDir = ".\\tmp\\tmp1\\menu\\" + repeatFileName + "\\";
+                    mkdir(tempDir.c_str());
+
+                }
+
+                QDir newLooseDir = fileInfo.dir();
+                QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\menu\\" + QString::fromStdString(repeatFileName) + "\\" + QString::fromStdString(looseFileName));
+                qDebug() << newLooseDir.path();
+                qDebug() << QString::fromStdString(looseFileName);
+                qDebug() << QString::fromStdString(repeatFileName);
+
+            }
+
+
+            //menu mapimage
+            else if(looseFileName.find(".tpf.dcx") != string::npos && looseFileName[0] == '0' && looseFileName[2] == '_'){
+
+                repeatFileName = looseFileName;
+
+                repeatType = 4;
+
+                repeatFile repeat;
+                repeat.setModal(true);
+                repeat.exec();
+
+                repeat.setAttribute(Qt::WA_DeleteOnClose);
+
+
+                if(repeatFileName == "mapimage(hi)"){
+
+
+                    QDir parts(".\\tmp\\tmp1\\menu\\hi\\mapimage\\");
+                    if(!parts.exists()){
+
+                        mkdir(".\\tmp\\tmp1\\menu\\");
+                        mkdir(".\\tmp\\tmp1\\menu\\hi\\");
+                        mkdir(".\\tmp\\tmp1\\menu\\hi\\mapimage\\");
+
+
+
+                    }
+
+                    QDir newLooseDir = fileInfo.dir();
+                    QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\menu\\hi\\mapimage\\" + QString::fromStdString(looseFileName));
+                    qDebug() << newLooseDir.path();
+                    qDebug() << QString::fromStdString(looseFileName);
+                    qDebug() << QString::fromStdString(repeatFileName);
+
+
+                }
+                else if (repeatFileName == "mapimage(low)"){
+
+                    QDir parts(".\\tmp\\tmp1\\menu\\low\\mapimage\\");
+                    if(!parts.exists()){
+
+                        mkdir(".\\tmp\\tmp1\\menu\\");
+                        mkdir(".\\tmp\\tmp1\\menu\\low\\");
+                        mkdir(".\\tmp\\tmp1\\menu\\low\\mapimage\\");
+
+
+
+                    }
+
+                    QDir newLooseDir = fileInfo.dir();
+                    QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\menu\\low\\mapimage\\" + QString::fromStdString(looseFileName));
+                    qDebug() << newLooseDir.path();
+                    qDebug() << QString::fromStdString(looseFileName);
+                    qDebug() << QString::fromStdString(repeatFileName);
+
+                }
+
+
+
+            }
+
+
+
+
+        }
+
 
 
 
@@ -1580,13 +2774,14 @@ void Sekiro::traverseProfiles(const QString &pattern, const QString &dirname, in
 
         Profile.files.push_back(file.toLocal8Bit().constData());
 
-        //qDebug() << file;
+
 
         i++;
 
         }
 
       }
+
 
 
 
@@ -2121,7 +3316,7 @@ void Sekiro::on_logOn_stateChanged()
     if(ui->logOn->isChecked()){
 
         ui->logTextEdit->show();
-        qDebug() << "fe";
+
 
     }
     else if(ui->logOn->checkState() == false){
@@ -2430,5 +3625,7 @@ tmp.erase(remove(tmp.begin(), tmp.end(), '\"'), tmp.end());
 
 
 }
+
+
 
 

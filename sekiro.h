@@ -18,6 +18,15 @@ using namespace std;
 extern string sekDir;
 
 
+//holds folder for repeated file name
+extern string repeatFileName;
+
+
+
+//decides the combo box options for the repaet file dialogue
+extern short repeatType;
+
+
 
 //bool that hold whethers or not warnings are displayed
 extern bool warning;
@@ -297,6 +306,7 @@ private slots:
 
     //gets active profile
     void getActiveProfile();
+
 
 
 

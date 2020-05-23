@@ -24,17 +24,20 @@ SOURCES += \
     addprofile.cpp \
     main.cpp \
     modname.cpp \
+    repeatfile.cpp \
     sekiro.cpp \
 
 HEADERS += \     \
     addprofile.h \
     modname.h \
+    repeatfile.h \
     sekiro.h
 
 
 FORMS += \
     addprofile.ui \
     modname.ui \
+    repeatfile.ui \
     sekiro.ui \
 
 # Default rules for deployment.
