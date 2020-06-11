@@ -14,6 +14,9 @@ using namespace std;
 
 
 
+//hold whether mod is valid
+extern bool isModValid;
+
 //hold sekiro directory
 extern string sekDir;
 
@@ -32,12 +35,19 @@ extern short repeatType;
 extern bool warning;
 
 
+
+//bool that hold whethers or not the user is installing a modpack
+extern bool modpackBool;
+
+
 //hold name of mod that is being installed
 extern string modName;
 
 
 //log file
 extern ofstream logFile;
+
+
 
 
 
@@ -53,6 +63,8 @@ extern struct mod{
 
     vector<string> files;
 
+    string isInstalled;
+
 };
 
 
@@ -63,6 +75,8 @@ extern struct profile{
 
 
     string name;
+
+    string isInstalledP;
 
     string path;
 
@@ -127,11 +141,14 @@ public:
     //checks if mod path is empty
     static bool isModPathEmpty(string truemodpath);
 
-    //looks in directory for profile files
-    static void traverseProfiles(const QString &pattern, const QString &dirname, int mode);
+
 
     //unpacks and repacks compressed archives
     static void unpackRepack(string line);
+
+
+    //looks in directory for mod files
+    static void traverse(const QString &pattern, const QString &dirname, int mode, bool = true);
 
 
 
@@ -157,8 +174,7 @@ private slots:
 
 
 
-    //looks in directory for mod files
-    void traverse(const QString &pattern, const QString &dirname, int mode);
+
 
 
 

@@ -53,7 +53,7 @@ border: none;
 }</string>
    </property>
    <property name="text">
-    <string> </string>
+    <string/>
    </property>
   </widget>
   <widget class="QLabel" name="modNameLabel">
@@ -71,6 +71,27 @@ font: 26pt &quot;Assassin$&quot;;</string>
    </property>
    <property name="text">
     <string>Please enter the name of the mod</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="isModPack">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>200</y>
+     <width>81</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">#isModPack{
+color: rgb(255, 255, 255);
+font: 8pt &quot;MS Shell Dlg 2&quot;;
+}
+
+QToolTip { color: #ffffff; background-color: #000000; border: 0px; }</string>
+   </property>
+   <property name="text">
+    <string>Mod Pack</string>
    </property>
   </widget>
  </widget>

@@ -33,17 +33,15 @@
 using namespace std;
 
 
-bool  warning = false;
+bool  warning = false, isModValid = false, isProfileDone = false, modpackBool = false;
 
-string sekDir;
-
-string repeatFileName;
+string sekDir, repeatFileName, modName, trueModPath = "";
 
 short repeatType;
 
-string modName;
-
 struct mod Mod;
+
+struct profile Profile;
 
 set<string> modengineFolders = {"parts",
                                    "event",
@@ -65,17 +63,13 @@ set<string> modengineFolders = {"parts",
                                    "sound",
                                    "movie"};
 
-struct profile Profile;
-
 vector<profile> profiles;
 
 vector<mod> mods;
 
-string trueModPath = "";
-
-bool isProfileDone = false;
-
 ofstream logFile(".\\log.txt");
+
+
 
 
 Sekiro::Sekiro(QWidget *parent)
@@ -245,6 +239,430 @@ void Sekiro::on_addMod_clicked()
 
 
 
+    if(modpackBool){
+
+        //sets name of modpack
+        string modpackName = modName;
+
+
+
+
+        //moves mod file to mods folder in program directory
+
+        QFile file(modNAME);
+
+        string modDir = ".\\mods\\" + modName + "." + modExt.toLocal8Bit().constData();
+
+
+        QFile::copy(modNAME, QString::fromStdString(modDir));
+
+
+
+
+
+
+
+
+
+
+
+
+        //creates tmp folder and extracts archive to temp
+
+        QDir().mkdir(".\\modpack");
+
+        //if mod is contained in a zip file
+        if(modExt == "7z" || modExt == "zip"){
+
+
+            unpackRepack("cd \"%cd%\"   &   7za e -spf -y -o\"%cd%\\modpack\" \"%cd%\\mods\\"  + modName + "." + modExt.toLocal8Bit().constData() + "\"");
+
+
+        }
+
+
+        //if mod is contained in a rar file
+        else if(modExt == "rar"){
+
+
+            unpackRepack("cd \"%cd%\"    &    unrar x  -y \"%cd%\\mods\\"  + modName + ".rar\" * .\\modpack\\");
+
+        }
+
+
+
+
+        //bool that hold whether the user pressed cancel in filedialog
+        bool modpackCancelCheck = false;
+
+
+
+
+
+
+
+
+
+        //WHILE LOOP THAT CHECKS IF THE USER CANCELS A DIALOGE
+
+        //while !cancel
+        while(!modpackCancelCheck){
+
+
+
+
+
+
+            //opens file dialogue for choose individual mod
+
+            QString modpackMod = QFileDialog::getExistingDirectory(this, "Please select mod folder from modpack, or press cancel if you are finished installing mods", ".\\modpack\\");
+
+
+            //checks if user pressed "cancel"
+            if(!modpackMod.isEmpty() && !modpackMod.isNull()){
+
+
+
+
+            //gets new mod name
+
+            modname Modname;
+            Modname.setModal(true);
+            Modname.exec();
+
+            Modname.setAttribute(Qt::WA_DeleteOnClose);
+
+
+
+
+            //sets mods[n].name, mods[n].path, and mods[n].modNum
+
+            modName = modName + "(" + modpackName + ")";
+
+            Mod.name = modName;
+
+            Mod.path = ".\\mods\\" + modName;
+
+
+
+
+            //checks of mod is made up of loose files
+            traverse("*.*", modpackMod.toLocal8Bit().constData(), 0);
+
+
+
+            //if mod doesn't have loose files
+            if(isModPathEmpty(trueModPath) == false){
+
+
+
+
+            unpackRepack("cd \"%cd%\"   &   7za a -y \".\\tmp\\"  + modName + ".zip\" \"" + trueModPath + "/*\"");
+
+
+            QFile fileDel(modDir.c_str());
+
+            fileDel.remove();
+
+
+
+
+
+            QFile::copy(".\\tmp\\" + QString::fromStdString(modName) + ".zip", ".\\mods\\" + QString::fromStdString(modName) + ".zip");
+
+
+            QDir dir(".\\tmp\\");
+            dir.removeRecursively();
+
+
+
+
+
+
+
+
+            //gets names of all files and puts all file names in mods[n].files[i]
+
+            QDir().mkdir(".\\tmp");
+
+            unpackRepack("cd \"%cd%\"   &   7za e -spf -y -o\"%cd%\\tmp\" \"%cd%\\mods\\"+ modName + ".zip\"");
+
+            traverse("*.*", ".\\tmp\\", 1);
+
+
+
+            //see function definition
+            debugFileList(1);
+
+
+
+
+
+            //saves mod entry to file
+
+            QDir toCount(".\\configs\\");
+
+            toCount.setFilter(QDir::AllEntries | QDir::NoDotAndDotDot);
+
+            int total_files = toCount.count();
+
+            qDebug() << total_files;
+
+            Mod.modConfigPath = ".\\configs\\" + Mod.name + ".ini";
+            ofstream modConfig(Mod.modConfigPath);
+
+
+            Mod.isInstalled = 'n';
+
+            modConfig << Mod.isInstalled + "\n" + Mod.name + "\n" + Mod.path + "\n" + Mod.modConfigPath + "\n";
+            modConfig << Mod.files.size() << "\n";
+
+
+            for(int i = 0; i < Mod.files.size(); i++){
+
+
+                modConfig << Mod.files[i] << endl;
+
+
+
+            }
+
+            modConfig.close();
+
+
+            //pushes mod to vector of mods
+
+            mods.push_back(Mod);
+
+
+            //resets mod structure
+            Mod.isInstalled = "";
+            Mod.name = "";
+            Mod.path = "";
+            Mod.modConfigPath = "";
+            Mod.files.clear();
+
+
+
+
+            //deletes tmp folder
+
+            dir.removeRecursively();
+
+
+
+
+
+
+            //creates new mod entry in combo box
+
+            ui->modsInstalled->addItem(QString::fromStdString(modName));
+
+            log("Added: " + modName);
+
+            trueModPath = "";
+
+            }
+
+            //if mod has loose files
+            else if(isModPathEmpty(trueModPath) == true){
+
+                isModValid = false;
+
+                traverse("*.*", modpackMod.toLocal8Bit().constData(), 2);
+
+                if(isModValid){
+
+                    unpackRepack("cd \"%cd%\"   &   7za a -y \".\\tmp\\tmp1\\"  + modName + ".zip\" \".\\tmp\\tmp1\\*\"");
+
+                    QFile fileDel(modDir.c_str());
+
+                    fileDel.remove();
+
+
+
+
+
+                    QFile::copy(".\\tmp\\tmp1\\" + QString::fromStdString(modName) + ".zip", ".\\mods\\" + QString::fromStdString(modName) + ".zip");
+
+
+                    QDir dir(".\\tmp\\");
+                    dir.removeRecursively();
+
+
+
+
+
+
+
+
+                    //gets names of all files and puts all file names in mods[n].files[i]
+
+                    QDir().mkdir(".\\tmp");
+
+                    unpackRepack("cd \"%cd%\"   &   7za e -spf -y -o\"%cd%\\tmp\" \"%cd%\\mods\\"+ modName + ".zip\"");
+
+                    traverse("*.*", ".\\tmp\\", 1);
+
+
+
+                    //see function definition
+                    debugFileList(1);
+
+
+
+
+
+
+                    //creates mod config file
+                    Mod.modConfigPath = ".\\configs\\" + Mod.name + ".ini";
+                    ofstream modConfig(Mod.modConfigPath);
+
+                    Mod.isInstalled = 'n';
+
+                    modConfig << Mod.isInstalled + "\n" + Mod.name + "\n" + Mod.path + "\n" + Mod.modConfigPath + "\n";
+                    modConfig << Mod.files.size() << "\n";
+
+
+                    for(int i = 0; i < Mod.files.size(); i++){
+
+
+                        modConfig << Mod.files[i] << endl;
+
+
+
+                    }
+
+                    modConfig.close();
+
+
+                    //pushes mod to vector of mods
+
+                    mods.push_back(Mod);
+
+
+                    //resets mod structure
+                    Mod.isInstalled = "";
+                    Mod.name = "";
+                    Mod.path = "";
+                    Mod.modConfigPath = "";
+                    Mod.files.clear();
+
+
+
+
+                    //deletes tmp folder
+
+                    dir.removeRecursively();
+
+
+
+
+
+
+                    //creates new mod entry in combo box
+
+                    ui->modsInstalled->addItem(QString::fromStdString(modName));
+
+                    log("Added: " + modName);
+
+                    trueModPath = "";
+
+
+                    /*
+                    QFont sekFont("Assassin$");
+                    QFont errFont("Segoe UI", 8);
+
+                    QMessageBox err;
+
+                    QApplication::setFont(errFont);
+
+                    err.critical(this, "Error", "No folders used by modengine found. Please repack mod with the files in their respective folders");
+
+                    QFile fileDel(modDir.c_str());
+
+                    fileDel.remove();
+
+
+                    QDir dir(".\\tmp\\");
+                    dir.removeRecursively();
+
+
+
+                   QApplication::setFont(sekFont);
+
+                   log("Error: No folders used by modengine found");
+                   */
+
+
+
+
+                }
+
+
+                else{
+                QFont sekFont("Assassin$");
+                QFont errFont("Segoe UI", 8);
+
+                QMessageBox err;
+
+                QApplication::setFont(errFont);
+
+                err.critical(this, "Error", "No mod files found");
+
+                QFile fileDel(modDir.c_str());
+
+                fileDel.remove();
+
+
+                QDir dir(".\\tmp\\");
+                dir.removeRecursively();
+
+
+
+               QApplication::setFont(sekFont);
+
+               log("Error: No mod files found");
+
+                }
+
+            }
+
+
+
+
+
+
+
+
+            }
+            else{
+
+                qDebug() << "CANCEL";
+                modpackCancelCheck = true;
+
+            }
+
+
+
+        }
+
+
+
+
+        //delete modpack file and modpack folder
+        QFile::remove(".\\mods\\"+ QString::fromStdString(modpackName));
+
+        QDir modPackDir(".\\modpack");
+        modPackDir.removeRecursively();
+
+
+        //set modpackbool to false so the checkbox shows up next time the user add a mod
+        modpackBool = false;
+
+
+    }
+    else{
 
 
 
@@ -316,7 +734,7 @@ void Sekiro::on_addMod_clicked()
     traverse("*.*", ".\\tmp\\", 0);
 
 
-
+    //if mod doesn't have loose files
     if(isModPathEmpty(trueModPath) == false){
 
 
@@ -346,7 +764,7 @@ void Sekiro::on_addMod_clicked()
 
 
 
-  // gets names of all files and puts all file names in mods[n].files[i]
+    //gets names of all files and puts all file names in mods[n].files[i]
 
     QDir().mkdir(".\\tmp");
 
@@ -376,7 +794,9 @@ void Sekiro::on_addMod_clicked()
     Mod.modConfigPath = ".\\configs\\" + Mod.name + ".ini";
     ofstream modConfig(Mod.modConfigPath);
 
-    modConfig << Mod.name + "\n" + Mod.path + "\n" + Mod.modConfigPath + "\n";
+    Mod.isInstalled = 'n';
+
+    modConfig << Mod.isInstalled + "\n" + Mod.name + "\n" + Mod.path + "\n" + Mod.modConfigPath + "\n";
     modConfig << Mod.files.size() << "\n";
 
 
@@ -398,6 +818,7 @@ void Sekiro::on_addMod_clicked()
 
 
     //resets mod structure
+    Mod.isInstalled = "";
     Mod.name = "";
     Mod.path = "";
     Mod.modConfigPath = "";
@@ -425,107 +846,143 @@ void Sekiro::on_addMod_clicked()
 
     }
 
+    //if mod has loose files
     else if(isModPathEmpty(trueModPath) == true){
 
+        isModValid = false;
 
         traverse("*.*", ".\\tmp\\", 2);
 
+        if(isModValid){
 
+            unpackRepack("cd \"%cd%\"   &   7za a -y \".\\tmp\\tmp1\\"  + modName + ".zip\" \".\\tmp\\tmp1\\*\"");
 
-        unpackRepack("cd \"%cd%\"   &   7za a -y \".\\tmp\\tmp1\\"  + modName + ".zip\" \".\\tmp\\tmp1\\*\"");
+            QFile fileDel(modDir.c_str());
 
-        QFile fileDel(modDir.c_str());
-
-        fileDel.remove();
-
-
-
-
-
-        QFile::copy(".\\tmp\\tmp1\\" + QString::fromStdString(modName) + ".zip", ".\\mods\\" + QString::fromStdString(modName) + ".zip");
-
-
-        QDir dir(".\\tmp\\");
-        dir.removeRecursively();
+            fileDel.remove();
 
 
 
 
 
+            QFile::copy(".\\tmp\\tmp1\\" + QString::fromStdString(modName) + ".zip", ".\\mods\\" + QString::fromStdString(modName) + ".zip");
 
 
-
-        //gets names of all files and puts all file names in mods[n].files[i]
-
-        QDir().mkdir(".\\tmp");
-
-        unpackRepack("cd \"%cd%\"   &   7za e -spf -y -o\"%cd%\\tmp\" \"%cd%\\mods\\"+ modName + ".zip\"");
-
-        traverse("*.*", ".\\tmp\\", 1);
-
-
-
-        //see function definition
-        debugFileList(1);
+            QDir dir(".\\tmp\\");
+            dir.removeRecursively();
 
 
 
 
 
 
-        //creates mod config file
-        Mod.modConfigPath = ".\\configs\\" + Mod.name + ".ini";
-        ofstream modConfig(Mod.modConfigPath);
-
-        modConfig << Mod.name + "\n" + Mod.path + "\n" + Mod.modConfigPath + "\n";
-        modConfig << Mod.files.size() << "\n";
 
 
-        for(int i = 0; i < Mod.files.size(); i++){
+            //gets names of all files and puts all file names in mods[n].files[i]
+
+            QDir().mkdir(".\\tmp");
+
+            unpackRepack("cd \"%cd%\"   &   7za e -spf -y -o\"%cd%\\tmp\" \"%cd%\\mods\\"+ modName + ".zip\"");
+
+            traverse("*.*", ".\\tmp\\", 1);
 
 
-            modConfig << Mod.files[i] << endl;
+
+            //see function definition
+            debugFileList(1);
+
+
+
+
+
+
+            //creates mod config file
+            Mod.modConfigPath = ".\\configs\\" + Mod.name + ".ini";
+            ofstream modConfig(Mod.modConfigPath);
+
+            Mod.isInstalled = 'n';
+
+            modConfig << Mod.isInstalled + "\n" + Mod.name + "\n" + Mod.path + "\n" + Mod.modConfigPath + "\n";
+            modConfig << Mod.files.size() << "\n";
+
+
+            for(int i = 0; i < Mod.files.size(); i++){
+
+
+                modConfig << Mod.files[i] << endl;
+
+
+
+            }
+
+            modConfig.close();
+
+
+            //pushes mod to vector of mods
+
+            mods.push_back(Mod);
+
+
+            //resets mod structure
+            Mod.isInstalled = "";
+            Mod.name = "";
+            Mod.path = "";
+            Mod.modConfigPath = "";
+            Mod.files.clear();
+
+
+
+
+            //deletes tmp folder
+
+            dir.removeRecursively();
+
+
+
+
+
+
+            //creates new mod entry in combo box
+
+            ui->modsInstalled->addItem(QString::fromStdString(modName));
+
+            log("Added: " + modName);
+
+            trueModPath = "";
+
+
+            /*
+            QFont sekFont("Assassin$");
+            QFont errFont("Segoe UI", 8);
+
+            QMessageBox err;
+
+            QApplication::setFont(errFont);
+
+            err.critical(this, "Error", "No folders used by modengine found. Please repack mod with the files in their respective folders");
+
+            QFile fileDel(modDir.c_str());
+
+            fileDel.remove();
+
+
+            QDir dir(".\\tmp\\");
+            dir.removeRecursively();
+
+
+
+           QApplication::setFont(sekFont);
+
+           log("Error: No folders used by modengine found");
+           */
+
 
 
 
         }
 
-        modConfig.close();
 
-
-        //pushes mod to vector of mods
-
-        mods.push_back(Mod);
-
-
-        //resets mod structure
-        Mod.name = "";
-        Mod.path = "";
-        Mod.modConfigPath = "";
-        Mod.files.clear();
-
-
-
-
-        //deletes tmp folder
-
-        dir.removeRecursively();
-
-
-
-
-
-
-        //creates new mod entry in combo box
-
-        ui->modsInstalled->addItem(QString::fromStdString(modName));
-
-        log("Added: " + modName);
-
-        trueModPath = "";
-
-
-        /*
+        else{
         QFont sekFont("Assassin$");
         QFont errFont("Segoe UI", 8);
 
@@ -533,7 +990,7 @@ void Sekiro::on_addMod_clicked()
 
         QApplication::setFont(errFont);
 
-        err.critical(this, "Error", "No folders used by modengine found. Please repack mod with the files in their respective folders");
+        err.critical(this, "Error", "No mod files found");
 
         QFile fileDel(modDir.c_str());
 
@@ -547,8 +1004,11 @@ void Sekiro::on_addMod_clicked()
 
        QApplication::setFont(sekFont);
 
-       log("Error: No folders used by modengine found");
-       */
+       log("Error: No mod files found");
+
+        }
+
+    }
 
 
     }
@@ -728,7 +1188,7 @@ void Sekiro::checkDir(){
 
 //looks in directory for mod files
 
-void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
+void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode, bool mod)
 {
 
 
@@ -757,10 +1217,20 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
             string folderName = fileInfo.baseName().toLocal8Bit().constData();
             transform(folderName.begin(),folderName.end(),folderName.begin(), tolower);
 
+
+
             if(modengineFolders.find(folderName) != modengineFolders.end() && mode == 0){
 
 
+                if(!mod){
+
+                    modProfilePath = fileInfo.path().toLocal8Bit().constData();
+                }
+                else{
+
                 trueModPath = fileInfo.path().toLocal8Bit().constData();
+
+                }
 
 
 
@@ -768,8 +1238,21 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
 
 
             else{
-            //calls function so it searches all the sub directories
-            traverse(pattern, fileInfo.filePath(), mode);
+
+               //calls function so it searches all the sub directories
+
+                if(!mod){
+
+                   traverse(pattern, fileInfo.filePath(), mode, false);
+                }
+                else{
+
+                traverse(pattern, fileInfo.filePath(), mode);
+
+                }
+
+
+
             }
 
 
@@ -777,7 +1260,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
         }
 
 
-        //if mode = 1 and the fileinfo is a file then puts all of the files in the mods.files vector, so that when the user wants to uninstall the mod, the program has all of
+        //if mode = 1 and the fileinfo is a file then puts all of the files in the mods.files/profiles.files vector, so that when the user wants to uninstall the mod, the program has all of
         //the names of the files to delete
         if(mode == 1){
 
@@ -788,7 +1271,18 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
 
         if(fileInfo.isFile()){
 
-        Mod.files.push_back(file.toLocal8Bit().constData());
+
+            if(!mod){
+
+               Profile.files.push_back(file.toLocal8Bit().constData());
+            }
+            else{
+
+            Mod.files.push_back(file.toLocal8Bit().constData());
+
+            }
+
+
 
         i++;
 
@@ -807,6 +1301,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
             QDir tmp1(".\\tmp\\tmp1\\");
             if(!tmp1.exists()){
 
+                mkdir(".\\tmp\\");
                 mkdir(".\\tmp\\tmp1\\");
 
             }
@@ -818,6 +1313,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
 
             //"action" folder
             if(looseFileName.find(".txt") != string::npos){
+                isModValid = true;
 
 
                 QDir parts(".\\tmp\\tmp1\\action\\");
@@ -836,9 +1332,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
 
              }
             else if(looseFileName.find(".hks") != string::npos){
-
-
-
+                isModValid = true;
 
                 QDir parts(".\\tmp\\tmp1\\action\\script\\");
                 if(!parts.exists()){
@@ -851,9 +1345,6 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
                 }
 
 
-
-
-
                 QDir newLooseDir = fileInfo.dir();
                 qDebug() << QFile::copy(fileInfo.path() + "\\" + QString::fromStdString(looseFileName), ".\\tmp\\tmp1\\action\\script\\" + QString::fromStdString(looseFileName)) << "BGOI$BGBORGGEG";
                 qDebug() << newLooseDir.path() << "GNEIOBGIBOEBGOBGIBEOBNGI";
@@ -864,7 +1355,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
 
             //"chr" folder
             else if(looseFileName.find(".ani") != string::npos || looseFileName.find(".tex") != string::npos || looseFileName.find(".beh") != string::npos ||looseFileName.find(".chr") != string::npos){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\chr\\");
                 if(!parts.exists()){
 
@@ -882,7 +1373,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
 
             //cutscene folder
             else if(looseFileName.find(".cutscene") != string::npos){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\cutscene\\");
                 if(!parts.exists()){
 
@@ -899,7 +1390,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
 
             //event folder
             else if(looseFileName.find(".emevd") != string::npos){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\event\\");
                 if(!parts.exists()){
 
@@ -916,7 +1407,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
 
             //facegen folder
             else if(looseFileName.find("facegen.fgbnd.dcx") != string::npos){
-
+                isModValid = true;
 
                 QDir parts(".\\tmp\\tmp1\\facegen\\");
                 if(!parts.exists()){
@@ -935,7 +1426,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
 
             //parts folder
             else if(looseFileName.find(".partsbnd") != string::npos){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\parts\\");
                 if(!parts.exists()){
 
@@ -955,7 +1446,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
 
             //script folder
             else if(looseFileName.find("talke") != string::npos){
-
+                isModValid = true;
 
                 QDir parts(".\\tmp\\tmp1\\script\\talk\\");
 
@@ -974,7 +1465,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
 
             }
             else if(looseFileName.find(".lua") != string::npos){
-
+                    isModValid = true;
                     QDir parts(".\\tmp\\tmp1\\script\\");
                     if(!parts.exists()){
 
@@ -997,7 +1488,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
 
             //sfx
             else if(looseFileName.find(".ffx") != string::npos){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\sfx\\");
                 if(!parts.exists()){
 
@@ -1016,7 +1507,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
 
             //shader
             else if(looseFileName.find(".shader") != string::npos){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\shader\\");
                 if(!parts.exists()){
 
@@ -1035,7 +1526,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
             //sound
             else if(looseFileName.find(".itl") != string::npos ||looseFileName.find(".fev") != string::npos || looseFileName.find(".fsb") != string::npos ||
                     looseFileName.find("multich.mch") != string::npos || looseFileName.find("multimix.mix") != string::npos || looseFileName.find("multirpc.rpc") != string::npos){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\sound\\");
                 if(!parts.exists()){
 
@@ -1053,7 +1544,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
 
             //movie
             else if(looseFileName.find(".bk2") != string::npos){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\movie\\");
                 if(!parts.exists()){
 
@@ -1071,7 +1562,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
 
             //mtd
             else if(looseFileName.find("allmaterialbnd.mtdbnd.dcx") != string::npos){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\mtd\\");
                 if(!parts.exists()){
 
@@ -1089,7 +1580,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
 
             //obj
             else if(looseFileName.find(".obj") != string::npos){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\obj\\");
                 if(!parts.exists()){
 
@@ -1108,7 +1599,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
             //other
             else if(looseFileName.find("decaltex.tpf.dcx") != string::npos || looseFileName.find("default.rumblebnd.dcx") != string::npos ||looseFileName.find("ingamestay.loadlist") != string::npos ||
                     looseFileName.find("maptex.tpf.dcx") != string::npos || looseFileName.find("modelviewer_default") != string::npos || looseFileName.find("movtae.movtae.dcx") != string::npos || looseFileName.find("systex.tpf.dcx") != string::npos){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\other\\");
                 if(!parts.exists()){
 
@@ -1126,7 +1617,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
 
             //param
             else if(looseFileName.find(".gparam") != string::npos){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\param\\drawparam\\");
                 if(!parts.exists()){
 
@@ -1142,7 +1633,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
 
             }
             else if(looseFileName.find("gameparam.parambnd.dcx") != string::npos){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\param\\gameparam\\");
                 if(!parts.exists()){
 
@@ -1158,7 +1649,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
 
             }
             else if(looseFileName.find("graphicsconfig.parambnd.dcx") != string::npos){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\param\\graphicsconfig\\");
                 if(!parts.exists()){
 
@@ -1177,7 +1668,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
 
             //parts
             else if(looseFileName.find(".partsbnd") != string::npos || looseFileName.find("common_body.tpf.dcx") != string::npos){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\parts\\");
                 if(!parts.exists()){
 
@@ -1195,7 +1686,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
 
             //map
             else if((looseFileName.find("m10") != string::npos && looseFileName.find(".tpfbdt") != string::npos) || looseFileName.find("m10") != string::npos && looseFileName.find(".tpfbhd") != string::npos || looseFileName.find("m10_cgrading.tpf.dcx") != string::npos){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\map\\m10\\");
                 if(!parts.exists()){
 
@@ -1211,7 +1702,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
 
             }
             else if((looseFileName.find("m11") != string::npos && looseFileName.find(".tpfbdt") != string::npos) || looseFileName.find("m11") != string::npos && looseFileName.find(".tpfbhd") != string::npos || looseFileName.find("m11_cgrading.tpf.dcx") != string::npos){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\map\\m11\\");
                 if(!parts.exists()){
 
@@ -1227,7 +1718,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
 
             }
             else if((looseFileName.find("m13") != string::npos && looseFileName.find(".tpfbdt") != string::npos) || looseFileName.find("m13") != string::npos && looseFileName.find(".tpfbhd") != string::npos || looseFileName.find("m13_cgrading.tpf.dcx") != string::npos){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\map\\m13\\");
                 if(!parts.exists()){
 
@@ -1243,7 +1734,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
 
             }
             else if((looseFileName.find("m15") != string::npos && looseFileName.find(".tpfbdt") != string::npos) || looseFileName.find("m15") != string::npos && looseFileName.find(".tpfbhd") != string::npos || looseFileName.find("m15_cgrading.tpf.dcx") != string::npos){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\map\\m15\\");
                 if(!parts.exists()){
 
@@ -1259,7 +1750,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
 
             }
             else if((looseFileName.find("m17") != string::npos && looseFileName.find(".tpfbdt") != string::npos) || looseFileName.find("m17") != string::npos && looseFileName.find(".tpfbhd") != string::npos || looseFileName.find("m17_cgrading.tpf.dcx") != string::npos){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\map\\m17\\");
                 if(!parts.exists()){
 
@@ -1275,7 +1766,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
 
             }
             else if((looseFileName.find("m20") != string::npos && looseFileName.find(".tpfbdt") != string::npos) || looseFileName.find("m20") != string::npos && looseFileName.find(".tpfbhd") != string::npos || looseFileName.find("m20_cgrading.tpf.dcx") != string::npos){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\map\\m20\\");
                 if(!parts.exists()){
 
@@ -1291,7 +1782,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
 
             }
             else if((looseFileName.find("m25") != string::npos && looseFileName.find(".tpfbdt") != string::npos) || looseFileName.find("m25") != string::npos && looseFileName.find(".tpfbhd") != string::npos || looseFileName.find("m25_cgrading.tpf.dcx") != string::npos){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\map\\m25\\");
                 if(!parts.exists()){
 
@@ -1320,7 +1811,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
                     (looseFileName.find("10_00_00_00") != string::npos && looseFileName.find(".edgebhd") != string::npos) ||
                     (looseFileName.find("10_00_00_00") != string::npos && looseFileName.find(".wallbdt") != string::npos) ||
                     (looseFileName.find("10_00_00_00") != string::npos && looseFileName.find(".wallbhd") != string::npos)){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\map\\m10_00_00_00\\");
                 if(!parts.exists()){
 
@@ -1348,7 +1839,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
                     (looseFileName.find("11_00_00_00") != string::npos && looseFileName.find(".edgebhd") != string::npos) ||
                     (looseFileName.find("11_00_00_00") != string::npos && looseFileName.find(".wallbdt") != string::npos) ||
                     (looseFileName.find("11_00_00_00") != string::npos && looseFileName.find(".wallbhd") != string::npos)){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\map\\m11_00_00_00\\");
                 if(!parts.exists()){
 
@@ -1376,7 +1867,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
                     (looseFileName.find("11_01_00_00") != string::npos && looseFileName.find(".edgebhd") != string::npos) ||
                     (looseFileName.find("11_01_00_00") != string::npos && looseFileName.find(".wallbdt") != string::npos) ||
                     (looseFileName.find("11_01_00_00") != string::npos && looseFileName.find(".wallbhd") != string::npos)){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\map\\m11_01_00_00\\");
                 if(!parts.exists()){
 
@@ -1404,7 +1895,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
                     (looseFileName.find("11_02_00_00") != string::npos && looseFileName.find(".edgebhd") != string::npos) ||
                     (looseFileName.find("11_02_00_00") != string::npos && looseFileName.find(".wallbdt") != string::npos) ||
                     (looseFileName.find("11_02_00_00") != string::npos && looseFileName.find(".wallbhd") != string::npos)){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\map\\m11_02_00_00\\");
                 if(!parts.exists()){
 
@@ -1432,7 +1923,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
                     (looseFileName.find("13_00_00_00") != string::npos && looseFileName.find(".edgebhd") != string::npos) ||
                     (looseFileName.find("13_00_00_00") != string::npos && looseFileName.find(".wallbdt") != string::npos) ||
                     (looseFileName.find("13_00_00_00") != string::npos && looseFileName.find(".wallbhd") != string::npos)){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\map\\m13_00_00_00\\");
                 if(!parts.exists()){
 
@@ -1460,7 +1951,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
                     (looseFileName.find("15_00_00_00") != string::npos && looseFileName.find(".edgebhd") != string::npos) ||
                     (looseFileName.find("15_00_00_00") != string::npos && looseFileName.find(".wallbdt") != string::npos) ||
                     (looseFileName.find("15_00_00_00") != string::npos && looseFileName.find(".wallbhd") != string::npos)){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\map\\m15_00_00_00\\");
                 if(!parts.exists()){
 
@@ -1488,7 +1979,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
                     (looseFileName.find("17_00_00_00") != string::npos && looseFileName.find(".edgebhd") != string::npos) ||
                     (looseFileName.find("17_00_00_00") != string::npos && looseFileName.find(".wallbdt") != string::npos) ||
                     (looseFileName.find("17_00_00_00") != string::npos && looseFileName.find(".wallbhd") != string::npos)){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\map\\m17_00_00_00\\");
                 if(!parts.exists()){
 
@@ -1516,7 +2007,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
                     (looseFileName.find("20_00_00_00") != string::npos && looseFileName.find(".edgebhd") != string::npos) ||
                     (looseFileName.find("20_00_00_00") != string::npos && looseFileName.find(".wallbdt") != string::npos) ||
                     (looseFileName.find("20_00_00_00") != string::npos && looseFileName.find(".wallbhd") != string::npos)){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\map\\m20_00_00_00\\");
                 if(!parts.exists()){
 
@@ -1544,7 +2035,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
                     (looseFileName.find("25_00_00_00") != string::npos && looseFileName.find(".edgebhd") != string::npos) ||
                     (looseFileName.find("25_00_00_00") != string::npos && looseFileName.find(".wallbdt") != string::npos) ||
                     (looseFileName.find("25_00_00_00") != string::npos && looseFileName.find(".wallbhd") != string::npos)){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\map\\m25_00_00_00\\");
                 if(!parts.exists()){
 
@@ -1572,7 +2063,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
                     (looseFileName.find("89_00_00_99") != string::npos && looseFileName.find(".edgebhd") != string::npos) ||
                     (looseFileName.find("89_00_00_99") != string::npos && looseFileName.find(".wallbdt") != string::npos) ||
                     (looseFileName.find("89_00_00_99") != string::npos && looseFileName.find(".wallbhd") != string::npos)){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\map\\m89_00_00_99\\");
                 if(!parts.exists()){
 
@@ -1592,7 +2083,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
 
 
             else if(looseFileName.find(".entryfilelist") != string::npos){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\map\\entryfilelist\\");
                 if(!parts.exists()){
 
@@ -1608,7 +2099,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
 
             }
             else if(looseFileName.find(".onav") != string::npos){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\map\\onav\\");
                 if(!parts.exists()){
 
@@ -1624,7 +2115,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
 
             }
             else if(looseFileName.find(".msb") != string::npos){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\map\\mapstudio\\");
                 if(!parts.exists()){
 
@@ -1640,7 +2131,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
 
             }
             else if(looseFileName.find("worldmsblist.worldloadlistlist") != string::npos){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\map\\");
                 if(!parts.exists()){
 
@@ -1658,7 +2149,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
 
             //menu
             else if(looseFileName.find(".gfx") != string::npos && looseFileName[0] == '0'){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\menu\\");
                 if(!parts.exists()){
 
@@ -1676,7 +2167,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
 
             //font
             else if(looseFileName.find("dbgfont14h") != string::npos){
-
+                isModValid = true;
                 QDir parts(".\\tmp\\tmp1\\font\\");
                 if(!parts.exists()){
 
@@ -1696,8 +2187,8 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode)
 
             //font
             else if(looseFileName.find("font.gfx") != string::npos){
-
-repeatFileName = looseFileName;
+                isModValid = true;
+                repeatFileName = looseFileName;
                 repeatType = 0;
 
                 repeatFile repeat;
@@ -1727,8 +2218,8 @@ repeatFileName = looseFileName;
 
             //msg 2 letter folders
             else if(looseFileName.find("sellregion.msgbnd.dcx") != string::npos){
-
-repeatFileName = looseFileName;
+                isModValid = true;
+                repeatFileName = looseFileName;
                 repeatType = 1;
 
                 repeatFile repeat;
@@ -1759,8 +2250,8 @@ repeatFileName = looseFileName;
 
             //msg other folders
             else if(looseFileName.find("menu.msgbnd.dcx") != string::npos || looseFileName.find("item.msgbnd.dcx") != string::npos){
-
-repeatFileName = looseFileName;
+                isModValid = true;
+                repeatFileName = looseFileName;
                 repeatType = 2;
 
                 repeatFile repeat;
@@ -1791,8 +2282,8 @@ repeatFileName = looseFileName;
 
             //menu
             else if(looseFileName.find("menu_load") != string::npos || looseFileName.find("01_common") != string::npos || looseFileName.find("05_dummy.tpf.dcx") != string::npos){
-
-        repeatFileName = looseFileName;
+                isModValid = true;
+                repeatFileName = looseFileName;
                 repeatType = 3;
 
                 repeatFile repeat;
@@ -1823,9 +2314,8 @@ repeatFileName = looseFileName;
 
             //menu mapimage
             else if(looseFileName.find(".tpf.dcx") != string::npos && looseFileName[0] == '0' && looseFileName[2] == '_'){
-
+                isModValid = true;
                 repeatFileName = looseFileName;
-
                 repeatType = 4;
 
                 repeatFile repeat;
@@ -2007,6 +2497,51 @@ void Sekiro::on_Install_clicked()
             unpackRepack("cd \"%cd%\"   &   7za e -spf -y -o\"" + sekDir + "\\mods\\\" \"%cd%\\mods\\"+ mods[ui->modsInstalled->currentIndex()].name + ".zip\" ");
 
             log("Installed: " + mods[ui->modsInstalled->currentIndex()].name);
+
+
+
+            //edits config
+            ifstream filein(mods[ui->modsInstalled->currentIndex()].modConfigPath); //orig file
+            ofstream fileout("TMP.ini"); //Temp file
+
+
+
+            //take entire line as a string
+            short counter = 0;
+            for(string line; getline( filein, line ); )
+            {
+
+                if(counter == 0){
+
+                    line = "y";
+
+
+                }
+
+                counter++;
+
+
+               fileout << line << endl;
+            }
+
+
+
+            //closes file streams
+            filein.close();
+            fileout.close();
+
+
+            //switches orig config with final/edited one
+            QFile::remove(QString::fromStdString(mods[ui->modsInstalled->currentIndex()].modConfigPath));
+            QFile::rename(".\\TMP.ini", QString::fromStdString(mods[ui->modsInstalled->currentIndex()].modConfigPath));
+
+
+
+
+            //add icon to combobox
+            ui->modsInstalled->setItemIcon(ui->modsInstalled->currentIndex(),QIcon(":/uielements/uielements/sekiroCheck.PNG"));
+
+
         }
         else if (warning == false){
 
@@ -2038,6 +2573,45 @@ void Sekiro::on_Install_clicked()
 
             log("Installed: " + mods[ui->modsInstalled->currentIndex()].name);
 
+
+            //edits config
+            ifstream filein(mods[ui->modsInstalled->currentIndex()].modConfigPath); //orig file
+            ofstream fileout("TMP.ini"); //Temp file
+
+
+
+            //take entire line as a string
+            short counter = 0;
+            for(string line; getline( filein, line ); )
+            {
+
+                if(counter == 0){
+
+                    line = "y";
+
+
+                }
+
+                counter++;
+
+
+               fileout << line << endl;
+            }
+
+
+
+            //closes file streams
+            filein.close();
+            fileout.close();
+
+
+            //switches orig config with final/edited one
+            QFile::remove(QString::fromStdString(mods[ui->modsInstalled->currentIndex()].modConfigPath));
+            QFile::rename(".\\TMP.ini", QString::fromStdString(mods[ui->modsInstalled->currentIndex()].modConfigPath));
+
+
+            //add icon to combobox
+            ui->modsInstalled->setItemIcon(ui->modsInstalled->currentIndex(),QIcon(":/uielements/uielements/sekiroCheck.PNG"));
 
         }
 
@@ -2094,6 +2668,46 @@ void Sekiro::on_Uninstall_clicked()
 
     log("Uninstalled: " + mods[ui->modsInstalled->currentIndex()].name);
 
+
+    //edits config
+    ifstream filein(mods[ui->modsInstalled->currentIndex()].modConfigPath); //orig file
+    ofstream fileout("TMP.ini"); //Temp file
+
+
+
+    //take entire line as a string
+    short counter = 0;
+    for(string line; getline( filein, line ); )
+    {
+
+        if(counter == 0){
+
+            line = "n";
+
+
+        }
+
+        counter++;
+
+
+       fileout << line << endl;
+    }
+
+
+
+    //closes file streams
+    filein.close();
+    fileout.close();
+
+
+    //switches orig config with final/edited one
+    QFile::remove(QString::fromStdString(mods[ui->modsInstalled->currentIndex()].modConfigPath));
+    QFile::rename(".\\TMP.ini", QString::fromStdString(mods[ui->modsInstalled->currentIndex()].modConfigPath));
+
+
+    //removes icon from combobox
+    ui->modsInstalled->setItemIcon(ui->modsInstalled->currentIndex(), QIcon(":/uielements/uielements/sekiroFakeIcon.png"));
+
 }
 
 
@@ -2138,6 +2752,7 @@ void Sekiro::getSettings(){
 
         ifstream config(".\\configs\\" + filename.toStdString());
 
+        getline(config, Mod.isInstalled);
         getline(config, Mod.name);
         getline(config, Mod.path);
         getline(config, Mod.modConfigPath);
@@ -2178,6 +2793,7 @@ void Sekiro::getSettings(){
 
 
         //resets mod structure
+        Mod.isInstalled = "";
         Mod.name = "";
         Mod.path = "";
         Mod.modConfigPath = "";
@@ -2197,6 +2813,20 @@ void Sekiro::getSettings(){
         //creates new mod entry in combo box
 
         ui->modsInstalled->addItem(QString::fromStdString(mods[i].name));
+
+
+        //sets icon
+        if(mods[i].isInstalled == "y"){
+
+            //add icon to combobox
+            ui->modsInstalled->setItemIcon(i,QIcon(":/uielements/uielements/sekiroCheck.PNG"));
+
+
+        }
+        else{
+            //removes icon from combobox
+            ui->modsInstalled->setItemIcon(i, QIcon(":/uielements/uielements/sekiroFakeIcon.png"));
+        }
 
         i++;
 
@@ -2439,6 +3069,54 @@ void Sekiro::on_installProfile_clicked()
 
     log("Installed Profile: " + profiles[ui->profilesInstalled->currentIndex()].name);
 
+
+
+
+    //edits config
+    ifstream filein(profiles[ui->profilesInstalled->currentIndex()].profileConfigPath); //orig file
+    ofstream fileout("TMP.ini"); //Temp file
+
+
+
+    //take entire line as a string
+    short counter = 0;
+    for(string line; getline( filein, line ); )
+    {
+
+        if(counter == 0){
+
+            line = "y";
+
+
+        }
+
+        counter++;
+
+
+       fileout << line << endl;
+    }
+
+
+
+    //closes file streams
+    filein.close();
+    fileout.close();
+
+
+    //switches orig config with final/edited one
+    QFile::remove(QString::fromStdString(profiles[ui->profilesInstalled->currentIndex()].profileConfigPath));
+    QFile::rename(".\\TMP.ini", QString::fromStdString(profiles[ui->profilesInstalled->currentIndex()].profileConfigPath));
+
+
+
+
+    //add icon to combobox
+    ui->profilesInstalled->setItemIcon(ui->profilesInstalled->currentIndex(),QIcon(":/uielements/uielements/sekiroCheck.PNG"));
+
+
+
+
+
 }
 
 
@@ -2524,6 +3202,50 @@ void Sekiro::on_uninstallProfile_clicked()
 
     log("Uninstalled Profile: " + profiles[ui->profilesInstalled->currentIndex()].name);
 
+
+
+    //edits config
+    ifstream filein(profiles[ui->profilesInstalled->currentIndex()].profileConfigPath); //orig file
+    ofstream fileout("TMP.ini"); //Temp file
+
+
+
+    //take entire line as a string
+    short counter = 0;
+    for(string line; getline( filein, line ); )
+    {
+
+        if(counter == 0){
+
+            line = "n";
+
+
+        }
+
+        counter++;
+
+
+       fileout << line << endl;
+    }
+
+
+
+    //closes file streams
+    filein.close();
+    fileout.close();
+
+
+    //switches orig config with final/edited one
+    QFile::remove(QString::fromStdString(profiles[ui->profilesInstalled->currentIndex()].profileConfigPath));
+    QFile::rename(".\\TMP.ini", QString::fromStdString(profiles[ui->profilesInstalled->currentIndex()].profileConfigPath));
+
+
+
+
+    //removes icon from combobox
+    ui->profilesInstalled->setItemIcon(ui->profilesInstalled->currentIndex(), QIcon(":/uielements/uielements/sekiroFakeIcon.png"));
+
+
 }
 
 
@@ -2567,6 +3289,7 @@ void Sekiro::getSettingsProfile(){
 
         ifstream config(".\\configsP\\" + filename.toStdString());
 
+        getline(config, Profile.isInstalledP);
         getline(config, Profile.name);
         getline(config, Profile.path);
         getline(config, Profile.profileConfigPath);
@@ -2681,6 +3404,23 @@ void Sekiro::getSettingsProfile(){
 
         ui->profilesInstalled->addItem(QString::fromStdString(profiles[i].name));
 
+
+        //sets icon
+        if(profiles[i].isInstalledP == "y"){
+
+            //add icon to combobox
+            ui->profilesInstalled->setItemIcon(i,QIcon(":/uielements/uielements/sekiroCheck.PNG"));
+
+
+        }
+        else{
+
+            //removes icon from combobox
+            ui->profilesInstalled->setItemIcon(i, QIcon(":/uielements/uielements/sekiroFakeIcon.png"));
+
+        }
+
+
         i++;
 
 
@@ -2706,87 +3446,6 @@ void Sekiro::getSettingsProfile(){
 
 
 
-
-
-
-//looks in directory for profile files
-
-void Sekiro::traverseProfiles(const QString &pattern, const QString &dirname, int mode){
-
-
-
-    QDir dir(dirname);
-    dir.setFilter(QDir::Dirs | QDir::Files | QDir::NoSymLinks | QDir::NoDot | QDir::NoDotDot);
-
-    int i = 0;
-
-    //recursivly looks in the directory that was given
-    foreach (QFileInfo fileInfo, dir.entryInfoList()) {
-
-
-
-        //if the fileinfo is a readable directory then it looks for a folder that matches the folders used by sekiro with modengine
-
-        if (fileInfo.isDir() && fileInfo.isReadable()){
-
-
-            //if it finds a folder used by sekiro with modengine then it puts it into the string trueModPath, which holds the
-            //folder in the mod archive that has the folders used by mod enigne
-
-            //converts folder name to lowercase
-            string folderName = fileInfo.baseName().toLocal8Bit().constData();
-            transform(folderName.begin(),folderName.end(),folderName.begin(), tolower);
-
-            if(modengineFolders.find(folderName) != modengineFolders.end() && mode == 0){
-
-
-                modProfilePath = fileInfo.path().toLocal8Bit().constData();
-                qDebug() << modProfilePath.c_str();
-
-
-            }
-
-
-            else{
-            //calls function so it searches all the sub directories
-            traverseProfiles(pattern, fileInfo.filePath(), mode);
-            }
-
-
-
-        }
-
-
-
-        //if mode = 1 and the fileinfo is a file then puts all of the files in the profiles.files vector, so that when the user wants to uninstall the mod, the program has all of
-        //the names of the files to delete
-
-        if(mode == 1){
-
-
-
-
-        QString file = fileInfo.filePath().remove(0, 5);
-
-
-
-        if(fileInfo.isFile()){
-
-        Profile.files.push_back(file.toLocal8Bit().constData());
-
-
-
-        i++;
-
-        }
-
-      }
-
-
-
-
-    }
-}
 
 
 

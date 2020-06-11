@@ -11,6 +11,23 @@ modname::modname(QWidget *parent) :
     ui->setupUi(this);
 
 
+    //if the user is already isntalling a modpack, hide modpack checkbox
+    if(modpackBool){
+
+        ui->isModPack->setVisible(false);
+        ui->isModPack->setEnabled(false);
+
+
+
+    }
+    else{
+
+        ui->isModPack->setVisible(true);
+        ui->isModPack->setEnabled(true);
+
+    }
+
+
 
 setWindowFlags(Qt::WindowTitleHint);
 //sets background of the mod name window
@@ -98,5 +115,26 @@ void modname::on_modNameConfirm_clicked()
 
 
 
+
+
+
+void modname::on_isModPack_stateChanged()
+{
+
+if(ui->isModPack->isChecked()){
+
+    modpackBool = true;
+    ui->modNameLabel->setText("Please enter the name of the modpack");
+
+}
+else if(!ui->isModPack->isChecked()){
+
+    modpackBool = false;
+    ui->modNameLabel->setText("Please enter the name of the mod");
+
+}
+
+
+}
 
 

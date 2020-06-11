@@ -190,7 +190,10 @@ for(int i = 0; i < Profile.modNum; i++){
 
     }
 
-    Sekiro::traverseProfiles("*.*", ".\\tmp\\", 0);
+
+
+
+    Sekiro::traverse("*.*", ".\\tmp\\", 0, false);
 
 
 
@@ -206,14 +209,7 @@ for(int i = 0; i < Profile.modNum; i++){
 
     //moves restructured mod files to profiles folder
 
-    string modFinalTemp = ".\\tmp\\" + to_string(i) + ".zip";
-
-    QFile modFinal(modFinalTemp.c_str());
-
-    string modDirTemp = ".\\profiles\\" + to_string(i) + ".zip";
-
-    modFinal.rename(modDirTemp.c_str());
-
+    QFile::copy(".\\tmp\\" + QString::fromStdString(to_string(i)) + ".zip", ".\\profiles\\" + QString::fromStdString(to_string(i)) + ".zip");
 
 
 
@@ -233,38 +229,84 @@ for(int i = 0; i < Profile.modNum; i++){
 
     else if(Sekiro::isModPathEmpty(modProfilePath) == true){
 
-        invalidModCounter++;
+        isModValid = false;
 
-        QFont sekFont("Assassin$");
-        QFont errFont("Segoe UI", 8);
+        Sekiro::traverse("*.*", ".\\tmp\\", 2);
 
-        QMessageBox err;
-
-        QApplication::setFont(errFont);
-
-        err.critical(this, "Error", "No folders used by modengine found. Please repack mod with the files in their respective folders");
-
-        QFile fileDel(modDir.c_str());
-
-        fileDel.remove();
+        if (isModValid){
 
 
-        QDir dir(".\\tmp\\");
-        dir.removeRecursively();
+            Sekiro::unpackRepack("cd \"%cd%\"   &   7za a -y \".\\tmp\\tmp1\\"  + to_string(i) + ".zip\" \".\\tmp\\tmp1\\*\"");
 
-        string delConfig = ".\\profiles\\"+ Profile.name + ".ini";
+            QFile fileDel(modDir.c_str());
+
+            fileDel.remove();
 
 
-        if(invalidModCounter == Profile.modNum){
 
-        QFile delModConfig(delConfig.c_str());
-        delModConfig.remove();
+            //moves restructured mod files to profiles folder
 
-        passed = false;
+            QFile::copy(".\\tmp\\tmp1\\" + QString::fromStdString(to_string(i)) + ".zip", ".\\profiles\\" + QString::fromStdString(to_string(i)) + ".zip");
 
-    }
 
-       QApplication::setFont(sekFont);
+
+            //deletes tmp
+
+            QDir dir(".\\tmp\\");
+            dir.removeRecursively();
+
+            QDir().mkdir(".\\tmp\\");
+
+
+            modProfilePath = "";
+
+            passed = true;
+
+
+
+        }
+
+
+        else{
+
+
+            invalidModCounter++;
+
+            QFont sekFont("Assassin$");
+            QFont errFont("Segoe UI", 8);
+
+            QMessageBox err;
+
+            QApplication::setFont(errFont);
+
+            err.critical(this, "Error", "No mod files found");
+
+            QFile fileDel(modDir.c_str());
+
+            fileDel.remove();
+
+
+            QDir dir(".\\tmp\\");
+            dir.removeRecursively();
+
+            string delConfig = ".\\profiles\\"+ Profile.name + ".ini";
+
+
+            if(invalidModCounter == Profile.modNum){
+
+            QFile delModConfig(delConfig.c_str());
+            delModConfig.remove();
+
+            passed = false;
+
+        }
+
+           QApplication::setFont(sekFont);
+
+        }
+
+
+
 
 
 
@@ -291,7 +333,7 @@ for(int i = 0; i < Profile.modNum; i++){
 
 }
 
-Sekiro::traverseProfiles("*.*", ".\\tmp\\", 1);
+Sekiro::traverse("*.*", ".\\tmp\\", 1, false);
 
 
 
@@ -349,7 +391,10 @@ close();
 Profile.profileConfigPath = ".\\configsP\\" + Profile.name + ".ini";
 ofstream profileConfig(Profile.profileConfigPath);
 
-profileConfig << Profile.name + "\n" + Profile.path + "\n" + Profile.profileConfigPath + "\n" + Profile.profileFolder + "\n" + to_string(Profile.modNum) + "\n";
+
+Profile.isInstalledP = "n";
+
+profileConfig << Profile.isInstalledP + "\n" + Profile.name + "\n" + Profile.path + "\n" + Profile.profileConfigPath + "\n" + Profile.profileFolder + "\n" + to_string(Profile.modNum) + "\n";
 
 profileConfig << Profile.files.size() << "\n";
 
