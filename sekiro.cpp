@@ -2964,6 +2964,201 @@ void Sekiro::on_changeSekDir_clicked()
 
         log("Directory Changed: " + sekDir);
 
+
+
+
+        //reapplies modengine settings if user has that option checked
+        if(ui->keepModengineSettings->isChecked()){
+
+            //copys the modengine.ini for the profile at the current index to the sekiro directory
+
+            string profileModengine = ui->activeProfile->text().toLocal8Bit().constData();
+            profileModengine  = ".\\profiles\\" + profileModengine + ".ini";
+
+            string finalProfileModengine = sekDir + "\\modengine.ini";
+
+            QFile::copy(QString::fromStdString(profileModengine), QString::fromStdString(finalProfileModengine));
+
+
+            applySettings();
+
+        }
+        else{
+
+
+            //if modengine isn't found
+
+            QFileInfo modengineInstallCheck(QString::fromStdString(sekDir + "\\modengine.ini"));
+
+            //checks if "modengine" exists in the sekiro directory, if it doesnt, then makes asks the user if they want to install modengine
+            if(!(modengineInstallCheck.exists())){
+
+                //copys the default modengine.ini that was made on program startup to the sekiro directory
+
+                string finalProfileModengine = sekDir + "\\modengine.ini";
+
+                QFile::copy(".\\modengine.ini", QString::fromStdString(finalProfileModengine));
+
+            }
+
+            parseSettings();
+
+        }
+
+
+
+        //reinstalls mods and profiles if the user has the option checked
+        if(ui->reinstallAfterDirChange->isChecked()){
+
+            //reinstalls mods
+            for(int i = 0; i < mods.size(); i++){
+
+                if(mods[i].isInstalled == "y"){
+
+
+                    unpackRepack("cd \"%cd%\"   &   7za e -spf -y -o\"" + sekDir + "\\mods\\\" \"%cd%\\mods\\"+ mods[i].name + ".zip\" ");
+
+                }
+
+
+            }
+
+
+
+            //reinstalls profiles
+            for(int i = 0; i < profiles.size(); i++){
+
+                if(profiles[i].isInstalledP == "y"){
+
+
+                    //unpacks the profile files into the sekiro directory
+
+                    string profileInstallFolder = sekDir + "";
+
+                    QDir().mkdir(QString::fromStdString(profiles[i].profileFolder));
+
+                    unpackRepack("cd \"%cd%\"   &   7za e -spf -y -o\"" + sekDir + "\\"+profiles[i].name +"\\\" \"%cd%\\profiles\\"+ profiles[i].name + ".zip\" ");
+
+                }
+
+
+            }
+
+        }
+        else{
+
+            //updates mod entries to uninstalled
+            for(int i = 0; i < mods.size(); i++){
+
+                if(mods[i].isInstalled == "y"){
+
+                    //edits config
+                    ifstream filein(mods[i].modConfigPath); //orig file
+                    ofstream fileout("TMP.ini"); //Temp file
+
+
+
+                    //take entire line as a string
+                    short counter = 0;
+                    for(string line; getline( filein, line ); )
+                    {
+
+                        if(counter == 0){
+
+                            line = "n";
+
+
+                        }
+
+                        counter++;
+
+
+                       fileout << line << endl;
+                    }
+
+
+
+                    //closes file streams
+                    filein.close();
+                    fileout.close();
+
+
+                    //switches orig config with final/edited one
+                    QFile::remove(QString::fromStdString(mods[i].modConfigPath));
+                    QFile::rename(".\\TMP.ini", QString::fromStdString(mods[i].modConfigPath));
+
+
+                    //removes icon from combobox
+                    ui->modsInstalled->setItemIcon(i, QIcon(":/uielements/uielements/sekiroFakeIcon.png"));
+
+
+
+                    //updates struct
+                    mods[i].isInstalled = "n";
+
+                }
+
+
+                }
+
+
+            //upddates profile entries to uninstalled
+            for(int i = 0; i < profiles.size(); i++){
+
+                if(profiles[i].isInstalledP == "y"){
+
+                    profiles[i].isInstalledP = "n";
+
+                    //edits profile config
+                    ifstream filein(profiles[i].profileConfigPath); //orig file
+                    ofstream fileout("TMP.ini"); //Temp file
+
+
+
+                    //take entire line as a string
+                    short counter = 0;
+                    for(string line; getline( filein, line ); )
+                    {
+
+                        if(counter == 0){
+
+                            line = "n";
+
+
+                        }
+
+                        counter++;
+
+
+                       fileout << line << endl;
+                    }
+
+
+
+                    //closes file streams
+                    filein.close();
+                    fileout.close();
+
+
+                    //switches orig config with final/edited one
+                    QFile::remove(QString::fromStdString(profiles[i].profileConfigPath));
+                    QFile::rename(".\\TMP.ini", QString::fromStdString(profiles[i].profileConfigPath));
+
+
+
+
+                    //removes icon from combobox
+                    ui->profilesInstalled->setItemIcon(i, QIcon(":/uielements/uielements/sekiroFakeIcon.png"));
+
+
+
+                }
+
+
+                }
+
+        }
+
         getActiveProfile();
 
 }
@@ -3034,7 +3229,7 @@ void Sekiro::on_installProfile_clicked()
 
 
 
-
+    profiles[ui->profilesInstalled->currentIndex()].isInstalledP = "y";
 
 
     //unpacks the profile files into the sekiro directory
@@ -3214,15 +3409,11 @@ void Sekiro::on_uninstallProfile_clicked()
 
 }
 
-
-
-
-
-
-
+    profiles[ui->profilesInstalled->currentIndex()].isInstalledP = "n";
 
 
     log("Uninstalled Profile: " + profiles[ui->profilesInstalled->currentIndex()].name);
+
 
 
 
@@ -4089,7 +4280,7 @@ void Sekiro::settings(int mode){
             QFile set(".\\conf.ini");
 
             ofstream setNew(".\\conf.ini");
-            setNew << ui->logOn->checkState() << endl << ui->warnings->checkState() << endl << ui->closeOnLaunch->checkState();
+            setNew << ui->logOn->checkState() << endl << ui->warnings->checkState() << endl << ui->closeOnLaunch->checkState() << endl << ui->keepModengineSettings->checkState()<< endl << ui->reinstallAfterDirChange->checkState();
             setNew.close();
 
 
@@ -4153,7 +4344,38 @@ void Sekiro::settings(int mode){
 
 
                 }
+                else if(i == 4){
 
+
+                    if (line ==  "0"){
+
+                        ui->keepModengineSettings->setChecked(false );
+
+                    }
+                    else if(line == "1"){
+
+                        ui->keepModengineSettings->setChecked(true);
+
+                    }
+
+
+                }
+                else if(i == 5){
+
+
+                    if (line ==  "0"){
+
+                        ui->reinstallAfterDirChange->setChecked(false );
+
+                    }
+                    else if(line == "1"){
+
+                        ui->reinstallAfterDirChange->setChecked(true);
+
+                    }
+
+
+                }
 
 
             }
@@ -4164,7 +4386,7 @@ void Sekiro::settings(int mode){
 
     }
 
-    else if(mode == 1){
+else if(mode == 1){
 
 
     string tempPath = ".\\ini.conf";
@@ -4220,8 +4442,6 @@ void Sekiro::settings(int mode){
 
 
     }
-
-
 
 
 else if(mode == 2){
@@ -4332,6 +4552,125 @@ iniDel.remove();
 
 
 }
+
+
+else if(mode == 4){
+
+
+    string tempPath = ".\\ini.conf";
+    string path = ".\\conf.ini";
+
+    ofstream settingsTemp(tempPath);
+    ifstream settings(path);
+
+
+
+
+    int i = 0;
+
+    for(string line; getline(settings, line);){
+
+
+        i++;
+
+        if(i == 4){
+
+
+            if(ui->keepModengineSettings->isChecked()){
+
+                line = "1";
+            }
+            else{
+
+                line = "0";
+            }
+
+
+        }
+
+
+        settingsTemp << line << endl;
+
+    }
+
+    settings.close();
+    settingsTemp.close();
+
+    QFile::remove(QString::fromStdString(path));
+    QFile::rename(QString::fromStdString(tempPath), QString::fromStdString(path));
+
+
+    //deletes temp files if they arent deleted
+    QFile tmpDel(".\\TMP.ini");
+    tmpDel.remove();
+
+
+    QFile iniDel(".\\ini.conf");
+    iniDel.remove();
+
+
+    }
+
+
+else if(mode == 5){
+
+
+    string tempPath = ".\\ini.conf";
+    string path = ".\\conf.ini";
+
+    ofstream settingsTemp(tempPath);
+    ifstream settings(path);
+
+
+
+
+    int i = 0;
+
+    for(string line; getline(settings, line);){
+
+
+        i++;
+
+        if(i == 5){
+
+
+            if(ui->reinstallAfterDirChange->isChecked()){
+
+                line = "1";
+            }
+            else{
+
+                line = "0";
+            }
+
+
+        }
+
+
+        settingsTemp << line << endl;
+
+    }
+
+    settings.close();
+    settingsTemp.close();
+
+    QFile::remove(QString::fromStdString(path));
+    QFile::rename(QString::fromStdString(tempPath), QString::fromStdString(path));
+
+
+    //deletes temp files if they arent deleted
+    QFile tmpDel(".\\TMP.ini");
+    tmpDel.remove();
+
+
+    QFile iniDel(".\\ini.conf");
+    iniDel.remove();
+
+
+    }
+
+
+
 
 }
 
@@ -5062,5 +5401,26 @@ void Sekiro::applySettings(){
     //switches orig config with final/edited one
     QFile::remove(QString::fromStdString(sekDir + "\\" + "modengine.ini"));
     QFile::rename(".\\TMP.ini", QString::fromStdString(sekDir + "\\" + "modengine.ini"));
+
+}
+
+
+
+//if checked, reinstalls mods after directory change
+void Sekiro::on_reinstallAfterDirChange_stateChanged()
+{
+
+    settings(5);
+
+}
+
+
+
+
+//if checked, reapplies modengine settings after directory
+void Sekiro::on_keepModengineSettings_stateChanged()
+{
+
+    settings(4);
 
 }

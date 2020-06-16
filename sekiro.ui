@@ -780,6 +780,48 @@ QToolTip { color: #ffffff; background-color: #000000; border: 0px; }</string>
      <string>TextLabel</string>
     </property>
    </widget>
+   <widget class="QCheckBox" name="keepModengineSettings">
+    <property name="geometry">
+     <rect>
+      <x>37</x>
+      <y>19</y>
+      <width>271</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">#keepModengineSettings{
+color: rgb(255, 255, 255);
+font: 8pt &quot;MS Shell Dlg 2&quot;;
+}
+
+QToolTip { color: #ffffff; background-color: #000000; border: 0px; }</string>
+    </property>
+    <property name="text">
+     <string>Keep modengine settings after changing folder</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="reinstallAfterDirChange">
+    <property name="geometry">
+     <rect>
+      <x>11</x>
+      <y>43</y>
+      <width>271</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">#reinstallAfterDirChange{
+color: rgb(255, 255, 255);
+font: 8pt &quot;MS Shell Dlg 2&quot;;
+}
+
+QToolTip { color: #ffffff; background-color: #000000; border: 0px; }</string>
+    </property>
+    <property name="text">
+     <string>Reinstall mods after changing folder</string>
+    </property>
+   </widget>
    <zorder>label_2</zorder>
    <zorder>come</zorder>
    <zorder>defaultProfile</zorder>
@@ -814,6 +856,8 @@ QToolTip { color: #ffffff; background-color: #000000; border: 0px; }</string>
    <zorder>uxm</zorder>
    <zorder>logo</zorder>
    <zorder>dllNameLabel</zorder>
+   <zorder>keepModengineSettings</zorder>
+   <zorder>reinstallAfterDirChange</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

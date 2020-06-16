@@ -364,6 +364,15 @@ private slots:
 
     //applies settings to moddenigne.ini
     void Sekiro::applySettings();
+
+
+    //if checked, reinstalls mods after directory change
+    void on_reinstallAfterDirChange_stateChanged();
+
+
+    //if checked, reapplies modengine settings after directory
+    void on_keepModengineSettings_stateChanged();
+
 private:
 
     Ui::Sekiro *ui;
