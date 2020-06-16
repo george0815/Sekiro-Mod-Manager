@@ -565,7 +565,7 @@ font: 8pt &quot;MS Shell Dlg 2&quot;;</string>
    <widget class="QCheckBox" name="logOn">
     <property name="geometry">
      <rect>
-      <x>30</x>
+      <x>10</x>
       <y>700</y>
       <width>81</width>
       <height>18</height>
@@ -654,6 +654,132 @@ font: 8pt &quot;MS Shell Dlg 2&quot;;</string>
      <string>.</string>
     </property>
    </widget>
+   <widget class="QCheckBox" name="chainUnchain">
+    <property name="geometry">
+     <rect>
+      <x>1100</x>
+      <y>680</y>
+      <width>70</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">#chainUnchain{
+color: rgb(255, 255, 255);
+font: 8pt &quot;MS Shell Dlg 2&quot;;
+}
+
+QToolTip { color: #ffffff; background-color: #000000; border: 0px; }</string>
+    </property>
+    <property name="text">
+     <string>Chain dll</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="cache">
+    <property name="geometry">
+     <rect>
+      <x>1170</x>
+      <y>660</y>
+      <width>121</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">#cache{
+color: rgb(255, 255, 255);
+font: 8pt &quot;MS Shell Dlg 2&quot;;
+}
+
+QToolTip { color: #ffffff; background-color: #000000; border: 0px; }</string>
+    </property>
+    <property name="text">
+     <string>Cache file paths</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="debug">
+    <property name="geometry">
+     <rect>
+      <x>1170</x>
+      <y>640</y>
+      <width>101</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">#debug{
+color: rgb(255, 255, 255);
+font: 8pt &quot;MS Shell Dlg 2&quot;;
+}
+
+QToolTip { color: #ffffff; background-color: #000000; border: 0px; }</string>
+    </property>
+    <property name="text">
+     <string>Show debug log</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="uxm">
+    <property name="geometry">
+     <rect>
+      <x>1170</x>
+      <y>620</y>
+      <width>101</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">#uxm{
+color: rgb(255, 255, 255);
+font: 8pt &quot;MS Shell Dlg 2&quot;;
+}
+
+QToolTip { color: #ffffff; background-color: #000000; border: 0px; }</string>
+    </property>
+    <property name="text">
+     <string>Load UXM files</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="logo">
+    <property name="geometry">
+     <rect>
+      <x>1170</x>
+      <y>600</y>
+      <width>70</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">#logo{
+color: rgb(255, 255, 255);
+font: 8pt &quot;MS Shell Dlg 2&quot;;
+}
+
+QToolTip { color: #ffffff; background-color: #000000; border: 0px; }</string>
+    </property>
+    <property name="text">
+     <string>Skip logos</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="dllNameLabel">
+    <property name="geometry">
+     <rect>
+      <x>1170</x>
+      <y>680</y>
+      <width>61</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">#dllNameLabel{
+color: rgb(255, 255, 255);
+font: 8pt &quot;MS Shell Dlg 2&quot;;
+}
+
+QToolTip { color: #ffffff; background-color: #000000; border: 0px; }</string>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
+   </widget>
    <zorder>label_2</zorder>
    <zorder>come</zorder>
    <zorder>defaultProfile</zorder>
@@ -682,6 +808,12 @@ font: 8pt &quot;MS Shell Dlg 2&quot;;</string>
    <zorder>closeOnLaunch</zorder>
    <zorder>label_3</zorder>
    <zorder>activeProfile</zorder>
+   <zorder>chainUnchain</zorder>
+   <zorder>cache</zorder>
+   <zorder>debug</zorder>
+   <zorder>uxm</zorder>
+   <zorder>logo</zorder>
+   <zorder>dllNameLabel</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

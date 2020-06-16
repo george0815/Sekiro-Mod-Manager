@@ -48,8 +48,8 @@ extern string modName;
 extern ofstream logFile;
 
 
-
-
+//holds modpack name
+extern string modpackName;
 
 //holds data for mod
 extern struct mod{
@@ -326,7 +326,44 @@ private slots:
 
 
 
+    //edits modengine.ini
+    void modengineEdit(string dll, bool unchain = false);
 
+
+
+    //chains and unchains dll
+    void on_chainUnchain_stateChanged();
+
+
+
+    //toggle show debug files in modengine on and off
+    void on_debug_stateChanged();
+
+
+
+    //if checked, skips logos for sekiro
+    void on_logo_stateChanged();
+
+
+
+    //toggles cache file paths in modengine on and off
+    void on_cache_stateChanged();
+
+
+
+    //toggles load UXM files in modengine on and off
+    void on_uxm_stateChanged();
+
+
+
+
+    //parses settings from modengine.ini
+    void Sekiro::parseSettings();
+
+
+
+    //applies settings to moddenigne.ini
+    void Sekiro::applySettings();
 private:
 
     Ui::Sekiro *ui;

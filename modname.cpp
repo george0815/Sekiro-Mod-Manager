@@ -11,7 +11,7 @@ modname::modname(QWidget *parent) :
     ui->setupUi(this);
 
 
-    //if the user is already isntalling a modpack, hide modpack checkbox
+    //if the user is already installing a modpack, hide modpack checkbox
     if(modpackBool){
 
         ui->isModPack->setVisible(false);
@@ -62,8 +62,9 @@ void modname::on_modNameConfirm_clicked()
     //asks the user for the name of the mod and puts it into modName
     modName = ui->modNameLineEdit->text().toLocal8Bit().constData();
 
-
-    if(modName.find_first_not_of(' ') != std::string::npos && Sekiro::nameRepeatCheck(true, ui->modNameLineEdit->text().toLocal8Bit().constData()) == 0){
+   string repeatNameTest = ui->modNameLineEdit->text().toLocal8Bit().constData();
+   repeatNameTest = repeatNameTest + "(" + modpackName + ")";
+    if(modName.find_first_not_of(' ') != std::string::npos && Sekiro::nameRepeatCheck(true, ui->modNameLineEdit->text().toLocal8Bit().constData()) == 0 && Sekiro::nameRepeatCheck(true, repeatNameTest) == 0){
 
     close();
 
@@ -102,7 +103,25 @@ void modname::on_modNameConfirm_clicked()
            QApplication::setFont(sekFont);
 
         }
+    else if(Sekiro::nameRepeatCheck(true, repeatNameTest) == 1){
 
+
+        QFont sekFont("Assassin$");
+        QFont errFont("Segoe UI", 8);
+
+        QApplication::setFont(errFont);
+
+        QMessageBox err;
+
+
+
+       err.critical(this, "Error", "Name already matches a previously installed mod");
+
+       QApplication::setFont(sekFont);
+
+
+
+    }
     }
 
 

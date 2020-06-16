@@ -35,7 +35,7 @@ using namespace std;
 
 bool  warning = false, isModValid = false, isProfileDone = false, modpackBool = false;
 
-string sekDir, repeatFileName, modName, trueModPath = "";
+string sekDir, repeatFileName, modName, trueModPath = "", modpackName;
 
 short repeatType;
 
@@ -167,6 +167,14 @@ Sekiro::Sekiro(QWidget *parent)
     settings(0);
 
 
+    //deletes temp files if they arent deleted
+    QFile tmpDel(".\\TMP.ini");
+    tmpDel.remove();
+
+
+    QFile iniDel(".\\ini.conf");
+    iniDel.remove();
+
     //see function definition
     modEngineCheck();
 
@@ -238,11 +246,11 @@ void Sekiro::on_addMod_clicked()
     Modname.setAttribute(Qt::WA_DeleteOnClose);
 
 
-
+    //if mod is a modpacl
     if(modpackBool){
 
         //sets name of modpack
-        string modpackName = modName;
+        modpackName = modName;
 
 
 
@@ -569,30 +577,7 @@ void Sekiro::on_addMod_clicked()
                     trueModPath = "";
 
 
-                    /*
-                    QFont sekFont("Assassin$");
-                    QFont errFont("Segoe UI", 8);
 
-                    QMessageBox err;
-
-                    QApplication::setFont(errFont);
-
-                    err.critical(this, "Error", "No folders used by modengine found. Please repack mod with the files in their respective folders");
-
-                    QFile fileDel(modDir.c_str());
-
-                    fileDel.remove();
-
-
-                    QDir dir(".\\tmp\\");
-                    dir.removeRecursively();
-
-
-
-                   QApplication::setFont(sekFont);
-
-                   log("Error: No folders used by modengine found");
-                   */
 
 
 
@@ -660,8 +645,10 @@ void Sekiro::on_addMod_clicked()
         //set modpackbool to false so the checkbox shows up next time the user add a mod
         modpackBool = false;
 
-
+        //resets modpackName
+        modpackName = "";
     }
+    //if it isnt a modpack
     else{
 
 
@@ -951,30 +938,7 @@ void Sekiro::on_addMod_clicked()
             trueModPath = "";
 
 
-            /*
-            QFont sekFont("Assassin$");
-            QFont errFont("Segoe UI", 8);
 
-            QMessageBox err;
-
-            QApplication::setFont(errFont);
-
-            err.critical(this, "Error", "No folders used by modengine found. Please repack mod with the files in their respective folders");
-
-            QFile fileDel(modDir.c_str());
-
-            fileDel.remove();
-
-
-            QDir dir(".\\tmp\\");
-            dir.removeRecursively();
-
-
-
-           QApplication::setFont(sekFont);
-
-           log("Error: No folders used by modengine found");
-           */
 
 
 
@@ -2542,6 +2506,9 @@ void Sekiro::on_Install_clicked()
             ui->modsInstalled->setItemIcon(ui->modsInstalled->currentIndex(),QIcon(":/uielements/uielements/sekiroCheck.PNG"));
 
 
+            //updates struct
+            mods[ui->modsInstalled->currentIndex()].isInstalled = "y";
+
         }
         else if (warning == false){
 
@@ -2613,6 +2580,10 @@ void Sekiro::on_Install_clicked()
             //add icon to combobox
             ui->modsInstalled->setItemIcon(ui->modsInstalled->currentIndex(),QIcon(":/uielements/uielements/sekiroCheck.PNG"));
 
+
+            //updates struct
+            mods[ui->modsInstalled->currentIndex()].isInstalled = "y";
+
         }
 
 
@@ -2642,6 +2613,31 @@ void Sekiro::on_Uninstall_clicked()
         error(0);
 
         log("Error: No mod selected");
+
+    }
+
+
+    //checks if mod the user is trying to uninstall is not even installed in the first place
+    if(mods[ui->modsInstalled->currentIndex()].isInstalled == "n"){
+
+        QFont sekFont("Assassin$");
+        QFont errFont("Segoe UI", 8);
+
+        QMessageBox err;
+
+        QApplication::setFont(errFont);
+
+        err.critical(this, "Error", "Mod already isn't installed");
+
+
+
+
+
+
+
+       QApplication::setFont(sekFont);
+
+       log("Error: Mod already isn't installed");
 
     }
 
@@ -2708,6 +2704,10 @@ void Sekiro::on_Uninstall_clicked()
     //removes icon from combobox
     ui->modsInstalled->setItemIcon(ui->modsInstalled->currentIndex(), QIcon(":/uielements/uielements/sekiroFakeIcon.png"));
 
+
+
+    //updates struct
+    mods[ui->modsInstalled->currentIndex()].isInstalled = "n";
 }
 
 
@@ -2727,6 +2727,9 @@ void Sekiro::on_Uninstall_clicked()
 //loads the installed mods
 
 void Sekiro::getSettings(){
+
+    //gets settings for misc modengine
+    parseSettings();
 
 
 
@@ -3114,7 +3117,8 @@ void Sekiro::on_installProfile_clicked()
     ui->profilesInstalled->setItemIcon(ui->profilesInstalled->currentIndex(),QIcon(":/uielements/uielements/sekiroCheck.PNG"));
 
 
-
+    //reapplies misc settings
+    applySettings();
 
 
 }
@@ -3167,44 +3171,62 @@ void Sekiro::on_uninstallProfile_clicked()
 
 
 
-        //deletes the profile folder in the sekiro directory
-
-        QDir dir(QString::fromStdString(sekDir + "/" + profiles[ui->profilesInstalled->currentIndex()].name));
-        dir.removeRecursively();
-
-
-
-
-        //removes modengine ini
-
-        string modengineRemove = sekDir + ".\\modengine.ini";
-
-        QFile file(QString::fromStdString(modengineRemove));
-
-        file.remove();
-
-
-
-        //copys the default modengine.ini to the sekiro directory
-
-        string finalProfileModengine = sekDir + "\\modengine.ini";
-
-        QFile::copy(".\\modengine.ini", QString::fromStdString(finalProfileModengine));
-
-
-
     }
 
 
 
+
+
+
+    //deletes the profile folder in the sekiro directory
+
+    QDir dir(QString::fromStdString(sekDir + "/" + profiles[ui->profilesInstalled->currentIndex()].name));
+    dir.removeRecursively();
+
+
+
+    //if profile was active then sets the modengine in sekiro folder to default
+    if(QString::fromStdString(profiles[ui->profilesInstalled->currentIndex()].name) == ui->activeProfile->text()){
+
+    //removes modengine ini
+
+    string modengineRemove = sekDir + ".\\modengine.ini";
+
+    QFile file(QString::fromStdString(modengineRemove));
+
+    file.remove();
+
+
+
+    //copys the default modengine.ini to the sekiro directory
+
+    string finalProfileModengine = sekDir + "\\modengine.ini";
+
+    QFile::copy(".\\modengine.ini", QString::fromStdString(finalProfileModengine));
+
+
+    //updates label
     ui->activeProfile->setText("mods (default)");
+
+
+    //reapplies misc settings
+    applySettings();
+
+}
+
+
+
+
+
+
+
 
 
     log("Uninstalled Profile: " + profiles[ui->profilesInstalled->currentIndex()].name);
 
 
 
-    //edits config
+    //edits profile config
     ifstream filein(profiles[ui->profilesInstalled->currentIndex()].profileConfigPath); //orig file
     ofstream fileout("TMP.ini"); //Temp file
 
@@ -3504,15 +3526,68 @@ void Sekiro::on_removeProfile_clicked()
 
     log("Profile Removed: " + profiles[ui->profilesInstalled->currentIndex()].name);
 
+
+
+
+
+
+
+    //if profile was active then sets the modengine in sekiro folder to default
+    if(QString::fromStdString(profiles[ui->profilesInstalled->currentIndex()].name) == ui->activeProfile->text()){
+
+
+        //removes modengine ini
+
+        string modengineRemove = sekDir + ".\\modengine.ini";
+
+        QFile file(QString::fromStdString(modengineRemove));
+
+        file.remove();
+
+
+
+        //copys the default modengine.ini to the sekiro directory
+
+        string finalProfileModengine = sekDir + "\\modengine.ini";
+
+        QFile::copy(".\\modengine.ini", QString::fromStdString(finalProfileModengine));
+
+
+        //updates label
+        ui->activeProfile->setText("mods (default)");
+
+
+        //repapplies misc settings
+        applySettings();
+
+    }
+
+
+
+
     //erases entry in profiles vector
 
     profiles.erase(profiles.begin() + ui->profilesInstalled->currentIndex());
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
     //erases entry in profilesInstalled index
 
     ui->profilesInstalled->removeItem(ui->profilesInstalled->currentIndex());
+
 
     }
 
@@ -3575,6 +3650,12 @@ void Sekiro::on_setActiveProfile_clicked()
     log("Profile Active: " + profiles[ui->profilesInstalled->currentIndex()].name);
 
 
+
+
+
+    //reapplies settings
+    applySettings();
+
 }
 
 }
@@ -3616,6 +3697,11 @@ void Sekiro::on_defaultProfile_clicked()
 
     //sets activeProfile
     ui->activeProfile->setText("mods (default)");
+
+
+
+    //reapplies settings
+    applySettings();
 
 }
 
@@ -3739,7 +3825,6 @@ void Sekiro::modEngineCheck(){
 
 
 //enables or disables warning messages
-
 void Sekiro::on_warnings_stateChanged()
 {
 
@@ -3768,7 +3853,6 @@ void Sekiro::on_warnings_stateChanged()
 
 
 //checks if mod path is empty
-
  bool Sekiro::isModPathEmpty(string truemodpath){
 
     if(truemodpath == "" ){
@@ -3789,7 +3873,6 @@ void Sekiro::on_warnings_stateChanged()
 
 
 //checks if folder has sekiro.exe
-
  int Sekiro::sekiroCheck(){
 
 
@@ -3840,8 +3923,9 @@ void Sekiro::on_warnings_stateChanged()
  }
 
 
- //displays error if no mpds/profiles selected
 
+
+//displays error if no mpds/profiles selected
  void Sekiro::error(int mode){
 
 
@@ -3880,8 +3964,6 @@ void Sekiro::on_warnings_stateChanged()
 
 
  }
-
-
 
 
 
@@ -4092,8 +4174,7 @@ void Sekiro::settings(int mode){
     ifstream settings(path);
 
 
-    const char *s = tempPath.c_str();
-    const char *t = path.c_str();
+
 
     int i = 0;
 
@@ -4125,8 +4206,18 @@ void Sekiro::settings(int mode){
     settings.close();
     settingsTemp.close();
 
-    remove(t);
-    rename(s, t);
+    QFile::remove(QString::fromStdString(path));
+    QFile::rename(QString::fromStdString(tempPath), QString::fromStdString(path));
+
+
+    //deletes temp files if they arent deleted
+    QFile tmpDel(".\\TMP.ini");
+    tmpDel.remove();
+
+
+    QFile iniDel(".\\ini.conf");
+    iniDel.remove();
+
 
     }
 
@@ -4143,8 +4234,7 @@ ofstream settingsTemp(tempPath);
 ifstream settings(path);
 
 
-const char *s = tempPath.c_str();
-const char *t = path.c_str();
+
 
 int i = 0;
 
@@ -4174,8 +4264,17 @@ for(string line; getline(settings, line);){
 settings.close();
 settingsTemp.close();
 
-remove(t);
-rename(s, t);
+QFile::remove(QString::fromStdString(path));
+QFile::rename(QString::fromStdString(tempPath), QString::fromStdString(path));
+
+//deletes temp files if they arent deleted
+QFile tmpDel(".\\TMP.ini");
+tmpDel.remove();
+
+
+QFile iniDel(".\\ini.conf");
+iniDel.remove();
+
 
 }
 
@@ -4190,8 +4289,7 @@ ofstream settingsTemp(tempPath);
 ifstream settings(path);
 
 
-const char *s = tempPath.c_str();
-const char *t = path.c_str();
+
 
 int i = 0;
 
@@ -4221,8 +4319,17 @@ for(string line; getline(settings, line);){
 settings.close();
 settingsTemp.close();
 
-remove(t);
-rename(s, t);
+QFile::remove(QString::fromStdString(path));
+QFile::rename(QString::fromStdString(tempPath), QString::fromStdString(path));
+
+//deletes temp files if they arent deleted
+QFile tmpDel(".\\TMP.ini");
+tmpDel.remove();
+
+
+QFile iniDel(".\\ini.conf");
+iniDel.remove();
+
 
 }
 
@@ -4288,3 +4395,672 @@ tmp.erase(remove(tmp.begin(), tmp.end(), '\"'), tmp.end());
 
 
 
+//edits modengine.ini
+void Sekiro::modengineEdit(string dll, bool unchain){
+
+
+    //edits config
+    ifstream filein(sekDir + "\\" + "modengine.ini"); //orig file
+    ofstream fileout("TMP.ini"); //Temp file
+
+
+    //take entire line as a string
+
+    for(string line; getline( filein, line ); )
+    {
+
+        if(line.find("chainDInput8DLLPath=") != string::npos && !(line.find(";") != string::npos)){
+
+
+            if(!unchain){
+            line = "chainDInput8DLLPath=\"\\" + dll + "\"";
+            }
+            else{
+            line = "chainDInput8DLLPath=\"" + dll + "\"";
+            }
+
+        }
+
+
+
+
+       fileout << line << endl;
+    }
+
+
+
+    //closes file streams
+    filein.close();
+    fileout.close();
+
+
+    //switches orig config with final/edited one
+    QFile::remove(QString::fromStdString(sekDir + "\\" + "modengine.ini"));
+    QFile::rename(".\\TMP.ini", QString::fromStdString(sekDir + "\\" + "modengine.ini"));
+
+
+    //deletes temp files if they arent deleted
+    QFile tmpDel(".\\TMP.ini");
+    tmpDel.remove();
+
+
+    QFile iniDel(".\\ini.conf");
+    iniDel.remove();
+
+
+
+
+}
+
+
+
+
+//chains and unchains dll
+void Sekiro::on_chainUnchain_stateChanged()
+{
+
+
+
+    if(ui->chainUnchain->isChecked()){
+
+
+        if(ui->dllNameLabel->text() == "" || ui->dllNameLabel->text() == "None"){
+
+        //opens file dailogue asking user for dll, if dll is named dinput.dll then throw error
+       QFileInfo dll = QFileDialog::getOpenFileName(this, "Choose dll file to chain");
+
+       qDebug() << dll.absoluteFilePath();
+       qDebug() << dll.fileName();
+
+       if(dll.fileName() == "dinput8.dll"){
+
+           QFont sekFont("Assassin$");
+           QFont errFont("Segoe UI", 8);
+
+           QMessageBox err;
+
+           QApplication::setFont(errFont);
+
+           err.critical(this, "Error", "The dll file to be chained cannot be named dinput.dll, please rename the file and try again");
+
+
+           ui->chainUnchain->setChecked(false);
+
+
+          QApplication::setFont(sekFont);
+
+          log("Error: dll named dinput8.dll");
+
+       }
+        else{
+       QFile::copy(dll.absoluteFilePath() ,QString::fromStdString(sekDir) + "\\" + dll.fileName());
+
+
+       //sets dll name label
+      ui->dllNameLabel->setText(dll.fileName());
+
+
+        //edits modengine.ini
+       modengineEdit(dll.fileName().toLocal8Bit().constData());
+}
+
+}
+
+    }
+    else{
+
+
+        modengineEdit("", true);
+        ui->dllNameLabel->setText("None");
+
+
+    }
+
+
+
+
+}
+
+
+
+//toggles show debug files in modengine on and off
+void Sekiro::on_debug_stateChanged()
+{
+
+
+    //edits config
+    ifstream filein(sekDir + "\\" + "modengine.ini"); //orig file
+    ofstream fileout("TMP.ini"); //Temp file
+
+
+    //take entire line as a string
+
+    for(string line; getline( filein, line ); )
+    {
+
+        if(line.find("showDebugLog=") != string::npos && !(line.find(";") != string::npos)){
+
+
+            if(ui->debug->isChecked()){
+
+            line = "showDebugLog=1";
+
+            }
+            else{
+
+            line = "showDebugLog=0";
+
+            }
+
+        }
+
+
+
+
+       fileout << line << endl;
+    }
+
+
+
+    //closes file streams
+    filein.close();
+    fileout.close();
+
+
+    //switches orig config with final/edited one
+    QFile::remove(QString::fromStdString(sekDir + "\\" + "modengine.ini"));
+    QFile::rename(".\\TMP.ini", QString::fromStdString(sekDir + "\\" + "modengine.ini"));
+
+
+    //deletes temp files if they arent deleted
+    QFile tmpDel(".\\TMP.ini");
+    tmpDel.remove();
+
+
+    QFile iniDel(".\\ini.conf");
+    iniDel.remove();
+
+
+}
+
+
+
+//if checked, skips logos for sekiro
+void Sekiro::on_logo_stateChanged()
+{
+
+
+
+    //edits config
+    ifstream filein(sekDir + "\\" + "modengine.ini"); //orig file
+    ofstream fileout("TMP.ini"); //Temp file
+
+
+    //take entire line as a string
+
+    for(string line; getline( filein, line ); )
+    {
+
+        if(line.find("skipLogos=") != string::npos && !(line.find(";") != string::npos)){
+
+
+            if(ui->logo->isChecked()){
+
+            line = "skipLogos=1";
+
+            }
+            else{
+
+            line = "skipLogos=0";
+
+            }
+
+        }
+
+
+
+
+       fileout << line << endl;
+    }
+
+
+
+    //closes file streams
+    filein.close();
+    fileout.close();
+
+
+    //switches orig config with final/edited one
+    QFile::remove(QString::fromStdString(sekDir + "\\" + "modengine.ini"));
+    QFile::rename(".\\TMP.ini", QString::fromStdString(sekDir + "\\" + "modengine.ini"));
+
+
+    //deletes temp files if they arent deleted
+    QFile tmpDel(".\\TMP.ini");
+    tmpDel.remove();
+
+
+    QFile iniDel(".\\ini.conf");
+    iniDel.remove();
+
+
+
+
+}
+
+
+
+//toggles cache file paths in modengine on and off
+void Sekiro::on_cache_stateChanged()
+{
+
+
+    //edits config
+    ifstream filein(sekDir + "\\" + "modengine.ini"); //orig file
+    ofstream fileout("TMP.ini"); //Temp file
+
+
+    //take entire line as a string
+
+    for(string line; getline( filein, line ); )
+    {
+
+        if(line.find("cacheFilePaths=") != string::npos && !(line.find(";") != string::npos)){
+
+
+            if(ui->cache->isChecked()){
+
+            line = "cacheFilePaths=1";
+
+            }
+            else{
+
+            line = "cacheFilePaths=0";
+
+            }
+
+        }
+
+
+
+
+       fileout << line << endl;
+    }
+
+
+
+    //closes file streams
+    filein.close();
+    fileout.close();
+
+
+    //switches orig config with final/edited one
+    QFile::remove(QString::fromStdString(sekDir + "\\" + "modengine.ini"));
+    QFile::rename(".\\TMP.ini", QString::fromStdString(sekDir + "\\" + "modengine.ini"));
+
+
+    //deletes temp files if they arent deleted
+    QFile tmpDel(".\\TMP.ini");
+    tmpDel.remove();
+
+
+    QFile iniDel(".\\ini.conf");
+    iniDel.remove();
+
+}
+
+
+
+//toggles load UXM files in modengine on and off
+void Sekiro::on_uxm_stateChanged()
+{
+
+
+    //edits config
+    ifstream filein(sekDir + "\\" + "modengine.ini"); //orig file
+    ofstream fileout("TMP.ini"); //Temp file
+
+
+    //take entire line as a string
+
+    for(string line; getline( filein, line ); )
+    {
+
+        if(line.find("loadUXMFiles=") != string::npos && !(line.find(";") != string::npos)){
+
+
+            if(ui->uxm->isChecked()){
+
+            line = "loadUXMFiles=1";
+
+            }
+            else{
+
+            line = "loadUXMFiles=0";
+
+            }
+
+        }
+
+
+
+
+       fileout << line << endl;
+    }
+
+
+
+    //closes file streams
+    filein.close();
+    fileout.close();
+
+
+    //switches orig config with final/edited one
+    QFile::remove(QString::fromStdString(sekDir + "\\" + "modengine.ini"));
+    QFile::rename(".\\TMP.ini", QString::fromStdString(sekDir + "\\" + "modengine.ini"));
+
+
+    //deletes temp files if they arent deleted
+    QFile tmpDel(".\\TMP.ini");
+    tmpDel.remove();
+
+
+    QFile iniDel(".\\ini.conf");
+    iniDel.remove();
+
+}
+
+
+
+
+//parses settings from modengine.ini
+void Sekiro::parseSettings(){
+
+
+    //edits config
+    ifstream filein(sekDir + "\\" + "modengine.ini"); //orig file
+
+
+
+    //take entire line as a string
+
+    for(string line; getline( filein, line ); )
+    {
+
+        //uxm
+        if(line.find("loadUXMFiles=") != string::npos && !(line.find(";") != string::npos)){
+
+
+            if(line.find("loadUXMFiles=") != string::npos && (line.find("1") != string::npos)){
+
+            ui->uxm->setChecked(true);
+
+            }
+            else if (line.find("loadUXMFiles=") != string::npos && (line.find("0") != string::npos)){
+
+            ui->uxm->setChecked(false);
+
+            }
+
+        }
+
+
+        //logo
+        if(line.find("skipLogos=") != string::npos && !(line.find(";") != string::npos)){
+
+
+            if(line.find("skipLogos=") != string::npos && (line.find("1") != string::npos)){
+
+            ui->logo->setChecked(true);
+
+            }
+            else if (line.find("skipLogos=") != string::npos && (line.find("0") != string::npos)){
+
+            ui->logo->setChecked(false);
+
+            }
+
+        }
+
+
+
+        //debug
+        if(line.find("showDebugLog=") != string::npos && !(line.find(";") != string::npos)){
+
+
+            if(line.find("showDebugLog=") != string::npos && (line.find("1") != string::npos)){
+
+            ui->debug->setChecked(true);
+
+            }
+            else if (line.find("showDebugLog=") != string::npos && (line.find("0") != string::npos)){
+
+            ui->debug->setChecked(false);
+
+            }
+
+        }
+
+
+
+
+
+        //chain
+        if(line.find("chainDInput8DLLPath=") != string::npos && !(line.find(";") != string::npos)){
+
+
+            if(line.find("chainDInput8DLLPath=\"\"") != string::npos && !(line.find(";") != string::npos)){
+
+            ui->chainUnchain->setChecked(false);
+            ui->dllNameLabel->setText("None");
+
+            }
+            else{
+
+
+                    //parses dll name from line
+                    string toErase = "chainDInput8DLLPath=\"";
+                    size_t pos = line.find(toErase);
+                    string dllNameFromIni;
+
+                    if (pos != std::string::npos)
+                    {
+                        // If found then erase it from string
+                       dllNameFromIni = line.erase(pos, toErase.length());
+                    }
+
+
+                    toErase = "\\";
+                    pos = dllNameFromIni.find(toErase);
+                    if (pos != std::string::npos)
+                    {
+                        // If found then erase it from string
+                       dllNameFromIni = dllNameFromIni.erase(pos, toErase.length());
+                    }
+
+
+                    toErase = "\"";
+                    pos = dllNameFromIni.find(toErase);
+                    if (pos != std::string::npos)
+                    {
+                        // If found then erase it from string
+                       dllNameFromIni = dllNameFromIni.erase(pos, toErase.length());
+                    }
+
+
+
+
+
+
+                    ui->dllNameLabel->setText(QString::fromStdString(dllNameFromIni));
+                    ui->chainUnchain->setChecked(true);
+
+            }
+
+        }
+
+
+
+        //cache
+        if(line.find("cacheFilePaths=") != string::npos && !(line.find(";") != string::npos)){
+
+
+            if(line.find("cacheFilePaths=") != string::npos && (line.find("1") != string::npos)){
+
+            ui->cache->setChecked(true);
+
+            }
+            else if (line.find("cacheFilePaths=") != string::npos && (line.find("0") != string::npos)){
+
+            ui->cache->setChecked(false);
+
+            }
+
+        }
+
+
+
+
+    }
+
+
+
+    //closes file streams
+    filein.close();
+
+
+
+
+}
+
+
+
+//applies settings to moddenigne.ini
+void Sekiro::applySettings(){
+
+
+    //edits config
+    ifstream filein(sekDir + "\\" + "modengine.ini"); //orig file
+    ofstream fileout("TMP.ini"); //Temp file
+
+
+
+    for(string line; getline( filein, line ); )
+    {
+
+
+    //logo
+    if(line.find("skipLogos=") != string::npos && !(line.find(";") != string::npos)){
+
+
+                if(ui->logo->isChecked()){
+
+                line = "skipLogos=1";
+
+                }
+                else{
+
+                line = "skipLogos=0";
+
+                }
+
+            }
+
+
+
+
+    //debug
+    if(line.find("showDebugLog=") != string::npos && !(line.find(";") != string::npos)){
+
+
+                if(ui->debug->isChecked()){
+
+                line = "showDebugLog=1";
+
+                }
+                else{
+
+                line = "showDebugLog=0";
+
+                }
+
+            }
+
+
+
+
+    //chain
+    if(line.find("chainDInput8DLLPath=") != string::npos && !(line.find(";") != string::npos)){
+
+
+        if(ui->chainUnchain->isChecked()){
+
+
+            line = ui->dllNameLabel->text().toLocal8Bit().constData();
+
+            line = "chainDInput8DLLPath=\"" + line + "\"";
+
+
+        }
+        else{
+
+
+            line = "chainDInput8DLLPath=\"\"";
+
+
+        }
+
+            }
+
+
+
+
+    //cache
+    if(line.find("cacheFilePaths=") != string::npos && !(line.find(";") != string::npos)){
+
+
+            if(ui->cache->isChecked()){
+
+            line = "cacheFilePaths=1";
+
+            }
+            else{
+
+            line = "cacheFilePaths=0";
+
+            }
+
+        }
+
+    //uxm
+    if(line.find("loadUXMFiles=") != string::npos && !(line.find(";") != string::npos)){
+
+
+            if(ui->uxm->isChecked()){
+
+            line = "loadUXMFiles=1";
+
+            }
+            else{
+
+            line = "loadUXMFiles=0";
+
+            }
+
+        }
+
+
+
+    fileout << line << endl;
+    }
+
+    //closes file streams
+    filein.close();
+    fileout.close();
+
+
+    //switches orig config with final/edited one
+    QFile::remove(QString::fromStdString(sekDir + "\\" + "modengine.ini"));
+    QFile::rename(".\\TMP.ini", QString::fromStdString(sekDir + "\\" + "modengine.ini"));
+
+}
