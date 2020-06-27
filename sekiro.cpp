@@ -2919,6 +2919,8 @@ void Sekiro::on_changeSekDir_clicked()
 
         bool isFolderValid = false;
 
+        string sekDirBefore = sekDir;
+
         while (isFolderValid == false){
 
 
@@ -2970,7 +2972,7 @@ void Sekiro::on_changeSekDir_clicked()
         //reapplies modengine settings if user has that option checked
         if(ui->keepModengineSettings->isChecked()){
 
-            //copys the modengine.ini for the profile at the current index to the sekiro directory
+            /*copys the modengine.ini for the profile at the current index to the sekiro directory
 
             string profileModengine = ui->activeProfile->text().toLocal8Bit().constData();
             profileModengine  = ".\\profiles\\" + profileModengine + ".ini";
@@ -2980,7 +2982,23 @@ void Sekiro::on_changeSekDir_clicked()
             QFile::copy(QString::fromStdString(profileModengine), QString::fromStdString(finalProfileModengine));
 
 
-            applySettings();
+            applySettings(); */
+
+
+
+
+            string finalProfileModengine = sekDir + "/modengine.ini";
+            string profileModengine = sekDirBefore + "/modengine.ini";
+
+            qDebug() << QString::fromStdString(profileModengine) << QString::fromStdString(finalProfileModengine);
+
+            QFile::remove(QString::fromStdString(finalProfileModengine));
+
+            QFile::copy(QString::fromStdString(profileModengine), QString::fromStdString(finalProfileModengine));
+
+
+
+
 
         }
         else{

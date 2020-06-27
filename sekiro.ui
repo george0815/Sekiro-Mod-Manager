@@ -623,8 +623,8 @@ QToolTip { color: #ffffff; background-color: #000000; border: 0px; }</string>
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>800</x>
-      <y>700</y>
+      <x>1100</x>
+      <y>580</y>
       <width>71</width>
       <height>16</height>
      </rect>
@@ -640,8 +640,8 @@ font: 8pt &quot;MS Shell Dlg 2&quot;;</string>
    <widget class="QLabel" name="activeProfile">
     <property name="geometry">
      <rect>
-      <x>870</x>
-      <y>700</y>
+      <x>1170</x>
+      <y>580</y>
       <width>241</width>
       <height>16</height>
      </rect>
@@ -822,6 +822,23 @@ QToolTip { color: #ffffff; background-color: #000000; border: 0px; }</string>
      <string>Reinstall mods/profiles after changing folder</string>
     </property>
    </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>1150</x>
+      <y>550</y>
+      <width>111</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: rgb(255, 255, 255);
+font: 8pt &quot;MS Shell Dlg 2&quot;;</string>
+    </property>
+    <property name="text">
+     <string>Modengine Settings</string>
+    </property>
+   </widget>
    <zorder>label_2</zorder>
    <zorder>come</zorder>
    <zorder>defaultProfile</zorder>
@@ -858,6 +875,7 @@ QToolTip { color: #ffffff; background-color: #000000; border: 0px; }</string>
    <zorder>dllNameLabel</zorder>
    <zorder>keepModengineSettings</zorder>
    <zorder>reinstallAfterDirChange</zorder>
+   <zorder>label_4</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
