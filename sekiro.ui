@@ -798,7 +798,7 @@ font: 8pt &quot;MS Shell Dlg 2&quot;;
 QToolTip { color: #ffffff; background-color: #000000; border: 0px; }</string>
     </property>
     <property name="text">
-     <string>Keep modengine settings after changing folder</string>
+     <string>Transfer modengine settings after changing folder</string>
     </property>
    </widget>
    <widget class="QCheckBox" name="reinstallAfterDirChange">
@@ -819,7 +819,7 @@ font: 8pt &quot;MS Shell Dlg 2&quot;;
 QToolTip { color: #ffffff; background-color: #000000; border: 0px; }</string>
     </property>
     <property name="text">
-     <string>Reinstall mods after changing folder</string>
+     <string>Reinstall mods/profiles after changing folder</string>
     </property>
    </widget>
    <zorder>label_2</zorder>

@@ -3030,7 +3030,7 @@ void Sekiro::on_changeSekDir_clicked()
 
                 if(profiles[i].isInstalledP == "y"){
 
-
+                    qDebug() << "GE";
                     //unpacks the profile files into the sekiro directory
 
                     string profileInstallFolder = sekDir + "";
@@ -3688,6 +3688,38 @@ void Sekiro::on_removeProfile_clicked()
 
     //if there is a profile in profilesInstalled, it uninstalls it
     else{
+
+
+    //uninstalls profile from sekiro directory
+        for(int i = 0; i < profiles[ui->profilesInstalled->currentIndex()].files.size(); i++){
+
+
+            //goes through the files vector and gets the name for the file to be deleted, then deletes it
+
+            string del = sekDir + "/" + profiles[ui->profilesInstalled->currentIndex()].name + "/" + profiles[ui->profilesInstalled->currentIndex()].files[i];
+
+            qDebug() << QString::fromStdString(del);
+
+            QFile toBeDeleted(QString::fromStdString(del));
+
+            toBeDeleted.remove();
+
+
+
+
+
+        }
+
+
+
+
+
+
+        //deletes the profile folder in the sekiro directory
+
+        QDir dir(QString::fromStdString(sekDir + "/" + profiles[ui->profilesInstalled->currentIndex()].name));
+        dir.removeRecursively();
+
 
 
 
