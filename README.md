@@ -20,7 +20,7 @@ Profiles are basically a merged mod. Lets say you want to have the Boss Rush mod
 This uses 7-Zip Extra(7za.exe) and UnRAR(UnRAR.exe) to unpack and repack mods, so when compiling the source code put 7za.exe(and its required dll files) and unrar.exe in the build directory.
 
 
-This only supports mods that use modengine compressed in a RAR, Zip, or 7z format. It doesnt support dll chaining.
+This only supports mods that use modengine compressed in a RAR, Zip, or 7z format. 
 
 
 
