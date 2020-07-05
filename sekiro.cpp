@@ -32,6 +32,7 @@
 
 using namespace std;
 
+short res;
 
 bool  warning = false, isModValid = false, isProfileDone = false, modpackBool = false;
 
@@ -83,7 +84,7 @@ Sekiro::Sekiro(QWidget *parent)
     qDebug() << QFontDatabase::addApplicationFont(":/fonts/font/Assassin.ttf");
 
      QFont sekFont("Assassin$");
-     QApplication::setFont(sekFont);
+    QApplication::setFont(sekFont);
 
 
 
@@ -115,6 +116,7 @@ Sekiro::Sekiro(QWidget *parent)
 
     //see function definition
     getSettingsProfile();
+
 
 
 
@@ -184,9 +186,17 @@ Sekiro::Sekiro(QWidget *parent)
     getActiveProfile();
 
 
+
+
+
+
     this->show();
     this->setWindowState(Qt::WindowState::WindowActive);
 
+    //resizes ui at startup because the resolution combobox gets scrunched up for some reason
+    int tempRes = ui->resolution->currentIndex();
+    ui->resolution->setCurrentIndex(0);
+    ui->resolution->setCurrentIndex(tempRes);
 
 }
 
@@ -587,11 +597,30 @@ void Sekiro::on_addMod_clicked()
 
                 else{
                 QFont sekFont("Assassin$");
+
+
+
+                if(res == 0){
                 QFont errFont("Segoe UI", 8);
+                QApplication::setFont(errFont);
+                }
+                else if(res == 1){
+                    QFont errFont("Segoe UI", 12);
+                    QApplication::setFont(errFont);
+                }
+                else if(res == 2){
+                    QFont errFont("Segoe UI", 16);
+                    QApplication::setFont(errFont);
+                }
+                else if(res == 3){
+                    QFont errFont("Segoe UI", 24);
+                    QApplication::setFont(errFont);
+                }
+
 
                 QMessageBox err;
 
-                QApplication::setFont(errFont);
+
 
                 err.critical(this, "Error", "No mod files found");
 
@@ -948,11 +977,29 @@ void Sekiro::on_addMod_clicked()
 
         else{
         QFont sekFont("Assassin$");
+
+
+        if(res == 0){
         QFont errFont("Segoe UI", 8);
+        QApplication::setFont(errFont);
+        }
+        else if(res == 1){
+            QFont errFont("Segoe UI", 12);
+            QApplication::setFont(errFont);
+        }
+        else if(res == 2){
+            QFont errFont("Segoe UI", 16);
+            QApplication::setFont(errFont);
+        }
+        else if(res == 3){
+            QFont errFont("Segoe UI", 24);
+            QApplication::setFont(errFont);
+        }
+
 
         QMessageBox err;
 
-        QApplication::setFont(errFont);
+
 
         err.critical(this, "Error", "No mod files found");
 
@@ -2502,8 +2549,8 @@ void Sekiro::on_Install_clicked()
 
 
 
-            //add icon to combobox
-            ui->modsInstalled->setItemIcon(ui->modsInstalled->currentIndex(),QIcon(":/uielements/uielements/sekiroCheck.PNG"));
+            //add icon to combobox           
+            iconCheck(0);
 
 
             //updates struct
@@ -2522,10 +2569,27 @@ void Sekiro::on_Install_clicked()
         QAbstractButton* pButtonYes = r.addButton(tr("Yes"), QMessageBox::YesRole);
         r.addButton(tr("No"), QMessageBox::NoRole);
 
+
+        if(res == 0){
         QFont errFont("Segoe UI", 8);
-
-
         r.setFont(errFont);
+        }
+        else if(res == 1){
+            QFont errFont("Segoe UI", 12);
+            r.setFont(errFont);
+        }
+        else if(res == 2){
+            QFont errFont("Segoe UI", 16);
+            r.setFont(errFont);
+        }
+        else if(res == 3){
+            QFont errFont("Segoe UI", 24);
+            r.setFont(errFont);
+        }
+
+
+
+
 
         r.exec();
 
@@ -2577,8 +2641,8 @@ void Sekiro::on_Install_clicked()
             QFile::rename(".\\TMP.ini", QString::fromStdString(mods[ui->modsInstalled->currentIndex()].modConfigPath));
 
 
-            //add icon to combobox
-            ui->modsInstalled->setItemIcon(ui->modsInstalled->currentIndex(),QIcon(":/uielements/uielements/sekiroCheck.PNG"));
+            //add icon to combobox           
+            iconCheck(0);
 
 
             //updates struct
@@ -2621,11 +2685,30 @@ void Sekiro::on_Uninstall_clicked()
     if(mods[ui->modsInstalled->currentIndex()].isInstalled == "n"){
 
         QFont sekFont("Assassin$");
+
+
+        if(res == 0){
         QFont errFont("Segoe UI", 8);
+        QApplication::setFont(errFont);
+        }
+        else if(res == 1){
+            QFont errFont("Segoe UI", 12);
+            QApplication::setFont(errFont);
+        }
+        else if(res == 2){
+            QFont errFont("Segoe UI", 16);
+            QApplication::setFont(errFont);
+        }
+        else if(res == 3){
+            QFont errFont("Segoe UI", 24);
+            QApplication::setFont(errFont);
+        }
+
+
 
         QMessageBox err;
 
-        QApplication::setFont(errFont);
+
 
         err.critical(this, "Error", "Mod already isn't installed");
 
@@ -2814,7 +2897,6 @@ void Sekiro::getSettings(){
 
 
         //creates new mod entry in combo box
-
         ui->modsInstalled->addItem(QString::fromStdString(mods[i].name));
 
 
@@ -2822,7 +2904,7 @@ void Sekiro::getSettings(){
         if(mods[i].isInstalled == "y"){
 
             //add icon to combobox
-            ui->modsInstalled->setItemIcon(i,QIcon(":/uielements/uielements/sekiroCheck.PNG"));
+            iconCheck(1, i);
 
 
         }
@@ -3234,13 +3316,13 @@ void Sekiro::on_installProfile_clicked()
 {
 
     //checks if no profiles are installed, if there are no profiles installed, then it throws an error
-
     if(ui->profilesInstalled->count() <= 0){
 
         error(1);
 
         log("Error: No profile selected");
     }
+
 
     //if there is a profile installed at the current index then unpacks the profile files into the sekiro directory
     else{
@@ -3327,7 +3409,7 @@ void Sekiro::on_installProfile_clicked()
 
 
     //add icon to combobox
-    ui->profilesInstalled->setItemIcon(ui->profilesInstalled->currentIndex(),QIcon(":/uielements/uielements/sekiroCheck.PNG"));
+    iconCheck(2);
 
 
     //reapplies misc settings
@@ -3640,7 +3722,7 @@ void Sekiro::getSettingsProfile(){
         if(profiles[i].isInstalledP == "y"){
 
             //add icon to combobox
-            ui->profilesInstalled->setItemIcon(i,QIcon(":/uielements/uielements/sekiroCheck.PNG"));
+            iconCheck(3, i);
 
 
         }
@@ -3648,6 +3730,7 @@ void Sekiro::getSettingsProfile(){
 
             //removes icon from combobox
             ui->profilesInstalled->setItemIcon(i, QIcon(":/uielements/uielements/sekiroFakeIcon.png"));
+
 
         }
 
@@ -4012,10 +4095,27 @@ void Sekiro::modEngineCheck(){
         r.addButton(tr("No"), QMessageBox::NoRole);
 
 
+
+        if(res == 0){
         QFont errFont("Segoe UI", 8);
+         r.setFont(errFont);
+        }
+        else if(res == 1){
+            QFont errFont("Segoe UI", 12);
+             r.setFont(errFont);
+        }
+        else if(res == 2){
+            QFont errFont("Segoe UI", 16);
+             r.setFont(errFont);
+        }
+        else if(res == 3){
+            QFont errFont("Segoe UI", 24);
+             r.setFont(errFont);
+        }
 
 
-        r.setFont(errFont);
+
+
 
         r.exec();
 
@@ -4129,10 +4229,29 @@ void Sekiro::on_warnings_stateChanged()
          err.setWindowFlags(err.windowFlags() | Qt::WindowStaysOnTopHint);
 
 
+
+         if(res == 0){
          QFont errFont("Segoe UI", 8);
-
-
          err.setFont(errFont);
+         }
+         else if(res == 1){
+             QFont errFont("Segoe UI", 12);
+             err.setFont(errFont);
+         }
+         else if(res == 2){
+             QFont errFont("Segoe UI", 16);
+             err.setFont(errFont);
+         }
+         else if(res == 3){
+             QFont errFont("Segoe UI", 24);
+             err.setFont(errFont);
+         }
+
+
+
+
+
+
 
          err.exec();
 
@@ -4173,9 +4292,27 @@ void Sekiro::on_warnings_stateChanged()
      if(mode == 0){
 
      QFont sekFont("Assassin$");
-     QFont errFont("Segoe UI", 8);
 
+
+
+
+     if(res == 0){
+     QFont errFont("Segoe UI", 8);
      QApplication::setFont(errFont);
+     }
+     else if(res == 1){
+         QFont errFont("Segoe UI", 12);
+         QApplication::setFont(errFont);
+     }
+     else if(res == 2){
+         QFont errFont("Segoe UI", 16);
+         QApplication::setFont(errFont);
+     }
+     else if(res == 3){
+         QFont errFont("Segoe UI", 24);
+         QApplication::setFont(errFont);
+     }
+
 
      QMessageBox err;
 
@@ -4189,9 +4326,24 @@ void Sekiro::on_warnings_stateChanged()
      else if(mode == 1){
 
          QFont sekFont("Assassin$");
-         QFont errFont("Segoe UI", 8);
 
+
+         if(res == 0){
+         QFont errFont("Segoe UI", 8);
          QApplication::setFont(errFont);
+         }
+         else if(res == 1){
+             QFont errFont("Segoe UI", 12);
+             QApplication::setFont(errFont);
+         }
+         else if(res == 2){
+             QFont errFont("Segoe UI", 16);
+             QApplication::setFont(errFont);
+         }
+         else if(res == 3){
+             QFont errFont("Segoe UI", 24);
+             QApplication::setFont(errFont);
+         }
 
          QMessageBox err;
 
@@ -4321,17 +4473,19 @@ void Sekiro::settings(int mode){
     if(mode  == 0){
 
 
-        QFileInfo settings(".\\conf.ini");
+        QFileInfo settingsF(".\\conf.ini");
 
 
-        if(!(settings.exists())){
+        if(!(settingsF.exists())){
 
 
             QFile set(".\\conf.ini");
 
             ofstream setNew(".\\conf.ini");
-            setNew << ui->logOn->checkState() << endl << ui->warnings->checkState() << endl << ui->closeOnLaunch->checkState() << endl << ui->keepModengineSettings->checkState()<< endl << ui->reinstallAfterDirChange->checkState();
+            setNew << ui->logOn->checkState() << endl << ui->warnings->checkState() << endl << ui->closeOnLaunch->checkState() << endl << ui->keepModengineSettings->checkState()<< endl << ui->reinstallAfterDirChange->checkState() << endl << ui->resolution->currentIndex();
             setNew.close();
+
+            settings(0);
 
 
         }
@@ -4426,7 +4580,14 @@ void Sekiro::settings(int mode){
 
 
                 }
+                else if(i == 6){
 
+                    ui->resolution->setCurrentIndex(stoi(line));
+                    resChange();
+
+
+
+                }
 
             }
 
@@ -4720,6 +4881,53 @@ else if(mode == 5){
     }
 
 
+else if(mode == 6){
+
+        string tempPath = ".\\ini.conf";
+        string path = ".\\conf.ini";
+
+        ofstream settingsTemp(tempPath);
+        ifstream settings(path);
+
+
+
+
+        int i = 0;
+
+        for(string line; getline(settings, line);){
+
+
+            i++;
+
+            if(i == 6){
+
+
+                line = to_string(ui->resolution->currentIndex());
+
+
+            }
+
+
+            settingsTemp << line << endl;
+
+        }
+
+        settings.close();
+        settingsTemp.close();
+
+        QFile::remove(QString::fromStdString(path));
+        QFile::rename(QString::fromStdString(tempPath), QString::fromStdString(path));
+
+
+        //deletes temp files if they arent deleted
+        QFile tmpDel(".\\TMP.ini");
+        tmpDel.remove();
+
+
+        QFile iniDel(".\\ini.conf");
+        iniDel.remove();
+
+    }
 
 
 }
@@ -4850,35 +5058,72 @@ void Sekiro::on_chainUnchain_stateChanged()
 
 
 
+
     if(ui->chainUnchain->isChecked()){
 
 
+
+        qDebug() << ui->dllNameLabel->text();
         if(ui->dllNameLabel->text() == "" || ui->dllNameLabel->text() == "None"){
 
         //opens file dailogue asking user for dll, if dll is named dinput.dll then throw error
        QFileInfo dll = QFileDialog::getOpenFileName(this, "Choose dll file to chain");
 
+
        qDebug() << dll.absoluteFilePath();
        qDebug() << dll.fileName();
 
-       if(dll.fileName() == "dinput8.dll"){
+       if(dll.fileName() == "dinput8.dll" || dll.fileName() == ""){
+
+
+
 
            QFont sekFont("Assassin$");
+
+
+
+           if(res == 0){
            QFont errFont("Segoe UI", 8);
+           QApplication::setFont(errFont);
+           }
+           else if(res == 1){
+               QFont errFont("Segoe UI", 12);
+               QApplication::setFont(errFont);
+           }
+           else if(res == 2){
+               QFont errFont("Segoe UI", 16);
+               QApplication::setFont(errFont);
+           }
+           else if(res == 3){
+               QFont errFont("Segoe UI", 24);
+               QApplication::setFont(errFont);
+           }
+
+
 
            QMessageBox err;
 
-           QApplication::setFont(errFont);
+
+           if(dll.fileName() == "dinput8.dll"){
 
            err.critical(this, "Error", "The dll file to be chained cannot be named dinput.dll, please rename the file and try again");
+           log("Error: dll named dinput8.dll");
 
+           }
+           else if(dll.fileName() == ""){
 
-           ui->chainUnchain->setChecked(false);
+             err.critical(this, "Error", "No dll selected");
+             log("Error: No dll selected");
+
+           }
+
+           ui->chainUnchain->setCheckState(Qt::Unchecked);
+
 
 
           QApplication::setFont(sekFont);
 
-          log("Error: dll named dinput8.dll");
+
 
        }
         else{
@@ -5472,5 +5717,952 @@ void Sekiro::on_keepModengineSettings_stateChanged()
 {
 
     settings(4);
+
+}
+
+
+
+
+
+//handles choosing resolution
+void Sekiro::on_resolution_currentIndexChanged()
+{
+
+    settings(6);
+    resChange();
+
+
+
+
+
+
+}
+
+
+
+
+//handles resizing UI when resolution is chosen
+void Sekiro::resChange(){
+
+
+
+
+    if(ui->resolution->currentIndex() == 0){
+        res = 0;
+
+
+
+        QSize iconSize(16, 16);
+        ui->modsInstalled->setIconSize(iconSize);
+        ui->profilesInstalled->setIconSize(iconSize);
+
+        //handles icons for installed mods
+        for(int i = 0; i < mods.size(); i++){
+
+            if(mods[i].isInstalled == "y"){
+
+                ui->modsInstalled->setItemIcon(i,QIcon(":/uielements/uielements/sekiroCheck.PNG"));
+
+
+            }
+
+
+        }
+        for(int i = 0; i < profiles.size(); i++){
+
+            if(profiles[i].isInstalledP == "y"){
+
+                ui->profilesInstalled->setItemIcon(i,QIcon(":/uielements/uielements/sekiroCheck.PNG"));
+
+
+            }
+
+
+        }
+
+
+        setFixedSize(1280, 720 - 70);
+
+        QPixmap mypix (":/uielements/uielements/kanji.png");
+        QPixmap mypix2 (":/uielements/uielements/kanji2.PNG");
+        ui->come->setPixmap(mypix2);
+        ui->label_2->setPixmap(mypix);
+
+        //CHECKBOXES
+        ui->keepModengineSettings->move(37, 19);
+        ui->reinstallAfterDirChange->move(11, 43);
+        ui->logOn->move(10, 700 - 70);
+        ui->closeOnLaunch->move(150, 700 - 70);
+        ui->logo->move(1170, 600 - 70);
+        ui->uxm->move(1170, 620 - 70);
+        ui->debug->move(1170, 640 - 70);
+        ui->cache->move(1170, 660 - 70);
+        ui->chainUnchain->move(1100, 680 - 70);
+        ui->warnings->move(1176, 4);
+
+
+
+        //LABELS
+        ui->currentSekDirLabel->move(10, 3);
+        ui->activeProfileLabel->move(1100, 580 - 70);
+        ui->dllNameLabel->move(1170, 680 - 70);
+        ui->profilesLabel->move(240, 362);
+        ui->modLabel->move(240, 176);
+        ui->credit->move(1171, 700 - 70);
+        ui->currentSekDir->move(80, 4);
+        ui->activeProfile->move(1170, 580 - 70);
+        ui->modengineSettings->move(1150, 550 - 70);
+
+
+        //COMBOS
+        ui->modsInstalled->move(340, 175);
+        ui->resolution->move(10, 63);
+        ui->profilesInstalled->move(340, 357);
+
+
+        //BUTTONS
+        ui->Install->move(290, 204);
+        ui->Uninstall->move(500, 204);
+        ui->addMod->move(700, 204);
+        ui->removeMod->move(830, 204);
+        ui->installProfile->move(290, 385);
+        ui->uninstallProfile->move(500, 385);
+        ui->addProfile->move(700, 385);
+        ui->removeProfile->move(830, 385);
+        ui->setActiveProfile->move(370, 450);
+        ui->defaultProfile->move(670, 450);
+        ui->launchSekiro->move(480, 620 - 70);
+        ui->changeSekDir->move(10, 20);
+
+
+        //misc
+        ui->come->move(0 - 30, 410 - 70);
+        ui->label_2->move(880 + 55, 390 - 60);
+        ui->line->move(220, 320);
+        ui->logTextEdit->move(10, 90);
+
+        setStyleSheet("Sekiro {background-image: url(:/uielements/uielements/Sekiro Mod Manager UI 720p.png) 0 0 0 0 stretch stretch;}");
+
+
+
+
+
+        //SIZES
+
+
+        //CHECKBOXES
+        ui->keepModengineSettings->resize(271, 18);
+        ui->reinstallAfterDirChange->resize(271, 18);
+        ui->logOn->resize(81, 18);
+        ui->closeOnLaunch->resize(201, 18);
+        ui->logo->resize(70, 18);
+        ui->uxm->resize(101, 18);
+        ui->debug->resize(101, 18);
+        ui->cache->resize(121, 18);
+        ui->chainUnchain->resize(70, 18);
+        ui->warnings->resize(111, 18);
+
+
+
+        //LABELS
+        ui->currentSekDirLabel->resize(71, 16);
+        ui->activeProfileLabel->resize(71, 16);
+        ui->dllNameLabel->resize(61, 16);
+        ui->profilesLabel->resize(131, 41);
+        ui->modLabel->resize(111, 51);
+        ui->credit->resize(111, 16);
+        ui->currentSekDir->resize(221, 16);
+        ui->activeProfile->resize(241, 16);
+        ui->modengineSettings->resize(111, 16);
+
+
+        //COMBOS
+        ui->modsInstalled->resize(561, 51);
+        ui->resolution->resize(91, 22);
+        ui->profilesInstalled->resize(561, 51);
+
+
+        //BUTTONS
+        ui->Install->resize(211, 86);
+        ui->Uninstall->resize(211, 86);
+        ui->addMod->resize(150, 83);
+        ui->removeMod->resize(150, 81);
+        ui->installProfile->resize(211, 86);
+        ui->uninstallProfile->resize(211, 86);
+        ui->addProfile->resize(150, 86);
+        ui->removeProfile->resize(150, 86);
+        ui->setActiveProfile->resize(300, 91);
+        ui->defaultProfile->resize(211,91);
+        ui->launchSekiro->resize(300, 91);
+        ui->changeSekDir->resize(21, 20);
+
+
+        //misc
+        ui->come->resize(401, 391);
+        ui->label_2->resize(521, 371);
+        ui->line->resize(801, 16);
+        ui->logTextEdit->resize(141, 611 - 70);
+
+       //style sheets
+       ui->Install->setStyleSheet("#Install{\nbackground-image: url(:/uielements/uielements/installNoPaint.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQPushButton#Install:hover{\n	background-image: url(:/uielements/uielements/install.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 12pt; color: #ffffff; background-color: #000000; border: 0px; }");
+       ui->Uninstall->setStyleSheet("#Uninstall{\nbackground-image: url(:/uielements/uielements/uninstallNoPaint.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQPushButton#Uninstall:hover{\n	background-image: url(:/uielements/uielements/uninstall.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 12pt; color: #ffffff; background-color: #000000; border: 0px; }");
+       ui->addMod->setStyleSheet("#addMod{\nbackground-image: url(:/uielements/uielements/addNoPaint.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQToolButton#addMod:hover{\n	background-image: url(:/uielements/uielements/add.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 12pt; color: #ffffff; background-color: #000000; border: 0px; }");
+       ui->removeMod->setStyleSheet("#removeMod{\nbackground-image: url(:/uielements/uielements/removeNoPaint.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQToolButton#removeMod:hover{\n	background-image: url(:/uielements/uielements/remove.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 12pt; color: #ffffff; background-color: #000000; border: 0px; }");
+       ui->installProfile->setStyleSheet("#installProfile{\nbackground-image: url(:/uielements/uielements/installNoPaint.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQPushButton#installProfile:hover{\n	background-image: url(:/uielements/uielements/install.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 12pt; color: #ffffff; background-color: #000000; border: 0px; }");
+       ui->uninstallProfile->setStyleSheet("#uninstallProfile{\nbackground-image: url(:/uielements/uielements/uninstallNoPaint.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQPushButton#uninstallProfile:hover{\n	background-image: url(:/uielements/uielements/uninstall.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 12pt; color: #ffffff; background-color: #000000; border: 0px; }");
+       ui->addProfile->setStyleSheet("#addProfile{\nbackground-image: url(:/uielements/uielements/addNoPaint.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQToolButton#addProfile:hover{\n	background-image: url(:/uielements/uielements/add.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 12pt; color: #ffffff; background-color: #000000; border: 0px; }");
+       ui->removeProfile->setStyleSheet("#removeProfile{\nbackground-image: url(:/uielements/uielements/removeNoPaint.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQToolButton#removeProfile:hover{\n	background-image: url(:/uielements/uielements/remove.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 12pt; color: #ffffff; background-color: #000000; border: 0px; }");
+       ui->setActiveProfile->setStyleSheet("#setActiveProfile{\nbackground-image: url(:/uielements/uielements/setactiveNoPaint.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQPushButton#setActiveProfile:hover{\n	background-image: url(:/uielements/uielements/setactive.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 12pt; color: #ffffff; background-color: #000000; border: 0px; }");
+       ui->defaultProfile->setStyleSheet("#defaultProfile{\nbackground-image: url(:/uielements/uielements/defaultNoPaint.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQPushButton#defaultProfile:hover{\n	background-image: url(:/uielements/uielements/default.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 12pt; color: #ffffff; background-color: #000000; border: 0px; }");
+       ui->launchSekiro->setStyleSheet("#launchSekiro{\nbackground-image: url(:/uielements/uielements/launchsekiroNoPaint.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n\n\n\n}\n\nQPushButton#launchSekiro:hover{\n	background-image: url(:/uielements/uielements/launchsekiro.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 12pt; color: #ffffff; background-color: #000000; border: 0px; }");
+
+       ui->changeSekDir->setStyleSheet("#changeSekDir{\ncolor: rgb(0, 0, 0);\nfont: 8pt \"MS Shell Dlg 2\";\n}\nQToolTip  {font: 12pt; color: #ffffff; background-color: #000000; border: 0px; }");
+       ui->warnings->setStyleSheet("#warnings{\ncolor: rgb(255, 255, 255);\nfont: 8pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 12pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 13px;\nheight: 13px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+       ui->logOn->setStyleSheet("#logOn{\ncolor: rgb(255, 255, 255);\nfont: 8pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 12pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 13px;\nheight: 13px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+       ui->closeOnLaunch->setStyleSheet("#closeOnLaunch{\ncolor: rgb(255, 255, 255);\nfont: 8pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 12pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 13px;\nheight: 13px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+       ui->keepModengineSettings->setStyleSheet("#keepModengineSettings{\ncolor: rgb(255, 255, 255);\nfont: 8pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 12pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 13px;\nheight: 13px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+       ui->reinstallAfterDirChange->setStyleSheet("#reinstallAfterDirChange{\ncolor: rgb(255, 255, 255);\nfont: 8pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 12pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 13px;\nheight: 13px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+       ui->credit->setStyleSheet("color: rgb(255, 255, 255);\nfont: 8pt \"MS Shell Dlg 2\";");
+       ui->uxm->setStyleSheet("#uxm{\ncolor: rgb(255, 255, 255);\nfont: 8pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 12pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 13px;\nheight: 13px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+       ui->cache->setStyleSheet("#cache{\ncolor: rgb(255, 255, 255);\nfont: 8pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 12pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 13px;\nheight: 13px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+       ui->logo->setStyleSheet("#logo{\ncolor: rgb(255, 255, 255);\nfont: 8pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 12pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 13px;\nheight: 13px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+       ui->chainUnchain->setStyleSheet("#chainUnchain{\ncolor: rgb(255, 255, 255);\nfont: 8pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 12pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 13px;\nheight: 13px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+       ui->activeProfile->setStyleSheet("color: rgb(255, 255, 255);\nfont: 8pt \"MS Shell Dlg 2\";");
+       ui->dllNameLabel->setStyleSheet("color: rgb(255, 255, 255);\nfont: 8pt \"MS Shell Dlg 2\";");
+       ui->activeProfileLabel->setStyleSheet("color: rgb(255, 255, 255);\nfont: 8pt \"MS Shell Dlg 2\";");
+       ui->currentSekDir->setStyleSheet("color: rgb(255, 255, 255);\nfont: 8pt \"MS Shell Dlg 2\";");
+       ui->currentSekDirLabel->setStyleSheet("color: rgb(255, 255, 255);\nfont: 8pt \"MS Shell Dlg 2\";");
+       ui->modengineSettings->setStyleSheet("color: rgb(255, 255, 255);\nfont: 8pt \"MS Shell Dlg 2\";");
+       ui->debug->setStyleSheet("#debug{\ncolor: rgb(255, 255, 255);\nfont: 8pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 12pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 13px;\nheight: 13px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+       ui->modLabel->setStyleSheet("color: rgb(255, 255, 255);\nfont: 26pt \"Assassin$\";");
+       ui->modsInstalled->setStyleSheet("#modsInstalled{\ncolor: rgb(255, 255, 255);\nfont: 26pt \"Assassin$\";\nbackground-color: rgb(0, 0, 0);\n\n}\n\n\n\nQToolTip {font: 12pt; color: #ffffff; background-color: #000000; border: 0px; }");
+       ui->profilesLabel->setStyleSheet("color: rgb(255, 255, 255);\nfont: 26pt \"Assassin$\";");
+       ui->profilesInstalled->setStyleSheet("#profilesInstalled{\ncolor: rgb(255, 255, 255);\nfont: 26pt \"Assassin$\";\nbackground-color: rgb(0, 0, 0);\n\n}\n\n\n\nQToolTip {font: 12pt; color: #ffffff; background-color: #000000; border: 0px; }");
+       ui->resolution->setStyleSheet("font: 8pt \"MS Shell Dlg 2\"");
+       ui->logTextEdit->setStyleSheet("color: rgb(255, 255, 255);\nbackground-color: rgb(0, 0, 0);\nfont: 8pt \"MS Shell Dlg 2\";\nborder: none;");
+
+    }
+
+    else if(ui->resolution->currentIndex() == 1){
+
+        res = 1;
+
+        QSize iconSize(16 * 1.5, 16 * 1.5);
+        ui->modsInstalled->setIconSize(iconSize);
+        ui->profilesInstalled->setIconSize(iconSize);
+
+        for(int i = 0; i < mods.size(); i++){
+
+            if(mods[i].isInstalled == "y"){
+
+                ui->modsInstalled->setItemIcon(i,QIcon(":/uielements/uielements/sekiroCheck1080p.PNG"));
+
+
+            }
+
+
+        }
+        for(int i = 0; i < profiles.size(); i++){
+
+            if(profiles[i].isInstalledP == "y"){
+
+                ui->profilesInstalled->setItemIcon(i,QIcon(":/uielements/uielements/sekiroCheck1080p.PNG"));
+
+
+            }
+
+
+        }
+
+        setFixedSize(1920, 1000);
+
+        QPixmap mypix (":/uielements/uielements/kanji1080p.png");
+        QPixmap mypix2 (":/uielements/uielements/kanji21080p.PNG");
+        ui->come->setPixmap(mypix2);
+        ui->label_2->setPixmap(mypix);
+
+
+
+        //CHECKBOXES
+        ui->keepModengineSettings->move(37 * 1.5, 19 * 1.5);
+        ui->reinstallAfterDirChange->move(11 * 1.5, 43 * 1.5);
+        ui->logOn->move(10 * 1.5, (700 * 1.5) - 80);
+        ui->closeOnLaunch->move(150 * 1.5, (700 * 1.5) - 80);
+        ui->logo->move(1170 * 1.5, (600 * 1.5) - 80);
+        ui->uxm->move(1170 * 1.5, (620 * 1.5) - 80);
+        ui->debug->move(1170 * 1.5, (640 * 1.5) - 80);
+        ui->cache->move(1170 * 1.5, (660 * 1.5) - 80);
+        ui->chainUnchain->move(1100 * 1.5, (680 * 1.5) - 80);
+        ui->warnings->move(1176 * 1.5, 4 * 1.5);
+
+
+        //LABELS
+        ui->currentSekDirLabel->move(10 * 1.5, 3 * 1.5);
+        ui->activeProfileLabel->move(1100 * 1.5, (580 * 1.5) - 80);
+        ui->dllNameLabel->move(1170 * 1.5, (680 * 1.5) - 80);
+        ui->profilesLabel->move(240 * 1.5, 362 * 1.5);
+        ui->modLabel->move(240 * 1.5, 176 * 1.5);
+        ui->credit->move(1171 * 1.5, (700 * 1.5) - 80);
+        ui->currentSekDir->move(80 * 1.5, 4 * 1.5);
+        ui->activeProfile->move(1170 * 1.5, (580 * 1.5) - 80);
+        ui->modengineSettings->move(1150 * 1.5, (550 * 1.5) - 80);
+
+
+        //COMBOS
+        ui->modsInstalled->move(340 * 1.5, 175 * 1.5);
+        ui->resolution->move(10 * 1.5, 63 * 1.5);
+        ui->profilesInstalled->move(340 * 1.5, 357 * 1.5);
+
+
+        //BUTTONS
+        ui->Install->move(290 * 1.5, 204 * 1.5);
+        ui->Uninstall->move(500 * 1.5, 204 * 1.5);
+        ui->addMod->move(700 * 1.5, 204 * 1.5);
+        ui->removeMod->move(830 * 1.5, 204 * 1.5);
+        ui->installProfile->move(290 * 1.5, 385 * 1.5);
+        ui->uninstallProfile->move(500 * 1.5, 385 * 1.5);
+        ui->addProfile->move(700 * 1.5, 385 * 1.5);
+        ui->removeProfile->move(830 * 1.5, 385 * 1.5);
+        ui->setActiveProfile->move(370 * 1.5, 450 * 1.5);
+        ui->defaultProfile->move(670 * 1.5, 450 * 1.5);
+        ui->launchSekiro->move(480 * 1.5, (620 * 1.5) - 80);
+        ui->changeSekDir->move(10 * 1.5, 20 * 1.5);
+
+
+        //misc      
+        ui->come->move((0 - 30) * 1.5, (410 - 70) * 1.5);
+        ui->label_2->move((880 + 55) * 1.5, (390 - 60) * 1.5);
+        ui->line->move(220 * 1.5, 320 * 1.5);
+        ui->logTextEdit->move(10 * 1.5, 90 * 1.5);
+
+        setStyleSheet("Sekiro {background-image: url(:/uielements/uielements/Sekiro Mod Manager UI 1080p.PNG) 0 0 0 0 stretch stretch;}");
+
+
+
+
+        //SIZES
+
+
+        //CHECKBOXES
+        ui->keepModengineSettings->resize(271 * 1.5, 18 * 1.5);
+        ui->reinstallAfterDirChange->resize(271 * 1.5, 18 * 1.5);
+        ui->logOn->resize(81 * 1.5, 18 * 1.5);
+        ui->closeOnLaunch->resize(201 * 1.5, 18 * 1.5);
+        ui->logo->resize(70 * 1.5, 18 * 1.5);
+        ui->uxm->resize(101 * 1.5, 18 * 1.5);
+        ui->debug->resize(101 * 1.5, 18 * 1.5);
+        ui->cache->resize(121 * 1.5, 18 * 1.5);
+        ui->chainUnchain->resize(70 * 1.5, 18 * 1.5);
+        ui->warnings->resize(111 * 1.5, 18 * 1.5);
+
+
+
+        //LABELS
+        ui->currentSekDirLabel->resize(71 * 1.5, 16 * 1.5);
+        ui->activeProfileLabel->resize(71 * 1.5, 16 * 1.5);
+        ui->dllNameLabel->resize(61 * 1.5, 16 * 1.5);
+        ui->profilesLabel->resize(131 * 1.5, 41 * 1.5);
+        ui->modLabel->resize(111 * 1.5, 51 * 1.5);
+        ui->credit->resize(111 * 1.5, 16 * 1.5);
+        ui->currentSekDir->resize(221 * 1.5, 16 * 1.5);
+        ui->activeProfile->resize(241 * 1.5, 16 * 1.5);
+        ui->modengineSettings->resize(111 * 1.5, 16 * 1.5);
+
+
+        //COMBOS
+        ui->modsInstalled->resize(561 * 1.5, 51 * 1.5);
+        ui->resolution->resize(91 * 1.5, 22 * 1.5);
+        ui->profilesInstalled->resize(561 * 1.5, 51 * 1.5);
+
+
+        //BUTTONS
+        ui->Install->resize(211 * 1.5, 86 * 1.5);
+        ui->Uninstall->resize(211 * 1.5, 86 * 1.5);
+        ui->addMod->resize(150 * 1.5, 83 * 1.5);
+        ui->removeMod->resize(150 * 1.5, 81 * 1.5);
+        ui->installProfile->resize(211 * 1.5, 86 * 1.5);
+        ui->uninstallProfile->resize(211 * 1.5, 86 * 1.5);
+        ui->addProfile->resize(150 * 1.5, 86 * 1.5);
+        ui->removeProfile->resize(150 * 1.5, 86 * 1.5);
+        ui->setActiveProfile->resize(300 * 1.5, 91 * 1.5);
+        ui->defaultProfile->resize(211 * 1.5,91 * 1.5);
+        ui->launchSekiro->resize(300 * 1.5, 91 * 1.5);
+        ui->changeSekDir->resize(21 * 1.5, 20 * 1.5);
+
+
+        //misc
+        ui->come->resize(401 * 1.5, 391 * 1.5);
+        ui->label_2->resize(521 * 1.5, 371 * 1.5);
+        ui->line->resize(801 * 1.5, 16 * 1.5);
+        ui->logTextEdit->resize(141 * 1.5, (611 * 1.5) - 80);
+
+        //stylesheets
+        ui->Install->setStyleSheet("QPushButton#Install {\nbackground-image: url(:/uielements/uielements/installNoPaint1080p.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQPushButton#Install:hover{\n	background-image: url(:/uielements/uielements/install1080p.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 16pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->Uninstall->setStyleSheet("#Uninstall{\nbackground-image: url(:/uielements/uielements/uninstallNoPaint1080p.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQPushButton#Uninstall:hover{\n	background-image: url(:/uielements/uielements/uninstall1080p.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 16pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->addMod->setStyleSheet("#addMod{\nbackground-image: url(:/uielements/uielements/addNoPaint1080p.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQToolButton#addMod:hover{\n	background-image: url(:/uielements/uielements/add1080p.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 16pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->removeMod->setStyleSheet("#removeMod{\nbackground-image: url(:/uielements/uielements/removeNoPaint1080p.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQToolButton#removeMod:hover{\n	background-image: url(:/uielements/uielements/remove1080p.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 16pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->installProfile->setStyleSheet("#installProfile{\nbackground-image: url(:/uielements/uielements/installNoPaint1080p.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQPushButton#installProfile:hover{\n	background-image: url(:/uielements/uielements/install1080p.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 16pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->uninstallProfile->setStyleSheet("#uninstallProfile{\nbackground-image: url(:/uielements/uielements/uninstallNoPaint1080p.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQPushButton#uninstallProfile:hover{\n	background-image: url(:/uielements/uielements/uninstall1080p.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 16pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->addProfile->setStyleSheet("#addProfile{\nbackground-image: url(:/uielements/uielements/addNoPaint1080p.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQToolButton#addProfile:hover{\n	background-image: url(:/uielements/uielements/add1080p.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 16pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->removeProfile->setStyleSheet("#removeProfile{\nbackground-image: url(:/uielements/uielements/removeNoPaint1080p.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQToolButton#removeProfile:hover{\n	background-image: url(:/uielements/uielements/remove1080p.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 16pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->setActiveProfile->setStyleSheet("#setActiveProfile{\nbackground-image: url(:/uielements/uielements/setactiveNoPaint1080p.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQPushButton#setActiveProfile:hover{\n	background-image: url(:/uielements/uielements/setactive1080p.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 16pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->defaultProfile->setStyleSheet("#defaultProfile{\nbackground-image: url(:/uielements/uielements/defaultNoPaint1080p.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQPushButton#defaultProfile:hover{\n	background-image: url(:/uielements/uielements/default1080p.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 16pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->launchSekiro->setStyleSheet("#launchSekiro{\nbackground-image: url(:/uielements/uielements/launchsekiroNoPaint1080p.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n\n\n\n}\n\nQPushButton#launchSekiro:hover{\n	background-image: url(:/uielements/uielements/launchsekiro1080p.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 16pt; color: #ffffff; background-color: #000000; border: 0px; }");
+
+        ui->changeSekDir->setStyleSheet("#changeSekDir{\ncolor: rgb(0, 0, 0);\nfont: 12pt \"MS Shell Dlg 2\";\n}\nQToolTip  {font: 16pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->warnings->setStyleSheet("#warnings{\ncolor: rgb(255, 255, 255);\nfont: 12pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 16pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 19px;\nheight: 19px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+        ui->logOn->setStyleSheet("#logOn{\ncolor: rgb(255, 255, 255);\nfont: 12pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 16pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 19px;\nheight: 19px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+        ui->closeOnLaunch->setStyleSheet("#closeOnLaunch{\ncolor: rgb(255, 255, 255);\nfont: 12pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 16pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 19px;\nheight: 19px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+        ui->keepModengineSettings->setStyleSheet("#keepModengineSettings{\ncolor: rgb(255, 255, 255);\nfont: 12pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 16pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 19px;\nheight: 19px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+        ui->reinstallAfterDirChange->setStyleSheet("#reinstallAfterDirChange{\ncolor: rgb(255, 255, 255);\nfont: 12pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 16pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 19px;\nheight: 19px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+        ui->credit->setStyleSheet("color: rgb(255, 255, 255);\nfont: 12pt \"MS Shell Dlg 2\";");
+        ui->uxm->setStyleSheet("#uxm{\ncolor: rgb(255, 255, 255);\nfont: 12pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 16pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 19px;\nheight: 19px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+        ui->cache->setStyleSheet("#cache{\ncolor: rgb(255, 255, 255);\nfont: 12pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 16pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 19px;\nheight: 19px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+        ui->logo->setStyleSheet("#logo{\ncolor: rgb(255, 255, 255);\nfont: 12pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 16pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 19px;\nheight: 19px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+        ui->chainUnchain->setStyleSheet("#chainUnchain{\ncolor: rgb(255, 255, 255);\nfont: 12pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 16pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 19px;\nheight: 19px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+        ui->activeProfile->setStyleSheet("color: rgb(255, 255, 255);\nfont: 12pt \"MS Shell Dlg 2\";");
+        ui->dllNameLabel->setStyleSheet("color: rgb(255, 255, 255);\nfont: 12pt \"MS Shell Dlg 2\";");
+        ui->activeProfileLabel->setStyleSheet("color: rgb(255, 255, 255);\nfont: 12pt \"MS Shell Dlg 2\";");
+        ui->currentSekDir->setStyleSheet("color: rgb(255, 255, 255);\nfont: 12pt \"MS Shell Dlg 2\";");
+        ui->currentSekDirLabel->setStyleSheet("color: rgb(255, 255, 255);\nfont: 12pt \"MS Shell Dlg 2\";");
+        ui->modengineSettings->setStyleSheet("color: rgb(255, 255, 255);\nfont: 12pt \"MS Shell Dlg 2\";");
+        ui->debug->setStyleSheet("#debug{\ncolor: rgb(255, 255, 255);\nfont: 12pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 16pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 19px;\nheight: 19px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+        ui->modLabel->setStyleSheet("color: rgb(255, 255, 255);\nfont: 39pt \"Assassin$\";");
+        ui->modsInstalled->setStyleSheet("#modsInstalled{\ncolor: rgb(255, 255, 255);\nfont: 39pt \"Assassin$\";\nbackground-color: rgb(0, 0, 0);\n\n}\n\n\n\nQToolTip {font: 16pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->profilesLabel->setStyleSheet("color: rgb(255, 255, 255);\nfont: 39pt \"Assassin$\";");
+        ui->profilesInstalled->setStyleSheet("#profilesInstalled{\ncolor: rgb(255, 255, 255);\nfont: 39pt \"Assassin$\";\nbackground-color: rgb(0, 0, 0);\n\n}\n\n\n\nQToolTip {font: 16pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->resolution->setStyleSheet("font: 12pt \"MS Shell Dlg 2\"");
+        ui->logTextEdit->setStyleSheet("color: rgb(255, 255, 255);\nbackground-color: rgb(0, 0, 0);\nfont: 12pt \"MS Shell Dlg 2\";\nborder: none;");
+
+
+    }
+
+    else if(ui->resolution->currentIndex() == 2){
+
+        res = 2;
+
+
+        QSize iconSize(16 * 2, 16 * 2);
+        ui->modsInstalled->setIconSize(iconSize);
+        ui->profilesInstalled->setIconSize(iconSize);
+
+
+        for(int i = 0; i < mods.size(); i++){
+
+            if(mods[i].isInstalled == "y"){
+
+                ui->modsInstalled->setItemIcon(i,QIcon(":/uielements/uielements/sekiroCheck1440p.PNG"));
+
+            }
+
+
+        }
+        for(int i = 0; i < profiles.size(); i++){
+
+            if(profiles[i].isInstalledP == "y"){
+
+                ui->profilesInstalled->setItemIcon(i,QIcon(":/uielements/uielements/sekiroCheck1440p.PNG"));
+
+
+            }
+
+
+        }
+
+        setFixedSize(2560, 1440 - 80);
+
+        QPixmap mypix (":/uielements/uielements/kanji1440p.png");
+        QPixmap mypix2 (":/uielements/uielements/kanji21440p.PNG");
+        ui->come->setPixmap(mypix2);
+        ui->label_2->setPixmap(mypix);
+
+        //CHECKBOXES
+        ui->keepModengineSettings->move(37 * 2, 19 * 2);
+        ui->reinstallAfterDirChange->move(11 * 2, 43 * 2);
+        ui->logOn->move(10 * 2, (700 * 2) - 80);
+        ui->closeOnLaunch->move(150 * 2, (700 * 2) - 80);
+        ui->logo->move(1170 * 2, (600 * 2) - 80);
+        ui->uxm->move(1170 * 2, (620 * 2) - 80);
+        ui->debug->move(1170 * 2, (640 * 2) - 80);
+        ui->cache->move(1170 * 2, (660 * 2) - 80);
+        ui->chainUnchain->move(1100 * 2, (680 * 2) - 80);
+        ui->warnings->move(1176 * 2, 4 * 2);
+
+
+        //LABELS
+        ui->currentSekDirLabel->move(10 * 2, 3 * 2);
+        ui->activeProfileLabel->move(1100 * 2, (580 * 2) - 80);
+        ui->dllNameLabel->move(1170 * 2, (680 * 2) - 80);
+        ui->profilesLabel->move(240 * 2, 362 * 2);
+        ui->modLabel->move(240 * 2, 176 * 2);
+        ui->credit->move(1171 * 2, (700 * 2) - 80);
+        ui->currentSekDir->move(80 * 2, 4 * 2);
+        ui->activeProfile->move(1170 * 2, (580 * 2) - 80);
+        ui->modengineSettings->move(1150 * 2, (550 * 2) - 80);
+
+
+        //COMBOS
+        ui->modsInstalled->move(340 * 2, 175 * 2);
+        ui->resolution->move(10 * 2, 63 * 2);
+        ui->profilesInstalled->move(340 * 2, 357 * 2);
+
+
+        //BUTTONS
+        ui->Install->move(290 * 2, 204 * 2);
+        ui->Uninstall->move(500 * 2, 204 * 2);
+        ui->addMod->move(700 * 2, 204 * 2);
+        ui->removeMod->move(830 * 2, 204 * 2);
+        ui->installProfile->move(290 * 2, 385 * 2);
+        ui->uninstallProfile->move(500 * 2, 385 * 2);
+        ui->addProfile->move(700 * 2, 385 * 2);
+        ui->removeProfile->move(830 * 2, 385 * 2);
+        ui->setActiveProfile->move(370 * 2, 450 * 2);
+        ui->defaultProfile->move(670 * 2, 450 * 2);
+        ui->launchSekiro->move(480 * 2, (620 * 2) - 80);
+        ui->changeSekDir->move(10 * 2, 20 * 2);
+
+
+        //misc
+        ui->come->move((0 - 30) * 2, (410 - 70) * 2);
+        ui->label_2->move((880 + 55) * 2, (390 - 60) * 2);
+        ui->line->move(220 * 2, 320 * 2);
+        ui->logTextEdit->move(10 * 2, 90 * 2);
+
+        setStyleSheet("Sekiro {background-image: url(:/uielements/uielements/Sekiro Mod Manager UI 1440p.PNG) 0 0 0 0 stretch stretch;}");
+
+
+        //SIZES
+
+
+        //CHECKBOXES
+        ui->keepModengineSettings->resize(271 * 2, 18 * 2);
+        ui->reinstallAfterDirChange->resize(271 * 2, 18 * 2);
+        ui->logOn->resize(81 * 2, 18 * 2);
+        ui->closeOnLaunch->resize(201 * 2, 18 * 2);
+        ui->logo->resize(70 * 2, 18 * 2);
+        ui->uxm->resize(101 * 2, 18 * 2);
+        ui->debug->resize(101 * 2, 18 * 2);
+        ui->cache->resize(121 * 2, 18 * 2);
+        ui->chainUnchain->resize(70 * 2, 18 * 2);
+        ui->warnings->resize(111 * 2, 18 * 2);
+
+
+
+        //LABELS
+        ui->currentSekDirLabel->resize(71 * 2, 16 * 2);
+        ui->activeProfileLabel->resize(71 * 2, 16 * 2);
+        ui->dllNameLabel->resize(61 * 2, 16 * 2);
+        ui->profilesLabel->resize(131 * 2, 41 * 2);
+        ui->modLabel->resize(111 * 2, 51 * 2);
+        ui->credit->resize(111 * 2, 16 * 2);
+        ui->currentSekDir->resize(221 * 2, 16 * 2);
+        ui->activeProfile->resize(241 * 2, 16 * 2);
+        ui->modengineSettings->resize(111 * 2, 16 * 2);
+
+
+        //COMBOS
+        ui->modsInstalled->resize(561 * 2, 51 * 2);
+        ui->resolution->resize(91 * 2, 22 * 2);
+        ui->profilesInstalled->resize(561 * 2, 51 * 2);
+
+
+        //BUTTONS
+        ui->Install->resize(211 * 2, 86 * 2);
+        ui->Uninstall->resize(211 * 2, 86 * 2);
+        ui->addMod->resize(150 * 2, 83 * 2);
+        ui->removeMod->resize(150 * 2, 81 * 2);
+        ui->installProfile->resize(211 * 2, 86 * 2);
+        ui->uninstallProfile->resize(211 * 2, 86 * 2);
+        ui->addProfile->resize(150 * 2, 86 * 2);
+        ui->removeProfile->resize(150 * 2, 86 * 2);
+        ui->setActiveProfile->resize(300 * 2, 91 * 2);
+        ui->defaultProfile->resize(211 * 2,91 * 2);
+        ui->launchSekiro->resize(300 * 2, 91 * 2);
+        ui->changeSekDir->resize(21 * 2, 20 * 2);
+
+
+        //misc
+        ui->come->resize(401 * 2, 391 * 2);
+        ui->label_2->resize(521 * 2, 371 * 2);
+        ui->line->resize(801 * 2, 16 * 2);
+        ui->logTextEdit->resize(141 * 2, (611 * 2) - 80);
+
+
+        //stylesheets
+        ui->Install->setStyleSheet("QPushButton#Install {\nbackground-image: url(:/uielements/uielements/installNoPaint1440p.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQPushButton#Install:hover{\n	background-image: url(:/uielements/uielements/install1440p.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 24pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->Uninstall->setStyleSheet("#Uninstall{\nbackground-image: url(:/uielements/uielements/uninstallNoPaint1440p.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQPushButton#Uninstall:hover{\n	background-image: url(:/uielements/uielements/uninstall1440p.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 24pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->addMod->setStyleSheet("#addMod{\nbackground-image: url(:/uielements/uielements/addNoPaint1440p.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQToolButton#addMod:hover{\n	background-image: url(:/uielements/uielements/add1440p.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 24pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->removeMod->setStyleSheet("#removeMod{\nbackground-image: url(:/uielements/uielements/removeNoPaint1440p.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQToolButton#removeMod:hover{\n	background-image: url(:/uielements/uielements/remove1440p.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 24pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->installProfile->setStyleSheet("#installProfile{\nbackground-image: url(:/uielements/uielements/installNoPaint1440p.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQPushButton#installProfile:hover{\n	background-image: url(:/uielements/uielements/install1440p.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 24pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->uninstallProfile->setStyleSheet("#uninstallProfile{\nbackground-image: url(:/uielements/uielements/uninstallNoPaint1440p.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQPushButton#uninstallProfile:hover{\n	background-image: url(:/uielements/uielements/uninstall1440p.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 24pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->addProfile->setStyleSheet("#addProfile{\nbackground-image: url(:/uielements/uielements/addNoPaint1440p.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQToolButton#addProfile:hover{\n	background-image: url(:/uielements/uielements/add1440p.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 24pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->removeProfile->setStyleSheet("#removeProfile{\nbackground-image: url(:/uielements/uielements/removeNoPaint1440p.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQToolButton#removeProfile:hover{\n	background-image: url(:/uielements/uielements/remove1440p.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 24pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->setActiveProfile->setStyleSheet("#setActiveProfile{\nbackground-image: url(:/uielements/uielements/setactiveNoPaint1440p.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQPushButton#setActiveProfile:hover{\n	background-image: url(:/uielements/uielements/setactive1440p.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 24pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->defaultProfile->setStyleSheet("#defaultProfile{\nbackground-image: url(:/uielements/uielements/defaultNoPaint1440p.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQPushButton#defaultProfile:hover{\n	background-image: url(:/uielements/uielements/default1440p.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 24pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->launchSekiro->setStyleSheet("#launchSekiro{\nbackground-image: url(:/uielements/uielements/launchsekiroNoPaint1440p.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n\n\n\n}\n\nQPushButton#launchSekiro:hover{\n	background-image: url(:/uielements/uielements/launchsekiro1440p.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 24pt; color: #ffffff; background-color: #000000; border: 0px; }");
+
+        ui->changeSekDir->setStyleSheet("#changeSekDir{\ncolor: rgb(0, 0, 0);\nfont: 16pt \"MS Shell Dlg 2\";\n}\nQToolTip  {font: 24pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->warnings->setStyleSheet("#warnings{\ncolor: rgb(255, 255, 255);\nfont: 16pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 24pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 26px;\nheight: 26px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+        ui->logOn->setStyleSheet("#logOn{\ncolor: rgb(255, 255, 255);\nfont: 16pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 24pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 26px;\nheight: 26px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+        ui->closeOnLaunch->setStyleSheet("#closeOnLaunch{\ncolor: rgb(255, 255, 255);\nfont: 16pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 24pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 26px;\nheight: 26px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+        ui->keepModengineSettings->setStyleSheet("#keepModengineSettings{\ncolor: rgb(255, 255, 255);\nfont: 16pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 24pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 26px;\nheight: 26px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+        ui->reinstallAfterDirChange->setStyleSheet("#reinstallAfterDirChange{\ncolor: rgb(255, 255, 255);\nfont: 16pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 24pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 26px;\nheight: 26px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+        ui->credit->setStyleSheet("color: rgb(255, 255, 255);\nfont: 16pt \"MS Shell Dlg 2\";");
+        ui->uxm->setStyleSheet("#uxm{\ncolor: rgb(255, 255, 255);\nfont: 16pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 24pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 26px;\nheight: 26px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+        ui->cache->setStyleSheet("#cache{\ncolor: rgb(255, 255, 255);\nfont: 16pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 24pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 26px;\nheight: 26px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+        ui->logo->setStyleSheet("#logo{\ncolor: rgb(255, 255, 255);\nfont: 16pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 24pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 26px;\nheight: 26px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+        ui->chainUnchain->setStyleSheet("#chainUnchain{\ncolor: rgb(255, 255, 255);\nfont: 16pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 24pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 26px;\nheight: 26px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+        ui->activeProfile->setStyleSheet("color: rgb(255, 255, 255);\nfont: 16pt \"MS Shell Dlg 2\";");
+        ui->dllNameLabel->setStyleSheet("color: rgb(255, 255, 255);\nfont: 16pt \"MS Shell Dlg 2\";");
+        ui->activeProfileLabel->setStyleSheet("color: rgb(255, 255, 255);\nfont: 16pt \"MS Shell Dlg 2\";");
+        ui->currentSekDir->setStyleSheet("color: rgb(255, 255, 255);\nfont: 16pt \"MS Shell Dlg 2\";");
+        ui->currentSekDirLabel->setStyleSheet("color: rgb(255, 255, 255);\nfont: 16pt \"MS Shell Dlg 2\";");
+        ui->modengineSettings->setStyleSheet("color: rgb(255, 255, 255);\nfont: 16pt \"MS Shell Dlg 2\";");
+        ui->debug->setStyleSheet("#debug{\ncolor: rgb(255, 255, 255);\nfont: 16pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 24pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 26px;\nheight: 26px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+        ui->modLabel->setStyleSheet("color: rgb(255, 255, 255);\nfont: 52pt \"Assassin$\";");
+        ui->modsInstalled->setStyleSheet("#modsInstalled{\ncolor: rgb(255, 255, 255);\nfont: 52pt \"Assassin$\";\nbackground-color: rgb(0, 0, 0);\n\n}\n\n\n\nQToolTip {font: 24pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->profilesLabel->setStyleSheet("color: rgb(255, 255, 255);\nfont: 52pt \"Assassin$\";");
+        ui->profilesInstalled->setStyleSheet("#profilesInstalled{\ncolor: rgb(255, 255, 255);\nfont: 52pt \"Assassin$\";\nbackground-color: rgb(0, 0, 0);\n\n}\n\n\n\nQToolTip {font: 24pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->resolution->setStyleSheet("font: 16pt \"MS Shell Dlg 2\"");
+        ui->logTextEdit->setStyleSheet("color: rgb(255, 255, 255);\nbackground-color: rgb(0, 0, 0);\nfont: 16pt \"MS Shell Dlg 2\";\nborder: none;");
+
+
+    }
+
+    else if(ui->resolution->currentIndex() == 3){
+
+        res = 3;
+
+        QSize iconSize(16 * 3, 16 * 3);
+        ui->modsInstalled->setIconSize(iconSize);
+        ui->profilesInstalled->setIconSize(iconSize);
+
+        for(int i = 0; i < mods.size(); i++){
+
+            if(mods[i].isInstalled == "y"){
+
+                ui->modsInstalled->setItemIcon(i,QIcon(":/uielements/uielements/sekiroCheck2160p.PNG"));
+
+
+            }
+
+
+        }
+        for(int i = 0; i < profiles.size(); i++){
+
+            if(profiles[i].isInstalledP == "y"){
+
+                ui->profilesInstalled->setItemIcon(i,QIcon(":/uielements/uielements/sekiroCheck2160p.PNG"));
+
+
+
+            }
+
+
+        }
+
+        setFixedSize(3840, 2160 - 130);
+
+        QPixmap mypix (":/uielements/uielements/kanji2160p.png");
+        QPixmap mypix2 (":/uielements/uielements/kanji22160p.PNG");
+        ui->come->setPixmap(mypix2);
+        ui->label_2->setPixmap(mypix);
+
+        //CHECKBOXES
+        ui->keepModengineSettings->move(37 * 3, 19 * 3);
+        ui->reinstallAfterDirChange->move(11 * 3, 43 * 3);
+        ui->logOn->move(10 * 3, (700 * 3) - 130);
+        ui->closeOnLaunch->move(150 * 3, (700 * 3) - 130);
+        ui->logo->move(1170 * 3, (600 * 3) - 130);
+        ui->uxm->move(1170 * 3, (620 * 3) - 130);
+        ui->debug->move(1170 * 3, (640 * 3) - 130);
+        ui->cache->move(1170 * 3, (660 * 3) - 130);
+        ui->chainUnchain->move(1100 * 3, (680 * 3) - 130);
+        ui->warnings->move(1176 * 3, 4 * 3);
+
+
+        //LABELS
+        ui->currentSekDirLabel->move(10 * 3, 3 * 3);
+        ui->activeProfileLabel->move(1100 * 3, (580 * 3) - 130);
+        ui->dllNameLabel->move(1170 * 3, (680 * 3) - 130);
+        ui->profilesLabel->move(240 * 3, 362 * 3);
+        ui->modLabel->move(240 * 3, 176 * 3);
+        ui->credit->move(1171 * 3, (700 * 3) - 130);
+        ui->currentSekDir->move(80 * 3, 4 * 3);
+        ui->activeProfile->move(1170 * 3, (580 * 3) - 130);
+        ui->modengineSettings->move(1150 * 3, (550 * 3) - 130);
+
+
+        //COMBOS
+        ui->modsInstalled->move(340 * 3, 175 * 3);
+        ui->resolution->move(10 * 3, 63 * 3);
+        ui->profilesInstalled->move(340 * 3, 357 * 3);
+
+
+        //BUTTONS
+        ui->Install->move(290 * 3, 204 * 3);
+        ui->Uninstall->move(500 * 3, 204 * 3);
+        ui->addMod->move(700 * 3, 204 * 3);
+        ui->removeMod->move(830 * 3, 204 * 3);
+        ui->installProfile->move(290 * 3, 385 * 3);
+        ui->uninstallProfile->move(500 * 3, 385 * 3);
+        ui->addProfile->move(700 * 3, 385 * 3);
+        ui->removeProfile->move(830 * 3, 385 * 3);
+        ui->setActiveProfile->move(370 * 3, 450 * 3);
+        ui->defaultProfile->move(670 * 3, 450 * 3);
+        ui->launchSekiro->move(480 * 3, (620 * 3) - 130);
+        ui->changeSekDir->move(10 * 3, 20 * 3);
+
+
+        //misc
+        ui->come->move((0 - 30) * 3, (410 - 70) * 3);
+        ui->label_2->move((880 + 55) * 3, (390 - 60) * 3);
+        ui->line->move(220 * 3, 320 * 3);
+        ui->logTextEdit->move(10 * 3, 90 * 3);
+
+        setStyleSheet("Sekiro {background-image: url(:/uielements/uielements/Sekiro Mod Manager UI 2160p.PNG) 0 0 0 0 stretch stretch;}");
+
+
+        //SIZES
+
+
+        //CHECKBOXES
+        ui->keepModengineSettings->resize(271 * 3, 18 * 3);
+        ui->reinstallAfterDirChange->resize(271 * 3, 18 * 3);
+        ui->logOn->resize(81 * 3, 18 * 3);
+        ui->closeOnLaunch->resize(201 * 3, 18 * 3);
+        ui->logo->resize(70 * 3, 18 * 3);
+        ui->uxm->resize(101 * 3, 18 * 3);
+        ui->debug->resize(101 * 3, 18 * 3);
+        ui->cache->resize(121 * 3, 18 * 3);
+        ui->chainUnchain->resize(70 * 3, 18 * 3);
+        ui->warnings->resize(111 * 3, 18 * 3);
+
+
+
+        //LABELS
+        ui->currentSekDirLabel->resize(71 * 3, 16 * 3);
+        ui->activeProfileLabel->resize(71 * 3, 16 * 3);
+        ui->dllNameLabel->resize(61 * 3, 16 * 3);
+        ui->profilesLabel->resize(131 * 3, 41 * 3);
+        ui->modLabel->resize(111 * 3, 51 * 3);
+        ui->credit->resize(111 * 3, 16 * 3);
+        ui->currentSekDir->resize(221 * 3, 16 * 3);
+        ui->activeProfile->resize(241 * 3, 16 * 3);
+        ui->modengineSettings->resize(111 * 3, 16 * 3);
+
+
+        //COMBOS
+        ui->modsInstalled->resize(561 * 3, 51 * 3);
+        ui->resolution->resize(91 * 3, 22 * 3);
+        ui->profilesInstalled->resize(561 * 3, 51 * 3);
+
+
+        //BUTTONS
+        ui->Install->resize(211 * 3, 86 * 3);
+        ui->Uninstall->resize(211 * 3, 86 * 3);
+        ui->addMod->resize(150 * 3, 83 * 3);
+        ui->removeMod->resize(150 * 3, 81 * 3);
+        ui->installProfile->resize(211 * 3, 86 * 3);
+        ui->uninstallProfile->resize(211 * 3, 86 * 3);
+        ui->addProfile->resize(150 * 3, 86 * 3);
+        ui->removeProfile->resize(150 * 3, 86 * 3);
+        ui->setActiveProfile->resize(300 * 3, 91 * 3);
+        ui->defaultProfile->resize(211 * 3,91 * 3);
+        ui->launchSekiro->resize(300 * 3, 91 * 3);
+        ui->changeSekDir->resize(21 * 3, 20 * 3);
+
+
+        //misc
+        ui->come->resize(401 * 3, 391 * 3);
+        ui->label_2->resize(521 * 3, 371 * 3);
+        ui->line->resize(801 * 3, 16 * 3);
+        ui->logTextEdit->resize(141 * 3, (611 * 3) - 130);
+
+
+        //stylesheets
+        ui->Install->setStyleSheet("QPushButton#Install {\nbackground-image: url(:/uielements/uielements/installNoPaint2160p.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQPushButton#Install:hover{\n	background-image: url(:/uielements/uielements/install2160p.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 36pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->Uninstall->setStyleSheet("#Uninstall{\nbackground-image: url(:/uielements/uielements/uninstallNoPaint2160p.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQPushButton#Uninstall:hover{\n	background-image: url(:/uielements/uielements/uninstall2160p.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 36pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->addMod->setStyleSheet("#addMod{\nbackground-image: url(:/uielements/uielements/addNoPaint2160p.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQToolButton#addMod:hover{\n	background-image: url(:/uielements/uielements/add2160p.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 36pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->removeMod->setStyleSheet("#removeMod{\nbackground-image: url(:/uielements/uielements/removeNoPaint2160p.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQToolButton#removeMod:hover{\n	background-image: url(:/uielements/uielements/remove2160p.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 36pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->installProfile->setStyleSheet("#installProfile{\nbackground-image: url(:/uielements/uielements/installNoPaint2160p.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQPushButton#installProfile:hover{\n	background-image: url(:/uielements/uielements/install2160p.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 36pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->uninstallProfile->setStyleSheet("#uninstallProfile{\nbackground-image: url(:/uielements/uielements/uninstallNoPaint2160p.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQPushButton#uninstallProfile:hover{\n	background-image: url(:/uielements/uielements/uninstall2160p.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 36pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->addProfile->setStyleSheet("#addProfile{\nbackground-image: url(:/uielements/uielements/addNoPaint2160p.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQToolButton#addProfile:hover{\n	background-image: url(:/uielements/uielements/add2160p.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 36pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->removeProfile->setStyleSheet("#removeProfile{\nbackground-image: url(:/uielements/uielements/removeNoPaint2160p.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQToolButton#removeProfile:hover{\n	background-image: url(:/uielements/uielements/remove2160p.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 36pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->setActiveProfile->setStyleSheet("#setActiveProfile{\nbackground-image: url(:/uielements/uielements/setactiveNoPaint2160p.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQPushButton#setActiveProfile:hover{\n	background-image: url(:/uielements/uielements/setactive2160p.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 36pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->defaultProfile->setStyleSheet("#defaultProfile{\nbackground-image: url(:/uielements/uielements/defaultNoPaint2160p.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQPushButton#defaultProfile:hover{\n	background-image: url(:/uielements/uielements/default2160p.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 36pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->launchSekiro->setStyleSheet("#launchSekiro{\nbackground-image: url(:/uielements/uielements/launchsekiroNoPaint2160p.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n\n\n\n}\n\nQPushButton#launchSekiro:hover{\n	background-image: url(:/uielements/uielements/launchsekiro2160p.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}\n\nQToolTip {font: 36pt; color: #ffffff; background-color: #000000; border: 0px; }");
+
+
+
+        ui->changeSekDir->setStyleSheet("#changeSekDir{\ncolor: rgb(0, 0, 0);\nfont: 24pt \"MS Shell Dlg 2\";\n}\nQToolTip  {font: 36pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->warnings->setStyleSheet("#warnings{\ncolor: rgb(255, 255, 255);\nfont: 24pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 36pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 39px;\nheight: 39px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+        ui->logOn->setStyleSheet("#logOn{\ncolor: rgb(255, 255, 255);\nfont: 24pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 36pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 39px;\nheight: 39px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+        ui->closeOnLaunch->setStyleSheet("#closeOnLaunch{\ncolor: rgb(255, 255, 255);\nfont: 24pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 36pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 39px;\nheight: 39px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+        ui->keepModengineSettings->setStyleSheet("#keepModengineSettings{\ncolor: rgb(255, 255, 255);\nfont: 24pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 36pt; color: #ffffff; background-color: #000000; border: 0px; }\n\nQCheckBox::indicator {\n width: 39px;\nheight: 39px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+        ui->reinstallAfterDirChange->setStyleSheet("#reinstallAfterDirChange{\ncolor: rgb(255, 255, 255);\nfont: 24pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 36pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 39px;\nheight: 39px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+        ui->credit->setStyleSheet("color: rgb(255, 255, 255);\nfont: 24pt \"MS Shell Dlg 2\";");
+        ui->uxm->setStyleSheet("#uxm{\ncolor: rgb(255, 255, 255);\nfont: 24pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 36pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 39px;\nheight: 39px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+        ui->cache->setStyleSheet("#cache{\ncolor: rgb(255, 255, 255);\nfont: 24pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 36pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 39px;\nheight: 39px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+        ui->logo->setStyleSheet("#logo{\ncolor: rgb(255, 255, 255);\nfont: 24pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 36pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 39px;\nheight: 39px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+        ui->chainUnchain->setStyleSheet("#chainUnchain{\ncolor: rgb(255, 255, 255);\nfont: 24pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 36pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 39px;\nheight: 39px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+        ui->activeProfile->setStyleSheet("color: rgb(255, 255, 255);\nfont: 24pt \"MS Shell Dlg 2\";");
+        ui->dllNameLabel->setStyleSheet("color: rgb(255, 255, 255);\nfont: 24pt \"MS Shell Dlg 2\";");
+        ui->activeProfileLabel->setStyleSheet("color: rgb(255, 255, 255);\nfont: 24pt \"MS Shell Dlg 2\";");
+        ui->currentSekDir->setStyleSheet("color: rgb(255, 255, 255);\nfont: 24pt \"MS Shell Dlg 2\";");
+        ui->currentSekDirLabel->setStyleSheet("color: rgb(255, 255, 255);\nfont: 24pt \"MS Shell Dlg 2\";");
+        ui->modengineSettings->setStyleSheet("color: rgb(255, 255, 255);\nfont: 24pt \"MS Shell Dlg 2\";");
+        ui->debug->setStyleSheet("#debug{\ncolor: rgb(255, 255, 255);\nfont: 24pt \"MS Shell Dlg 2\";\n}\n\nQToolTip {font: 36pt; color: #ffffff; background-color: #000000; border: 0px; }\nQCheckBox::indicator {\n width: 39px;\nheight: 39px;\n }\n\n  QCheckBox::indicator:checked\n  {\n   \n	image: url(:/uielements/uielements/checked.png);\n  }\n  QCheckBox::indicator:unchecked\n  {\n    image: url(:/uielements/uielements/unChecked.png);\n  }\n\n");
+        ui->modLabel->setStyleSheet("color: rgb(255, 255, 255);\nfont: 78pt \"Assassin$\";");
+        ui->modsInstalled->setStyleSheet("#modsInstalled{\ncolor: rgb(255, 255, 255);\nfont: 78pt \"Assassin$\";\nbackground-color: rgb(0, 0, 0);\n\n}\n\n\n\nQToolTip {font: 36pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->profilesLabel->setStyleSheet("color: rgb(255, 255, 255);\nfont: 78pt \"Assassin$\";");
+        ui->profilesInstalled->setStyleSheet("#profilesInstalled{\ncolor: rgb(255, 255, 255);\nfont: 78pt \"Assassin$\";\nbackground-color: rgb(0, 0, 0);\n\n}\n\n\n\nQToolTip {font: 36pt; color: #ffffff; background-color: #000000; border: 0px; }");
+        ui->resolution->setStyleSheet("font: 24pt \"MS Shell Dlg 2\"");
+        ui->logTextEdit->setStyleSheet("color: rgb(255, 255, 255);\nbackground-color: rgb(0, 0, 0);\nfont: 24pt \"MS Shell Dlg 2\";\nborder: none;");
+
+
+    }
+
+
+
+}
+
+
+
+
+//checks which resolution the icon for installed modds should be
+void Sekiro::iconCheck(int mode, int i){
+
+    if(mode == 0){
+
+        if(res == 0){
+
+            ui->modsInstalled->setItemIcon(ui->modsInstalled->currentIndex(),QIcon(":/uielements/uielements/sekiroCheck.PNG"));
+            QSize iconSize(16, 16);
+            ui->modsInstalled->setIconSize(iconSize);
+
+        }
+        else if(res == 1){
+
+            ui->modsInstalled->setItemIcon(ui->modsInstalled->currentIndex(),QIcon(":/uielements/uielements/sekiroCheck1080p.PNG"));
+            QSize iconSize(16 * 1.5, 16 * 1.5);
+            ui->modsInstalled->setIconSize(iconSize);
+
+        }
+        else if(res == 2){
+
+            ui->modsInstalled->setItemIcon(ui->modsInstalled->currentIndex(),QIcon(":/uielements/uielements/sekiroCheck1440p.PNG"));
+            QSize iconSize(16 * 2, 16 * 2);
+            ui->modsInstalled->setIconSize(iconSize);
+
+        }
+        else if(res == 3){
+
+            ui->modsInstalled->setItemIcon(ui->modsInstalled->currentIndex(),QIcon(":/uielements/uielements/sekiroCheck2160p.PNG"));
+            QSize iconSize(16 * 3, 16 * 3);
+            ui->modsInstalled->setIconSize(iconSize);
+
+        }
+
+
+    }
+    else if(mode == 1){
+
+        if(res == 0){
+
+            ui->modsInstalled->setItemIcon(i,QIcon(":/uielements/uielements/sekiroCheck.PNG"));
+            QSize iconSize(16, 16);
+            ui->modsInstalled->setIconSize(iconSize);
+
+        }
+        else if(res == 1){
+
+            ui->modsInstalled->setItemIcon(i,QIcon(":/uielements/uielements/sekiroCheck1080p.PNG"));
+            QSize iconSize(16 * 1.5, 16 * 1.5);
+            ui->modsInstalled->setIconSize(iconSize);
+
+        }
+        else if(res == 2){
+
+            ui->modsInstalled->setItemIcon(i,QIcon(":/uielements/uielements/sekiroCheck1440p.PNG"));
+            QSize iconSize(16 * 2, 16 * 2);
+            ui->modsInstalled->setIconSize(iconSize);
+
+        }
+        else if(res == 3){
+
+            ui->modsInstalled->setItemIcon(i,QIcon(":/uielements/uielements/sekiroCheck2160p.PNG"));
+            QSize iconSize(16 * 3, 16 * 3);
+            ui->modsInstalled->setIconSize(iconSize);
+
+        }
+
+    }
+    else if(mode == 2){
+
+        if(res == 0){
+
+            ui->profilesInstalled->setItemIcon(ui->profilesInstalled->currentIndex(),QIcon(":/uielements/uielements/sekiroCheck.PNG"));
+            QSize iconSize(16, 16);
+            ui->profilesInstalled->setIconSize(iconSize);
+
+        }
+        else if(res == 1){
+
+            ui->profilesInstalled->setItemIcon(ui->profilesInstalled->currentIndex(),QIcon(":/uielements/uielements/sekiroCheck1080p.PNG"));
+            QSize iconSize(16 * 1.5, 16 * 1.5);
+            ui->profilesInstalled->setIconSize(iconSize);
+
+        }
+        else if(res == 2){
+
+            ui->profilesInstalled->setItemIcon(ui->profilesInstalled->currentIndex(),QIcon(":/uielements/uielements/sekiroCheck1440p.PNG"));
+            QSize iconSize(16 * 2, 16 * 2);
+            ui->profilesInstalled->setIconSize(iconSize);
+
+        }
+        else if(res == 3){
+
+            ui->profilesInstalled->setItemIcon(ui->profilesInstalled->currentIndex(),QIcon(":/uielements/uielements/sekiroCheck2160p.PNG"));
+            QSize iconSize(16 * 3, 16 * 3);
+            ui->profilesInstalled->setIconSize(iconSize);
+
+        }
+
+
+    }
+    else if(mode == 3){
+
+        if(res == 0){
+
+            ui->profilesInstalled->setItemIcon(i,QIcon(":/uielements/uielements/sekiroCheck.PNG"));
+            QSize iconSize(16, 16);
+            ui->profilesInstalled->setIconSize(iconSize);
+
+        }
+        else if(res == 1){
+
+            ui->profilesInstalled->setItemIcon(i,QIcon(":/uielements/uielements/sekiroCheck1080p.PNG"));
+            QSize iconSize(16 * 1.5, 16 * 1.5);
+            ui->profilesInstalled->setIconSize(iconSize);
+
+        }
+        else if(res == 2){
+
+            ui->profilesInstalled->setItemIcon(i,QIcon(":/uielements/uielements/sekiroCheck1440p.PNG"));
+            QSize iconSize(16 * 2, 16 * 2);
+            ui->profilesInstalled->setIconSize(iconSize);
+
+        }
+        else if(res == 3){
+
+            ui->profilesInstalled->setItemIcon(i,QIcon(":/uielements/uielements/sekiroCheck2160p.PNG"));
+            QSize iconSize(16 * 3, 16 * 3);
+            ui->profilesInstalled->setIconSize(iconSize);
+
+        }
+
+    }
+
 
 }

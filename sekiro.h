@@ -14,6 +14,9 @@ using namespace std;
 
 
 
+//hold which resolution is currently enabled
+extern short res;
+
 //hold whether mod is valid
 extern bool isModValid;
 
@@ -372,6 +375,21 @@ private slots:
 
     //if checked, reapplies modengine settings after directory
     void on_keepModengineSettings_stateChanged();
+
+
+
+    //handles choosing resolution
+    void on_resolution_currentIndexChanged();
+
+
+
+    //handles resizing UI when resolution is chosen
+    void resChange();
+
+
+
+    //checks which resolution the icon for installed modds should be
+    void Sekiro::iconCheck(int mode, int i= 0);
 
 private:
 

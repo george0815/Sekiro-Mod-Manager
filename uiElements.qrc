@@ -23,6 +23,74 @@
         <file>uielements/cancelNoPaint.PNG</file>
         <file>uielements/sekiroCheck.PNG</file>
         <file>uielements/sekiroFakeIcon.png</file>
+        <file>uielements/Sekiro Mod Manager UI 1080p.PNG</file>
+        <file>uielements/Sekiro Mod Manager UI 1440p.PNG</file>
+        <file>uielements/Sekiro Mod Manager UI 2160p.PNG</file>
+        <file>uielements/install1080p.png</file>
+        <file>uielements/installNoPaint1080p.png</file>
+        <file>uielements/add1080p.png</file>
+        <file>uielements/addNoPaint1080p.png</file>
+        <file>uielements/cancel1080p.png</file>
+        <file>uielements/cancelNoPaint1080p.png</file>
+        <file>uielements/default1080p.png</file>
+        <file>uielements/defaultNoPaint1080p.png</file>
+        <file>uielements/launchsekiro1080p.png</file>
+        <file>uielements/launchsekiroNoPaint1080p.png</file>
+        <file>uielements/remove1080p.png</file>
+        <file>uielements/removeNoPaint1080p.png</file>
+        <file>uielements/setactive1080p.png</file>
+        <file>uielements/setactiveNoPaint1080p.png</file>
+        <file>uielements/uninstall1080p.png</file>
+        <file>uielements/uninstallNoPaint1080p.png</file>
+        <file>uielements/add1440p.png</file>
+        <file>uielements/add2160p.png</file>
+        <file>uielements/addNoPaint1440p.png</file>
+        <file>uielements/addNoPaint2160p.png</file>
+        <file>uielements/cancel1440p.png</file>
+        <file>uielements/cancel2160p.png</file>
+        <file>uielements/cancelNoPaint1440p.png</file>
+        <file>uielements/cancelNoPaint2160p.png</file>
+        <file>uielements/default1440p.png</file>
+        <file>uielements/default2160p.png</file>
+        <file>uielements/defaultNoPaint1440p.png</file>
+        <file>uielements/defaultNoPaint2160p.png</file>
+        <file>uielements/install1440p.png</file>
+        <file>uielements/install2160p.png</file>
+        <file>uielements/installNoPaint1440p.png</file>
+        <file>uielements/installNoPaint2160p.png</file>
+        <file>uielements/launchsekiro1440p.png</file>
+        <file>uielements/launchsekiro2160p.png</file>
+        <file>uielements/launchsekiroNoPaint1440p.png</file>
+        <file>uielements/launchsekiroNoPaint2160p.png</file>
+        <file>uielements/remove1440p.png</file>
+        <file>uielements/remove2160p.png</file>
+        <file>uielements/removeNoPaint1440p.png</file>
+        <file>uielements/removeNoPaint2160p.png</file>
+        <file>uielements/setactive1440p.png</file>
+        <file>uielements/setactive2160p.png</file>
+        <file>uielements/setactiveNoPaint1440p.png</file>
+        <file>uielements/setactiveNoPaint2160p.png</file>
+        <file>uielements/uninstall1440p.png</file>
+        <file>uielements/uninstall2160p.png</file>
+        <file>uielements/uninstallNoPaint1440p.png</file>
+        <file>uielements/uninstallNoPaint2160p.png</file>
+        <file>uielements/kanji1080p.png</file>
+        <file>uielements/kanji1440p.png</file>
+        <file>uielements/kanji2160p.png</file>
+        <file>uielements/kanji21080p.PNG</file>
+        <file>uielements/kanji21440p.PNG</file>
+        <file>uielements/kanji22160p.PNG</file>
+        <file>uielements/ok1080p.PNG</file>
+        <file>uielements/ok1440p.PNG</file>
+        <file>uielements/ok2160p.PNG</file>
+        <file>uielements/okNoPaint1080p.PNG</file>
+        <file>uielements/okNoPaint1440p.PNG</file>
+        <file>uielements/okNoPaint2160p.PNG</file>
+        <file>uielements/sekiroCheck1080p.PNG</file>
+        <file>uielements/sekiroCheck1440p.PNG</file>
+        <file>uielements/sekiroCheck2160p.PNG</file>
+        <file>uielements/checked.png</file>
+        <file>uielements/unChecked.png</file>
     </qresource>
     <qresource prefix="/fonts">
         <file>font/Assassin.ttf</file>

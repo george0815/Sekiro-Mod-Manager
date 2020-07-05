@@ -42,7 +42,9 @@ QPushButton#Install:hover{
 	background-image: url(:/uielements/uielements/install.png) 0 0 0 0 stretch stretch;
 
 border: none;
-}</string>
+}
+
+QToolTip {font: 12pt; color: #ffffff; background-color: #000000; border: 0px; }</string>
     </property>
     <property name="text">
      <string/>
@@ -204,13 +206,11 @@ font: 8pt &quot;MS Shell Dlg 2&quot;;</string>
      <string>changes sekiro directory</string>
     </property>
     <property name="styleSheet">
-     <string notr="true">#warnings{
-color: rgb(255, 255, 255);
+     <string notr="true">#changeSekDir{
+color: rgb(0, 0, 0);
 font: 8pt &quot;MS Shell Dlg 2&quot;;
-
 }
-
-QToolTip { color: #ffffff; background-color: #000000; border: 0px; }</string>
+QToolTip  {font: 12pt; color: #ffffff; background-color: #000000; border: 0px; }</string>
     </property>
     <property name="text">
      <string>...</string>
@@ -483,7 +483,7 @@ border: none;
      </rect>
     </property>
     <property name="toolTip">
-     <string>disables warnings</string>
+     <string>if checked, disables overwrite warning when installing a new mod</string>
     </property>
     <property name="styleSheet">
      <string notr="true">#warnings{
@@ -491,13 +491,36 @@ color: rgb(255, 255, 255);
 font: 8pt &quot;MS Shell Dlg 2&quot;;
 }
 
-QToolTip { color: #ffffff; background-color: #000000; border: 0px; }</string>
+QToolTip {font: 12pt; color: #ffffff; background-color: #000000; border: 0px; }
+
+QCheckBox::indicator {
+     width: 16px;
+     height: 16px;
+ }
+
+  QCheckBox::indicator:checked
+  {
+   
+	image: url(:/uielements/uielements/checkChecked.PNG);
+  }
+  QCheckBox::indicator:unchecked
+  {
+    image: url(:/uielements/uielements/check.PNG);
+  }
+
+</string>
     </property>
     <property name="text">
-     <string>Disable Warnings</string>
+     <string>Disable Warning</string>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>16</width>
+      <height>16</height>
+     </size>
     </property>
    </widget>
-   <widget class="QLabel" name="label">
+   <widget class="QLabel" name="credit">
     <property name="geometry">
      <rect>
       <x>1171</x>
@@ -571,6 +594,9 @@ font: 8pt &quot;MS Shell Dlg 2&quot;;</string>
       <height>18</height>
      </rect>
     </property>
+    <property name="toolTip">
+     <string>if checked, log is displayed</string>
+    </property>
     <property name="styleSheet">
      <string notr="true">#logOn{
 color: rgb(255, 255, 255);
@@ -587,9 +613,9 @@ QToolTip { color: #ffffff; background-color: #000000; border: 0px; }</string>
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>50</y>
+      <y>90</y>
       <width>141</width>
-      <height>651</height>
+      <height>611</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -597,6 +623,9 @@ QToolTip { color: #ffffff; background-color: #000000; border: 0px; }</string>
 background-color: rgb(0, 0, 0);
 font: 8pt &quot;MS Shell Dlg 2&quot;;
 border: none;</string>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
     </property>
    </widget>
    <widget class="QCheckBox" name="closeOnLaunch">
@@ -607,6 +636,9 @@ border: none;</string>
       <width>201</width>
       <height>18</height>
      </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;if checked, mod manager will close after sekiro is launched&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="styleSheet">
      <string notr="true">#closeOnLaunch{
@@ -620,7 +652,7 @@ QToolTip { color: #ffffff; background-color: #000000; border: 0px; }</string>
      <string>Close program after launching sekiro</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_3">
+   <widget class="QLabel" name="activeProfileLabel">
     <property name="geometry">
      <rect>
       <x>1100</x>
@@ -663,6 +695,9 @@ font: 8pt &quot;MS Shell Dlg 2&quot;;</string>
       <height>18</height>
      </rect>
     </property>
+    <property name="toolTip">
+     <string>if checked, loads additional dll file</string>
+    </property>
     <property name="styleSheet">
      <string notr="true">#chainUnchain{
 color: rgb(255, 255, 255);
@@ -683,6 +718,9 @@ QToolTip { color: #ffffff; background-color: #000000; border: 0px; }</string>
       <width>121</width>
       <height>18</height>
      </rect>
+    </property>
+    <property name="toolTip">
+     <string>if checked, &quot;caches results of looking up override files&quot;</string>
     </property>
     <property name="styleSheet">
      <string notr="true">#cache{
@@ -705,6 +743,9 @@ QToolTip { color: #ffffff; background-color: #000000; border: 0px; }</string>
       <height>18</height>
      </rect>
     </property>
+    <property name="toolTip">
+     <string>if checked, displays modengine debug console</string>
+    </property>
     <property name="styleSheet">
      <string notr="true">#debug{
 color: rgb(255, 255, 255);
@@ -726,6 +767,9 @@ QToolTip { color: #ffffff; background-color: #000000; border: 0px; }</string>
       <height>18</height>
      </rect>
     </property>
+    <property name="toolTip">
+     <string>if checked, loads files from uxm extraction</string>
+    </property>
     <property name="styleSheet">
      <string notr="true">#uxm{
 color: rgb(255, 255, 255);
@@ -746,6 +790,9 @@ QToolTip { color: #ffffff; background-color: #000000; border: 0px; }</string>
       <width>70</width>
       <height>18</height>
      </rect>
+    </property>
+    <property name="toolTip">
+     <string>if checked, skips company logos/splash screens</string>
     </property>
     <property name="styleSheet">
      <string notr="true">#logo{
@@ -789,13 +836,17 @@ QToolTip { color: #ffffff; background-color: #000000; border: 0px; }</string>
       <height>18</height>
      </rect>
     </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;if checked, transfers over the modengine settings from the old directory to the new directory after changing the sekiro folder&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
     <property name="styleSheet">
      <string notr="true">#keepModengineSettings{
 color: rgb(255, 255, 255);
 font: 8pt &quot;MS Shell Dlg 2&quot;;
 }
 
-QToolTip { color: #ffffff; background-color: #000000; border: 0px; }</string>
+QToolTip { color: #ffffff; background-color: #000000; border: 0px; }
+</string>
     </property>
     <property name="text">
      <string>Transfer modengine settings after changing folder</string>
@@ -810,6 +861,9 @@ QToolTip { color: #ffffff; background-color: #000000; border: 0px; }</string>
       <height>18</height>
      </rect>
     </property>
+    <property name="toolTip">
+     <string>if checked, reinstalls all mods that are currently installed to the new sekiro folder after the folder is changed</string>
+    </property>
     <property name="styleSheet">
      <string notr="true">#reinstallAfterDirChange{
 color: rgb(255, 255, 255);
@@ -822,7 +876,7 @@ QToolTip { color: #ffffff; background-color: #000000; border: 0px; }</string>
      <string>Reinstall mods/profiles after changing folder</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_4">
+   <widget class="QLabel" name="modengineSettings">
     <property name="geometry">
      <rect>
       <x>1150</x>
@@ -839,8 +893,41 @@ font: 8pt &quot;MS Shell Dlg 2&quot;;</string>
      <string>Modengine Settings</string>
     </property>
    </widget>
-   <zorder>label_2</zorder>
+   <widget class="QComboBox" name="resolution">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>63</y>
+      <width>91</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: 8pt &quot;MS Shell Dlg 2&quot;;</string>
+    </property>
+    <item>
+     <property name="text">
+      <string>1280 x 720</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>1920 x 1080</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>2560 x 1440</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>3840 x 2160</string>
+     </property>
+    </item>
+   </widget>
    <zorder>come</zorder>
+   <zorder>label_2</zorder>
    <zorder>defaultProfile</zorder>
    <zorder>setActiveProfile</zorder>
    <zorder>removeMod</zorder>
@@ -860,12 +947,12 @@ font: 8pt &quot;MS Shell Dlg 2&quot;;</string>
    <zorder>warnings</zorder>
    <zorder>profilesInstalled</zorder>
    <zorder>profilesLabel</zorder>
-   <zorder>label</zorder>
+   <zorder>credit</zorder>
    <zorder>line</zorder>
    <zorder>logOn</zorder>
    <zorder>logTextEdit</zorder>
    <zorder>closeOnLaunch</zorder>
-   <zorder>label_3</zorder>
+   <zorder>activeProfileLabel</zorder>
    <zorder>activeProfile</zorder>
    <zorder>chainUnchain</zorder>
    <zorder>cache</zorder>
@@ -875,7 +962,8 @@ font: 8pt &quot;MS Shell Dlg 2&quot;;</string>
    <zorder>dllNameLabel</zorder>
    <zorder>keepModengineSettings</zorder>
    <zorder>reinstallAfterDirChange</zorder>
-   <zorder>label_4</zorder>
+   <zorder>modengineSettings</zorder>
+   <zorder>resolution</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

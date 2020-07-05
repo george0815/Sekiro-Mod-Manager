@@ -23,7 +23,138 @@ addProfile::addProfile(QWidget *parent) :
     ui->setupUi(this);
 
 
+    if(res == 0){
 
+        //SIZES
+        setFixedSize(756, 259);
+        ui->profileLabel->resize(351, 21);
+        ui->profileNameLineEdit->resize(571, 51);
+        ui->profileNumberLabel->resize(581, 21);
+        ui->profileModNumberSpinBox->resize(61, 41);
+        ui->profileConfirm->resize(151, 101);
+        ui->cancel->resize(211, 111);
+
+
+        //POSITIONS
+        ui->profileLabel->move(190, 15);
+        ui->profileNameLineEdit->move(90, 40);
+        ui->profileNumberLabel->move(50, 130);
+        ui->profileModNumberSpinBox->move(640, 120);
+        ui->profileConfirm->move(100, 170);
+        ui->cancel->move(430, 170);
+
+
+        //STYLESHEETS
+        ui->profileLabel->setStyleSheet("color: rgb(255, 255, 255);\nfont: 26pt \"Assassin$\";");
+        ui->profileNameLineEdit->setStyleSheet("color: rgb(255, 255, 255);\nbackground-color: rgb(0, 0, 0);\nfont: 26pt \"Assassin$\";");
+        ui->profileNumberLabel->setStyleSheet("color: rgb(255, 255, 255);\nfont: 26pt \"Assassin$\";");
+        ui->profileModNumberSpinBox->setStyleSheet("color: rgb(255, 255, 255);\nbackground-color: rgb(0, 0, 0);\nfont: 26pt \"Assassin$\";");
+        ui->profileConfirm->setStyleSheet("#profileConfirm{\nbackground-image: url(:/uielements/uielements/okNoPaint.PNG) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQPushButton#profileConfirm:hover{\n	background-image: url(:/uielements/uielements/ok.PNG) 0 0 0 0 stretch stretch;\n\nborder: none;\n}");
+        ui->cancel->setStyleSheet("#cancel{\nbackground-image: url(:/uielements/uielements/cancelNoPaint.PNG) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQPushButton#cancel:hover{\n	background-image: url(:/uielements/uielements/cancel.PNG) 0 0 0 0 stretch stretch;\n\nborder: none;\n}");
+
+
+    }
+    else if(res == 1){
+
+
+        //SIZES
+        setFixedSize(756 * 1.5, 259 * 1.5);
+        ui->profileLabel->resize(351 * 1.5, 21 * 1.5);
+        ui->profileNameLineEdit->resize(571 * 1.5, 51 * 1.5);
+        ui->profileNumberLabel->resize(581 * 1.5, 21 * 1.5);
+        ui->profileModNumberSpinBox->resize(61 * 1.5, 41 * 1.5);
+        ui->profileConfirm->resize(151 * 1.5, 101 * 1.5);
+        ui->cancel->resize(211 * 1.5, 111 * 1.5);
+
+
+        //POSITIONS
+        ui->profileLabel->move(190 * 1.5, 15 * 1.5);
+        ui->profileNameLineEdit->move(90 * 1.5, 40 * 1.5);
+        ui->profileNumberLabel->move(50 * 1.5, 130 * 1.5);
+        ui->profileModNumberSpinBox->move(640 * 1.5, 120 * 1.5);
+        ui->profileConfirm->move(100 * 1.5, 170 * 1.5);
+        ui->cancel->move(430 * 1.5, 170 * 1.5);
+
+
+        //STYLESHEETS
+        ui->profileLabel->setStyleSheet("color: rgb(255, 255, 255);\nfont: 39pt \"Assassin$\";");
+        ui->profileNameLineEdit->setStyleSheet("color: rgb(255, 255, 255);\nbackground-color: rgb(0, 0, 0);\nfont: 39pt \"Assassin$\";");
+        ui->profileNumberLabel->setStyleSheet("color: rgb(255, 255, 255);\nfont: 39pt \"Assassin$\";");
+        ui->profileModNumberSpinBox->setStyleSheet("color: rgb(255, 255, 255);\nbackground-color: rgb(0, 0, 0);\nfont: 39pt \"Assassin$\";");
+        ui->profileConfirm->setStyleSheet("#profileConfirm{\nbackground-image: url(:/uielements/uielements/okNoPaint1080p.PNG) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQPushButton#profileConfirm:hover{\n	background-image: url(:/uielements/uielements/ok1080p.PNG) 0 0 0 0 stretch stretch;\n\nborder: none;\n}");
+        ui->cancel->setStyleSheet("#cancel{\nbackground-image: url(:/uielements/uielements/cancelNoPaint1080p.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQPushButton#cancel:hover{\n	background-image: url(:/uielements/uielements/cancel1080p.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}");
+
+
+
+    }
+    else if(res == 2){
+
+
+        //SIZES
+        setFixedSize(756 * 2, 259 * 2);
+        ui->profileLabel->resize(351 * 2, 21 * 2);
+        ui->profileNameLineEdit->resize(571 * 2, 51 * 2);
+        ui->profileNumberLabel->resize(581 * 2, 21 * 2);
+        ui->profileModNumberSpinBox->resize(61 * 2, 41 * 2);
+        ui->profileConfirm->resize(151 * 2, 101 * 2);
+        ui->cancel->resize(211 * 2, 111 * 2);
+
+
+        //POSITIONS
+        ui->profileLabel->move(190 * 2, 15 * 2);
+        ui->profileNameLineEdit->move(90 * 2, 40 * 2);
+        ui->profileNumberLabel->move(50 * 2, 130 * 2);
+        ui->profileModNumberSpinBox->move(640 * 2, 120 * 2);
+        ui->profileConfirm->move(100 * 2, 170 * 2);
+        ui->cancel->move(430 * 2, 170 * 2);
+
+
+        //STYLESHEETS
+        ui->profileLabel->setStyleSheet("color: rgb(255, 255, 255);\nfont: 52pt \"Assassin$\";");
+        ui->profileNameLineEdit->setStyleSheet("color: rgb(255, 255, 255);\nbackground-color: rgb(0, 0, 0);\nfont: 52pt \"Assassin$\";");
+        ui->profileNumberLabel->setStyleSheet("color: rgb(255, 255, 255);\nfont: 52pt \"Assassin$\";");
+        ui->profileModNumberSpinBox->setStyleSheet("color: rgb(255, 255, 255);\nbackground-color: rgb(0, 0, 0);\nfont: 52pt \"Assassin$\";");
+        ui->profileConfirm->setStyleSheet("#profileConfirm{\nbackground-image: url(:/uielements/uielements/okNoPaint1440p.PNG) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQPushButton#profileConfirm:hover{\n	background-image: url(:/uielements/uielements/ok1440p.PNG) 0 0 0 0 stretch stretch;\n\nborder: none;\n}");
+        ui->cancel->setStyleSheet("#cancel{\nbackground-image: url(:/uielements/uielements/cancelNoPaint1440p.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQPushButton#cancel:hover{\n	background-image: url(:/uielements/uielements/cancel1440p.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}");
+
+
+
+
+    }
+    else if(res == 3){
+
+
+
+        //SIZES
+        setFixedSize(756 * 3, 259 * 3);
+        ui->profileLabel->resize(351 * 3, 21 * 3);
+        ui->profileNameLineEdit->resize(571 * 3, 51 * 3);
+        ui->profileNumberLabel->resize(581 * 3, 21 * 3);
+        ui->profileModNumberSpinBox->resize(61 * 3, 41 * 3);
+        ui->profileConfirm->resize(151 * 3, 101 * 3);
+        ui->cancel->resize(211 * 3, 111 * 3);
+
+
+        //POSITIONS
+        ui->profileLabel->move(190 * 3, 15 * 3);
+        ui->profileNameLineEdit->move(90 * 3, 40 * 3);
+        ui->profileNumberLabel->move(50 * 3, 130 * 3);
+        ui->profileModNumberSpinBox->move(640 * 3, 120 * 3);
+        ui->profileConfirm->move(100 * 3, 170 * 3);
+        ui->cancel->move(430 * 3, 170 * 3);
+
+
+        //STYLESHEETS
+        ui->profileLabel->setStyleSheet("color: rgb(255, 255, 255);\nfont: 78pt \"Assassin$\";");
+        ui->profileNameLineEdit->setStyleSheet("color: rgb(255, 255, 255);\nbackground-color: rgb(0, 0, 0);\nfont: 78pt \"Assassin$\";");
+        ui->profileNumberLabel->setStyleSheet("color: rgb(255, 255, 255);\nfont: 78pt \"Assassin$\";");
+        ui->profileModNumberSpinBox->setStyleSheet("color: rgb(255, 255, 255);\nbackground-color: rgb(0, 0, 0);\nfont: 78pt \"Assassin$\";");
+        ui->profileConfirm->setStyleSheet("#profileConfirm{\nbackground-image: url(:/uielements/uielements/okNoPaint2160p.PNG) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQPushButton#profileConfirm:hover{\n	background-image: url(:/uielements/uielements/ok2160p.PNG) 0 0 0 0 stretch stretch;\n\nborder: none;\n}");
+        ui->cancel->setStyleSheet("#cancel{\nbackground-image: url(:/uielements/uielements/cancelNoPaint2160p.png) 0 0 0 0 stretch stretch;\nbackground-color: rgb(0, 0, 0);\n}\n\nQPushButton#cancel:hover{\n	background-image: url(:/uielements/uielements/cancel2160p.png) 0 0 0 0 stretch stretch;\n\nborder: none;\n}");
+
+
+
+    }
 
     setWindowFlags(Qt::WindowTitleHint);
 
@@ -37,9 +168,6 @@ addProfile::addProfile(QWidget *parent) :
     setStyleSheet("addProfile {border: 1px solid white}");
 
 
-    //sets the size
-
-    setFixedSize(756, 259);
 
 
 
@@ -273,11 +401,27 @@ for(int i = 0; i < Profile.modNum; i++){
             invalidModCounter++;
 
             QFont sekFont("Assassin$");
+
+            if(res == 0){
             QFont errFont("Segoe UI", 8);
+            QApplication::setFont(errFont);
+            }
+            else if(res == 1){
+                QFont errFont("Segoe UI", 12);
+                QApplication::setFont(errFont);
+            }
+            else if(res == 2){
+                QFont errFont("Segoe UI", 16);
+                QApplication::setFont(errFont);
+            }
+            else if(res == 3){
+                QFont errFont("Segoe UI", 24);
+                QApplication::setFont(errFont);
+            }
+
 
             QMessageBox err;
 
-            QApplication::setFont(errFont);
 
             err.critical(this, "Error", "No mod files found");
 
@@ -442,9 +586,24 @@ else{
 
 
         QFont sekFont("Assassin$");
-        QFont errFont("Segoe UI", 8);
 
+        if(res == 0){
+        QFont errFont("Segoe UI", 8);
         QApplication::setFont(errFont);
+        }
+        else if(res == 1){
+            QFont errFont("Segoe UI", 12);
+            QApplication::setFont(errFont);
+        }
+        else if(res == 2){
+            QFont errFont("Segoe UI", 16);
+            QApplication::setFont(errFont);
+        }
+        else if(res == 3){
+            QFont errFont("Segoe UI", 24);
+            QApplication::setFont(errFont);
+        }
+
 
         QMessageBox err;
 
@@ -459,9 +618,23 @@ else{
     else if(Sekiro::nameRepeatCheck(false, ui->profileNameLineEdit->text().toLocal8Bit().constData()) == 1){
 
         QFont sekFont("Assassin$");
+        if(res == 0){
         QFont errFont("Segoe UI", 8);
-
         QApplication::setFont(errFont);
+        }
+        else if(res == 1){
+            QFont errFont("Segoe UI", 12);
+            QApplication::setFont(errFont);
+        }
+        else if(res == 2){
+            QFont errFont("Segoe UI", 16);
+            QApplication::setFont(errFont);
+        }
+        else if(res == 3){
+            QFont errFont("Segoe UI", 24);
+            QApplication::setFont(errFont);
+        }
+
 
         QMessageBox err;
 
