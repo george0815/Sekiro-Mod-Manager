@@ -16,8 +16,12 @@ public:
     ~repeatFile();
 
 private slots:
+
+    //closes window
     void on_repeatFileOk_clicked();
 
+
+    //passes filename from combobox to repeatFileName
     void on_repeatFolder_currentIndexChanged();
 
 private:

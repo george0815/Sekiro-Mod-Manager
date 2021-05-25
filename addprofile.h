@@ -32,8 +32,12 @@ public:
 
 
 private slots:
+
+    //adds profile to manager
     void on_profileConfirm_clicked();
 
+
+    //cancels adding a profile
     void on_cancel_clicked();
 
 private:

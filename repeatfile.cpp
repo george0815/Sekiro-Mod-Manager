@@ -269,7 +269,7 @@ repeatFile::~repeatFile()
 
 
 
-
+//closes window
 void repeatFile::on_repeatFileOk_clicked()
 {
 
@@ -277,12 +277,14 @@ void repeatFile::on_repeatFileOk_clicked()
 
 }
 
+
+//passes filename from combobox to repeatFileName
 void repeatFile::on_repeatFolder_currentIndexChanged()
 {
 
 
 
   repeatFileName = ui->repeatFolder->currentText().toLocal8Bit().constData();
-qDebug() << QString::fromStdString(repeatFileName);
+
 
 }

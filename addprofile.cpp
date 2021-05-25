@@ -168,6 +168,10 @@ addProfile::addProfile(QWidget *parent) :
     setStyleSheet("addProfile {border: 1px solid white}");
 
 
+    //sets regular expression so that only alphanumeric characters and dash/space can be used, thihs iss because if a usseer uses a slash within the name it fucks everything up
+    QRegExpValidator* validator = new QRegExpValidator( QRegExp( "[A-Za-z0-9-\\s]+" ) );
+    ui->profileNameLineEdit->setValidator(validator);
+
 
 
 
@@ -182,7 +186,6 @@ addProfile::~addProfile()
 
 
 //adds profile to manager
-
 void addProfile::on_profileConfirm_clicked()
 {
 
@@ -211,55 +214,9 @@ Profile.path = ".\\profiles\\" + Profile.name;
 
 Profile.profileFolder = sekDir + "/" + Profile.name;
 
-qDebug() << QString::fromStdString(Profile.profileFolder);
 
 
 
-
-
-
-
-//creates modengine.ini for profile
-
-Profile.modengineConfig = "; Mod Engine configuration file\n"
-        "; Mod Engine (C) 2019 Katalash. All Rights Reserved.\n"
-        "; Mod Engine is a configurable injection DLL used to modify some aspects of the"
-        "; game to make it more friendly for modding. See the following properties that can\n"
-        "; be configured. \n"
-
-        "[misc]\n"
-        "; Skips displaying the logos on boot\n"
-        "skipLogos=1\n"
-        "; Chain loads another dll that hooks dinput8.dll\n"
-        "; For example, if you have another dll mod that\'s named dinput8.dll, you can rename it to\n"
-        "; othermod.dll or something, place it in the Sekiro directory, and set this path to\n"
-        "; chainDInput8DLLPath=\"\\othermod.dll\" or whatever you named the dll\n"
-        "chainDInput8DLLPath=\"\"\n"
-
-        "[files]\n"
-        "; Loads extracted files from UXM instead of data from the archives. Requires a complete UXM extraction\n"
-        "; and should generally only be used by mod creators.\n"
-        "loadUXMFiles=0\n"
-        "; If enabled, a mod will be loaded from a specified override directory.\n"
-        "useModOverrideDirectory=1\n"
-        "; The directory from which to load a mod.\n"
-        "modOverrideDirectory=\"\\"+ Profile.name +"\"\n"
-        "; Caches results of looking up override files. Can speed up loading and reduce hitching, but may require game\n"
-        "; restart when a file is added or removed from a mod. Mod developers probably want this disabled, while mod\n"
-        "; users (and released mods) should have this enabled.\n"
-        "cacheFilePaths=1\n"
-
-        "[debug]\n"
-        "; Shows the debug console when running the game. Can be useful for modders to troubleshoot\n"
-        "showDebugLog=0\n";
-
-
-
-ofstream modengoneconfig(".\\profiles\\"+ Profile.name + ".ini");
-
-modengoneconfig << Profile.modengineConfig;
-
-modengoneconfig.close();
 
 
 
@@ -652,14 +609,7 @@ else{
 }
 
 
-
-
-
-
-
-
 //cancels adding a profile
-
 void addProfile::on_cancel_clicked()
 {
 

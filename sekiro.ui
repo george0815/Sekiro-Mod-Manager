@@ -14,7 +14,7 @@
    <string>Sekiro Mod Manager</string>
   </property>
   <property name="styleSheet">
-   <string notr="true"/>
+   <string notr="true">QMessageBox { messagebox-text-interaction-flags: 5; };</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="styleSheet">
@@ -534,7 +534,7 @@ QCheckBox::indicator {
 font: 8pt &quot;MS Shell Dlg 2&quot;;</string>
     </property>
     <property name="text">
-     <string>Created by Hunter S.</string>
+     <string>Created by George S.</string>
     </property>
    </widget>
    <widget class="Line" name="line">
@@ -649,7 +649,7 @@ font: 8pt &quot;MS Shell Dlg 2&quot;;
 QToolTip { color: #ffffff; background-color: #000000; border: 0px; }</string>
     </property>
     <property name="text">
-     <string>Close program after launching sekiro</string>
+     <string>Close program after launching Sekiro</string>
     </property>
    </widget>
    <widget class="QLabel" name="activeProfileLabel">
@@ -824,7 +824,7 @@ font: 8pt &quot;MS Shell Dlg 2&quot;;
 QToolTip { color: #ffffff; background-color: #000000; border: 0px; }</string>
     </property>
     <property name="text">
-     <string>TextLabel</string>
+     <string>.</string>
     </property>
    </widget>
    <widget class="QCheckBox" name="keepModengineSettings">
@@ -879,7 +879,7 @@ QToolTip { color: #ffffff; background-color: #000000; border: 0px; }</string>
    <widget class="QLabel" name="modengineSettings">
     <property name="geometry">
      <rect>
-      <x>1150</x>
+      <x>1130</x>
       <y>550</y>
       <width>111</width>
       <height>16</height>
@@ -971,7 +971,7 @@ font: 8pt &quot;MS Shell Dlg 2&quot;;</string>
      <x>0</x>
      <y>0</y>
      <width>1280</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

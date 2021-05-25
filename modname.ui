@@ -59,9 +59,9 @@ border: none;
   <widget class="QLabel" name="modNameLabel">
    <property name="geometry">
     <rect>
-     <x>80</x>
+     <x>50</x>
      <y>10</y>
-     <width>491</width>
+     <width>721</width>
      <height>71</height>
     </rect>
    </property>

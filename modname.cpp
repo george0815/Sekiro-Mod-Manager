@@ -2,6 +2,7 @@
 #include "ui_modname.h"
 #include "sekiro.h"
 #include <QMessageBox>
+#include <QRegExpValidator>
 
 
 modname::modname(QWidget *parent) :
@@ -15,7 +16,7 @@ modname::modname(QWidget *parent) :
 
         //SIZES
        setFixedSize(624, 232);
-       ui->modNameLabel->resize(491, 71);
+       ui->modNameLabel->resize(650, 71);
        ui->modNameLineEdit->resize(571, 51);
        ui->modNameConfirm->resize(151, 101);
        ui->isModPack->resize(81, 18);
@@ -150,6 +151,9 @@ setStyleSheet("modname {background-color: rgb(0, 0, 0);}");
 setStyleSheet("modname {border: 1px solid white}");
 
 
+//sets regular expression so that only alphanumeric characters and dash/space can be used, thihs iss because if a usseer uses a slash within the name it fucks everything up
+QRegExpValidator* validator = new QRegExpValidator( QRegExp( "[A-Za-z0-9-\\s]+" ) );
+ui->modNameLineEdit->setValidator(validator);
 
 
 }
@@ -279,18 +283,7 @@ void modname::on_modNameConfirm_clicked()
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+//decides whether the user is installing a modpack or not
 void modname::on_isModPack_stateChanged()
 {
 

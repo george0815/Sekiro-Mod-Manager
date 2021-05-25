@@ -27,10 +27,6 @@ private slots:
     void on_modNameConfirm_clicked();
 
 
-
-
-
-
     //decides whether the user is installing a modpack or not
     void on_isModPack_stateChanged();
 
