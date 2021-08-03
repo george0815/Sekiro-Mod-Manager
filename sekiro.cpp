@@ -83,6 +83,7 @@ Sekiro::Sekiro(QWidget *parent)
 
     //sets font
     QFont sekFont("Assassin$");
+    QFontDatabase::addApplicationFont(":/fonts/font/Assassin.ttf");
     QApplication::setFont(sekFont);
 
 
