@@ -16,7 +16,7 @@ NOTE: THIS MANAGER ONLY WORKS ON MODS USED WITH MODENGINE, ZIPPED UP IN EITHER A
 Install - Installs mod to Sekiro directory <br>
 Uninstall - Uninstalls mod from Sekiro directory<br>
 /+ - Adds mod to manager<br>
-/- - Removes mod from manager<br>
+/- - Removes mod from manager (will not automatically uninstall mod)<br>
 
 Finally, if you add or remove a mod without using the manager, you will have to also do it with the manager if you want to prevent a mismatch between what mods are actually installed and what mods the manager thinks are installed.  
 
