@@ -93,7 +93,6 @@ Sekiro::Sekiro(QWidget *parent)
 
 
 
-
     //sets background of the main window
     setStyleSheet("Sekiro {background-image: url(:/uielements/uielements/Sekiro Mod Manager UI 720p.png) 0 0 0 0 stretch stretch;}");
 
@@ -1012,6 +1011,8 @@ void Sekiro::checkDir(){
 
         bool isFolderValid = false;
 
+
+
         while (isFolderValid == false){
 
 
@@ -1025,28 +1026,33 @@ void Sekiro::checkDir(){
             QString path = dialog.getExistingDirectory(this, "Open Sekiro Folder");
 
 
-
+            if (path.isEmpty()) {
+                            // User canceled the dialog
+                            std::cout << "User canceled the dialog. Exiting." << std::endl;
+                            //isCanceled = true;
+                            QCoreApplication::quit();
+                            std::exit(0);
+                            return;
+            }
 
             sekDir = path.toLocal8Bit().constData();
 
             //checks if the directory is legit, if it is then puts it into sekDir
-            if(sekiroCheck() == 1){
+
+            if( sekiroCheck() == 1){
+
+                ui->currentSekDir->setText(path);
 
 
+                QFile dir("dir.ini");
+                dir.remove();
 
 
-            ui->currentSekDir->setText(path);
+                ofstream dirNew(".\\dir.ini");
+                dirNew << sekDir;
+                dirNew.close();
 
-
-            QFile dir("dir.ini");
-            dir.remove();
-
-
-            ofstream dirNew(".\\dir.ini");
-            dirNew << sekDir;
-            dirNew.close();
-
-            isFolderValid = true;
+                isFolderValid = true;
 
             }
 
