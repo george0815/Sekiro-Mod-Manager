@@ -30,6 +30,7 @@
 #include "windows.h"
 #include <Windows.h>
 
+
 using namespace std;
 
 short res;
@@ -188,7 +189,7 @@ void Sekiro::on_addMod_clicked()
 
 
     //gets mod filename extension, this is used when deciding whether to use unrar or 7zip extra
-    QFileInfo ext = modNAME;
+    QFileInfo ext(modNAME);
     QString modExt = ext.suffix();
 
 
@@ -1165,7 +1166,7 @@ void Sekiro::traverse(const QString &pattern, const QString &dirname, int mode, 
 
             //converts folder name to lowercase
             string folderName = fileInfo.baseName().toLocal8Bit().constData();
-            transform(folderName.begin(),folderName.end(),folderName.begin(), tolower);
+            std::transform(folderName.begin(),folderName.end(),folderName.begin(), ::tolower);
 
 
 
@@ -4925,7 +4926,7 @@ void Sekiro::on_chainUnchain_stateChanged()
         if(ui->dllNameLabel->text() == "" || ui->dllNameLabel->text() == "None"){
 
         //opens file dailogue asking user for dll, if dll is named dinput.dll then throw error
-       QFileInfo dll = QFileDialog::getOpenFileName(this, "Choose dll file to chain");
+       QFileInfo dll(QFileDialog::getOpenFileName(this, "Choose dll file to chain"));
 
 
 

@@ -169,7 +169,7 @@ addProfile::addProfile(QWidget *parent) :
 
 
     //sets regular expression so that only alphanumeric characters and dash/space can be used, thihs iss because if a usseer uses a slash within the name it fucks everything up
-    QRegExpValidator* validator = new QRegExpValidator( QRegExp( "[A-Za-z0-9-\\s]+" ) );
+    QRegularExpressionValidator* validator = new QRegularExpressionValidator( QRegularExpression( "[A-Za-z0-9-\\s]+" ) );
     ui->profileNameLineEdit->setValidator(validator);
 
 
@@ -240,7 +240,7 @@ for(int i = 0; i < Profile.modNum; i++){
     //if modname is legit, then adds mod to profile
     if(!modNAME.isEmpty()&& !modNAME.isNull()){
 
-    QFileInfo ext = modNAME;
+    QFileInfo ext(modNAME);
     QString modExt = ext.suffix();
 
 

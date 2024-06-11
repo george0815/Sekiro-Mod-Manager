@@ -1,9 +1,8 @@
+#include "sekiro.h"
 #include "modname.h"
 #include "ui_modname.h"
-#include "sekiro.h"
 #include <QMessageBox>
-#include <QRegExpValidator>
-
+#include <QRegularExpressionValidator>
 
 modname::modname(QWidget *parent) :
     QDialog(parent),
@@ -152,7 +151,7 @@ setStyleSheet("modname {border: 1px solid white}");
 
 
 //sets regular expression so that only alphanumeric characters and dash/space can be used, thihs iss because if a usseer uses a slash within the name it fucks everything up
-QRegExpValidator* validator = new QRegExpValidator( QRegExp( "[A-Za-z0-9-\\s]+" ) );
+QRegularExpressionValidator* validator = new QRegularExpressionValidator( QRegularExpression( "[A-Za-z0-9-\\s]+" ) );
 ui->modNameLineEdit->setValidator(validator);
 
 

@@ -44,7 +44,7 @@ extern ofstream logFile;
 extern string modpackName;
 
 //holds data for mod
-extern struct mod{
+ struct mod{
 
 
     string name;
@@ -60,7 +60,7 @@ extern struct mod{
 };
 
 //hold data for profile
-extern struct profile{
+ struct profile{
 
 
     string name;

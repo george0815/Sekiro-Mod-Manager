@@ -1,4 +1,5 @@
 QT       += core gui
+QT       += gui
 QT       += widgets
 
 RC_ICONS = ico.ico
