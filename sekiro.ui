@@ -90,6 +90,9 @@ border: none;
     <property name="toolTip">
      <string>selects mod</string>
     </property>
+    <property name="autoFillBackground">
+     <bool>true</bool>
+    </property>
     <property name="styleSheet">
      <string notr="true">#modsInstalled{
 color: rgb(255, 255, 255);
@@ -205,12 +208,17 @@ font: 8pt &quot;MS Shell Dlg 2&quot;;</string>
     <property name="toolTip">
      <string>changes sekiro directory</string>
     </property>
+    <property name="autoFillBackground">
+     <bool>true</bool>
+    </property>
     <property name="styleSheet">
      <string notr="true">#changeSekDir{
 color: rgb(0, 0, 0);
 font: 8pt &quot;MS Shell Dlg 2&quot;;
+border: none;
 }
-QToolTip  {font: 12pt; color: #ffffff; background-color: #000000; border: 0px; }</string>
+QToolTip  {font: 12pt; color: #ffffff; background-color: #000000; border: 0px; }
+</string>
     </property>
     <property name="text">
      <string>...</string>
@@ -902,6 +910,9 @@ font: 8pt &quot;MS Shell Dlg 2&quot;;</string>
       <height>22</height>
      </rect>
     </property>
+    <property name="autoFillBackground">
+     <bool>true</bool>
+    </property>
     <property name="styleSheet">
      <string notr="true">font: 8pt &quot;MS Shell Dlg 2&quot;;</string>
     </property>
@@ -971,7 +982,7 @@ font: 8pt &quot;MS Shell Dlg 2&quot;;</string>
      <x>0</x>
      <y>0</y>
      <width>1280</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>
