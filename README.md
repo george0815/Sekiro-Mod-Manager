@@ -82,7 +82,7 @@ If the checkboxes and other UI elements are too large, please go into your windo
 
 ### COPYRIGHT
 
-Copyright (C) 2019-2026 George Hunter Shipman
+Copyright (C) 2020-2026 George Hunter Shipman
 
 This project is licensed under the GNU General Public License v3.0.
 See the LICENSE file for details.
